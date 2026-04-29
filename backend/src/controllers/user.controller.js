@@ -21,7 +21,7 @@ export async function getUser(req, res) {
 
     const { error } = userQueryValidation.validate({ rut, id, email });
 
-    if (error) return handleErrorClient(res, 400, error.message);
+    if (error)   return handleErrorClient(res, 400, error.message);
 
     const [user, errorUser] = await getUserService({ rut, id, email });
 
