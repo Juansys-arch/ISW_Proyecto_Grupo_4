@@ -7,7 +7,6 @@ import inventarioRoutes from "./inventario.routes.js";
 import notificacionRoutes from "./notificacion.routes.js";
 
 const router = Router();
-
 router
   .use("/auth", authRoutes)
   .use("/user", userRoutes)
