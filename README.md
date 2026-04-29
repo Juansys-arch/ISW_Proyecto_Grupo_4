@@ -1,6 +1,5 @@
-# Plantilla-ISW-Proyecto-2024
-
-Una plantilla base para proyectos de Ingeniería de Software (ISW) desarrollados durante el año 2024-2. Esta plantilla está diseñada para ayudar a los estudiantes a estructurar y organizar sus proyectos de software, incluyendo tanto la parte de Backend como de Frontend.
+# Plantilla-ISW-Proyecto-2026
+El proyecto de Ingeniería de Software (ISW) desarrollados este año 2026. 
 
 ## Tabla de contenidos
 * [Descripción General](#descripción-general)
@@ -21,10 +20,7 @@ Una plantilla base para proyectos de Ingeniería de Software (ISW) desarrollados
   * [React](#react)
   * [Node.js](#nodejs)
   * [Otros Recursos y Librerías](#otros-recursos-y-librerías)
-
-## Descripción General
-
-La `Plantilla-ISW-Proyecto-2024` es una base preconfigurada para proyectos de Ingeniería de Software que incluye tanto la parte del Backend como la del Frontend. Está diseñada para que los estudiantes puedan enfocarse en desarrollar sus funcionalidades específicas sin tener que preocuparse por la configuración inicial del proyecto. 
+. 
 
 ### Backend
 
