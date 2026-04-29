@@ -65,7 +65,6 @@ export async function actualizarMaterial(req, res) {
 }
 
 ///
-
 export async function registrarMovimiento(req, res) {
   try {
     const { body } = req;
