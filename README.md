@@ -1,5 +1,5 @@
 # Plantilla-ISW-Proyecto-2026
-El proyecto de Ingeniería de Software (ISW) desarrollados este año 2026. 
+El proyecto de Ingeniería de Software (ISW) desarrollado este año 2026. 
 
 ## Tabla de contenidos
 * [Descripción General](#descripción-general)
