@@ -4,7 +4,6 @@ import { AppDataSource } from "../config/configDb.js";
 const notificacionRepository = AppDataSource.getRepository("Notificacion");
 const userRepository = AppDataSource.getRepository("User");
 
-// Busca todos los administradores y les crea una notificación
 export async function notificarAdministrador({ tipo, mensaje, incidenciaId = null, materialId = null }) {
   try {
     const administradores = await userRepository.find({
