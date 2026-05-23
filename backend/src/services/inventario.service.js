@@ -5,6 +5,7 @@ import Material from "../entity/material.entity.js";
 import MovimientoInventario from "../entity/movimientoinventario.entity.js";
 import Notificacion from "../entity/notificacion.entity.js";
 import User from "../entity/user.entity.js";
+import { notificarPorRoles } from "./notificacion.service.js";
 
 const materialRepository = AppDataSource.getRepository(Material);
 const movimientoRepository = AppDataSource.getRepository(MovimientoInventario);
@@ -123,7 +124,14 @@ export async function registrarMovimientoService(data, responsableId) {
     });
 
     await queryRunner.commitTransaction();
+
     if (material.stockActual <= material.stockMinimo) {
+      await notificarPorRoles({
+        roles: ["encargado_inventario", "administrador"],
+        tipo: "stock_bajo",
+        mensaje: `El material "${material.nombre}" quedó con stock ${material.stockActual}. Stock mínimo: ${material.stockMinimo}.`,
+        materialId: material.id,
+      });
     }
 
     return [movimiento, null];

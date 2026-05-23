@@ -3,7 +3,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users';
-import AdminRequests from '@pages/AdminRequests';
 import Register from '@pages/Register';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
@@ -27,15 +26,6 @@ const router = createBrowserRouter([
           <Users />
         </ProtectedRoute>
         ),
-    }
-    ,
-    {
-      path: '/admin/requests',
-      element: (
-        <ProtectedRoute allowedRoles={['administrador']}>
-          <AdminRequests />
-        </ProtectedRoute>
-      ),
     }
     ]
   },
