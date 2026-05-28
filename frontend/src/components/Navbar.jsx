@@ -58,6 +58,8 @@ const Navbar = () => {
                             Inicio
                         </NavLink>
                     </li>
+
+                    {/* Gestión de Usuarios: Solo administrador o coordinador */}
                     {(userRole === 'administrador' || userRole === 'coordinador') && (
                     <li>
                         <NavLink 
@@ -72,6 +74,34 @@ const Navbar = () => {
                         </NavLink>
                     </li>
                     )}
+
+                    {(userRole === 'administrador' || userRole === 'encargado_inventario' || userRole === 'jefe_cuadrilla') && (
+                    <li>
+                        <NavLink 
+                            to="/gestion-operativa" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Gestión operativa
+                        </NavLink>
+                    </li>
+                    )}
+                    <li>
+                        <NavLink 
+                            to="/notificaciones" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Notificaciones
+                        </NavLink>
+                    </li>
+
                     <li>
                         <NavLink 
                             to="/auth" 

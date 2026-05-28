@@ -2,7 +2,7 @@
 import { Router } from "express";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAuthorized } from "../middlewares/authorization.middleware.js";
-import {crearMaterial,obtenerMateriales,obtenerMaterialPorId,actualizarMaterial,registrarMovimiento,obtenerMovimientos,solicitarMaterial,} from "../controllers/inventario.controller.js"; 
+import {crearMaterial,obtenerMateriales,obtenerMaterialPorId,actualizarMaterial,registrarMovimiento,obtenerMovimientos,solicitarMaterial, obtenerSolicitudes, obtenerMisSolicitudes, actualizarEstadoSolicitud } from "../controllers/inventario.controller.js"; 
 const router = Router();
 
 router.use(authenticateJwt);
@@ -47,6 +47,24 @@ router.post(
   "/solicitudes",
   isAuthorized(["jefe_cuadrilla"]),
   solicitarMaterial
+);
+
+router.get(
+  "/solicitudes",
+  isAuthorized(["encargado_inventario", "administrador"]),
+  obtenerSolicitudes
+);
+
+router.get(
+  "/solicitudes/mis",
+  isAuthorized(["jefe_cuadrilla", "administrador"]),
+  obtenerMisSolicitudes
+);
+
+router.patch(
+  "/solicitudes/:id/estado",
+  isAuthorized(["encargado_inventario", "administrador"]),
+  actualizarEstadoSolicitud
 );
 
 

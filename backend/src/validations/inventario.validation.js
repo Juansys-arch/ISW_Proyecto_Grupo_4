@@ -38,36 +38,35 @@ export const actualizarMaterialValidation = Joi.object({
 });
 
 
-export const movimientoValidation = Joi.object({
-    materialId: Joi.number()
-    .integer()
-    .required()
-    .messages({
-        "number.base":"El ID del material debe ser un número",
-        "any.required":"El ID del material es requerido"
-
+// Movimiento: aceptar EITHER materialId (existente) OR materialNombre (crear nuevo)
+const movimientoBase = Joi.object({
+    tipo: Joi.string().valid("entrada", "salida").required().messages({
+        "any.only": "el tipo de este movimiento debe ser entrada o salida",
+        "any.required": "el tipo de este movimiento es requerido",
     }),
-    tipo: Joi.string()
-    .valid("entrada","salida")
-    .required()
-    .messages({
-        "any.only":"el tipo de este movimiento debe ser entrada o salida",
-        "any.required":"el tipo de este movimiento es requerido",
+    cantidad: Joi.number().integer().min(1).required().messages({
+        "number.min": "La cantidad debe ser mayor o igual a 1",
+        "any.required": "la cantidad es requerida",
     }),
-    cantidad: Joi.number()
-    .integer()
-    .min(1)
-    .required()
-    .messages({
-        "number.min":"La cantidad debe ser mayor o igual a 1",
-        "any.required":"la cantidad es requerida",
-
-    }),
-    observacion: Joi.string()
-    .allow(null,"")
-    .optional(),
-    
+    observacion: Joi.string().allow(null, "").optional(),
 });
+
+export const movimientoValidation = Joi.alternatives().try(
+    movimientoBase.keys({
+        materialId: Joi.number().integer().required().messages({
+            "number.base": "El ID del material debe ser un número",
+            "any.required": "El ID del material es requerido",
+        }),
+    }),
+    movimientoBase.keys({
+        materialNombre: Joi.string().min(1).required().messages({
+            "string.base": "El nombre del material debe ser texto",
+            "any.required": "El nombre del material es requerido cuando no se usa materialId",
+        }),
+        descripcion: Joi.string().allow(null, "").optional(),
+        unidadMedida: Joi.string().max(50).optional(),
+    }),
+);
 
 export const solicitudMaterialValidation = Joi.object({
     materialId: Joi.number()
@@ -89,4 +88,5 @@ export const solicitudMaterialValidation = Joi.object({
     observacion: Joi.string()
     .allow(null, "")
     .optional(),
+    ubicacion: Joi.string().max(255).allow(null, "").optional(),
 });

@@ -1,44 +1,40 @@
 "use strict";
 import { EntitySchema } from "typeorm";
- 
-const IncidenciaSchema = new EntitySchema({
-  name: "Incidencia",
-  tableName: "incidencias",
+
+const SolicitudSchema = new EntitySchema({
+  name: "Solicitud",
+  tableName: "solicitudes",
   columns: {
     id: {
       type: "int",
       primary: true,
       generated: true,
     },
-    descripcion: {
+    cantidad: {
+      type: "int",
+      nullable: false,
+    },
+    observacion: {
       type: "text",
-      nullable: false,
+      nullable: true,
     },
-    fecha: {
-      type: "timestamp with time zone",
-      nullable: false,
-      default: () => "CURRENT_TIMESTAMP",
-    },
-    prioridad: {
+    ubicacion: {
       type: "varchar",
-      length: 10,
-      nullable: false,
-      // valores: "baja" | "media" | "alta" | "critica"
-    },
-    tipo: {
-      type: "varchar",
-      length: 50,
-      nullable: false,
-      // valores: "accidente" | "falta_material" | "conflicto" | "otro"
+      length: 255,
+      nullable: true,
     },
     estado: {
       type: "varchar",
-      length: 20,
+      length: 30,
       default: "pendiente",
       nullable: false,
-      // valores: "pendiente" | "en_proceso" | "resuelto"
+      // valores: pendiente | aceptada | en_camino | entregada
     },
-    jefeCuadrillaId: {
+    solicitanteId: {
+      type: "int",
+      nullable: false,
+    },
+    materialId: {
       type: "int",
       nullable: false,
     },
@@ -55,12 +51,19 @@ const IncidenciaSchema = new EntitySchema({
     },
   },
   relations: {
-    jefeCuadrilla: {
+    solicitante: {
       type: "many-to-one",
       target: "User",
-      joinColumn: { name: "jefeCuadrillaId" },
+      joinColumn: { name: "solicitanteId" },
+      eager: true,
+    },
+    material: {
+      type: "many-to-one",
+      target: "Material",
+      joinColumn: { name: "materialId" },
       eager: true,
     },
   },
 });
-export default IncidenciaSchema;
+
+export default SolicitudSchema;
