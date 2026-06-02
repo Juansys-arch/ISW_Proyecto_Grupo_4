@@ -3,7 +3,8 @@ import '@styles/popup.css';
 import CloseIcon from '@assets/XIcon.svg';
 import QuestionIcon from '@assets/QuestionCircleIcon.svg';
 
-export default function Popup({ show, setShow, data, action }) {
+export default function Popup({ show, setShow, data, action, mode = 'edit' }) {
+    const isCreateMode = mode === 'create';
     const userData = data && data.length > 0 ? data[0] : {};
 
     const handleSubmit = (formData) => {
@@ -20,7 +21,7 @@ export default function Popup({ show, setShow, data, action }) {
                         <img src={CloseIcon} />
                     </button>
                     <Form
-                        title="Editar usuario"
+                        title={isCreateMode ? "Añadir voluntario" : "Editar voluntario"}
                         fields={[
                             {
                                 label: "Nombre completo",
@@ -65,34 +66,51 @@ export default function Popup({ show, setShow, data, action }) {
                                 fieldType: 'select',
                                 options: [
                                     { value: 'administrador', label: 'Administrador' },
-                                    { value: 'usuario', label: 'Usuario' },
+                                    { value: 'usuario', label: 'Voluntario' },
                                 ],
                                 required: true,
-                                defaultValue: userData.rol || "",
+                                defaultValue: userData.rol || "usuario",
                             },
-                            {
-                                label: (
-                                    <span>
-                                        Nueva contraseña
-                                        <span className='tooltip-icon'>
-                                            <img src={QuestionIcon} />
-                                            <span className='tooltip-text'>Este campo es opcional</span>
-                                        </span>
-                                    </span>
-                                ),
-                                name: "newPassword",
-                                placeholder: "**********",
-                                fieldType: 'input',
-                                type: "password",
-                                required: false,
-                                minLength: 8,
-                                maxLength: 26,
-                                pattern: /^[a-zA-Z0-9]+$/,
-                                patternMessage: "Debe contener solo letras y números",
-                            }
+                            ...(isCreateMode
+                                ? [
+                                    {
+                                        label: "Contraseña",
+                                        name: "password",
+                                        placeholder: "**********",
+                                        fieldType: 'input',
+                                        type: "password",
+                                        required: true,
+                                        minLength: 8,
+                                        maxLength: 26,
+                                        pattern: /^[a-zA-Z0-9]+$/,
+                                        patternMessage: "Debe contener solo letras y números",
+                                    },
+                                ]
+                                : [
+                                    {
+                                        label: (
+                                            <span>
+                                                Nueva contraseña
+                                                <span className='tooltip-icon'>
+                                                    <img src={QuestionIcon} />
+                                                    <span className='tooltip-text'>Este campo es opcional</span>
+                                                </span>
+                                            </span>
+                                        ),
+                                        name: "newPassword",
+                                        placeholder: "**********",
+                                        fieldType: 'input',
+                                        type: "password",
+                                        required: false,
+                                        minLength: 8,
+                                        maxLength: 26,
+                                        pattern: /^[a-zA-Z0-9]+$/,
+                                        patternMessage: "Debe contener solo letras y números",
+                                    },
+                                ]),
                         ]}
                         onSubmit={handleSubmit}
-                        buttonText="Editar usuario"
+                        buttonText={isCreateMode ? "Añadir voluntario" : "Guardar cambios"}
                         backgroundColor={'#fff'}
                     />
                 </div>

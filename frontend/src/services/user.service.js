@@ -22,6 +22,15 @@ export async function updateUser(data, rut) {
     }
 }
 
+export async function createUser(data) {
+    try {
+        const response = await axios.post('/user/', data);
+        return response.data.data;
+    } catch (error) {
+        return error.response.data;
+    }
+}
+
 export async function deleteUser(rut) {
     try {
         const response = await axios.delete(`/user/detail/?rut=${rut}`);

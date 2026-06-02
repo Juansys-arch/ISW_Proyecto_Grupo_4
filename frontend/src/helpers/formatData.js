@@ -3,10 +3,12 @@ import { format as formatRut } from 'rut.js';
 import { format as formatTempo } from "@formkit/tempo";
 
 export function formatUserData(user) {
+    const rolValue = user.rol;
     return {
         ...user,
         nombreCompleto: startCase(user.nombreCompleto),
-        rol: startCase(user.rol),
+        rol: rolValue,
+        rolDisplay: rolValue === 'usuario' ? 'Voluntario' : startCase(rolValue),
         rut: formatRut(user.rut),
         createdAt: formatTempo(user.createdAt, "DD-MM-YYYY")
     };
@@ -22,9 +24,11 @@ export function convertirMinusculas(obj) {
 }
 
 export function formatPostUpdate(user) {
+    const rolValue = user.rol;
     return {
         nombreCompleto: startCase(user.nombreCompleto),
-        rol: startCase(user.rol),
+        rol: rolValue,
+        rolDisplay: rolValue === 'usuario' ? 'Voluntario' : startCase(rolValue),
         rut: formatRut(user.rut),
         email: user.email,
         createdAt: formatTempo(user.createdAt, "DD-MM-YYYY")

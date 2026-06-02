@@ -10,16 +10,26 @@
 	ul {
 		display: flex;
 		justify-content:end;
+		display: flex;
 		align-items: center;
-		padding: 0 5vw;
-		margin: 0;
+		gap: 8px;
+	}
+
+	.nav-add-volunteer-button {
+		background-color: #28a745;
+		color: #ffffff;
+		border: none;
+		border-radius: 8px;
+		padding: 6px 10px;
+		font-size: 0.85em;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+	}
+
+	.nav-add-volunteer-button:hover {
+		background-color: #218838;
 		height: 100%;
-		li {
-			display: flex;
-			align-items: center;
-			padding: 0 60px;
-			position: relative;
-			height: 100%;
+
 			a {
 				color: white;
 				font-size: 0.9em;
@@ -42,20 +52,7 @@
 				transform-origin: bottom;
 				transition: transform 0.3s ease;
 			}
-			:not(.active):hover::before {
-				animation: heartbeat 5s ease-in-out infinite;
-				transform: scaleX(1);
-			}
-			.active {
-				font-weight: bold;
-				background-color: #eef7ff;
-				color: #002651;
-				margin: 0;
-				padding-bottom: 0;
-				border: 0;
-				height: 100%;
-				line-height: 9.1vh;
-			}
+
 		}
 	}
 }
@@ -156,4 +153,16 @@
 			box-sizing: border-box;
         }
 	}
+}
+
+/* Force tab title colors to white in all states */
+.nav-menu ul li a {
+	color: #ffffff !important;
+}
+.nav-menu ul li a.active,
+.nav-menu ul li.active > a {
+	color: #ffffff !important;
+}
+.nav-menu.activado ul li a {
+	color: #ffffff !important;
 }

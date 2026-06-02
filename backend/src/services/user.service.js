@@ -41,6 +41,39 @@ export async function getUsersService() {
   }
 }
 
+export async function createUserService(body) {
+  try {
+    const { nombreCompleto, email, rut, password, rol } = body;
+
+    const userRepository = AppDataSource.getRepository(User);
+
+    const existingEmailUser = await userRepository.findOne({ where: { email } });
+    if (existingEmailUser) return [null, "Correo electrónico en uso"];
+
+    const existingRutUser = await userRepository.findOne({ where: { rut } });
+    if (existingRutUser) return [null, "Rut ya asociado a una cuenta"];
+
+    const userRole = rol || "usuario";
+
+    const newUser = userRepository.create({
+      nombreCompleto,
+      email,
+      rut,
+      rol: userRole,
+      password: await encryptPassword(password),
+    });
+
+    await userRepository.save(newUser);
+
+    const { password: _, ...dataUser } = newUser;
+
+    return [dataUser, null];
+  } catch (error) {
+    console.error("Error al crear un usuario:", error);
+    return [null, "Error interno del servidor"];
+  }
+}
+
 export async function updateUserService(query, body) {
   try {
     const { id, rut, email } = query;
