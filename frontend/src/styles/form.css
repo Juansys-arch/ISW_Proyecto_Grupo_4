@@ -36,7 +36,7 @@
 
 
 .form {
-	background-color: #eef7ff; /*Color del formulario*/
+	background-color: #ffffff; /*Color del formulario*/
 	padding: 7vh;
 	display: flex;
 	flex-direction: column;
@@ -233,3 +233,208 @@ input {
 	height: 25px;
 	margin-top: 4px;
 }
+
+/* ===== ESTILOS LOGIN PROFESIONAL ===== */
+.login-container {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	padding: 20px;
+}
+
+.login-wrapper {
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	overflow: hidden;
+	max-width: 450px;
+	width: 100%;
+	animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.login-header {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	padding: 40px 20px;
+	text-align: center;
+	color: white;
+}
+
+.logo-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.logo-icon {
+	font-size: 48px;
+	line-height: 1;
+}
+
+.login-title {
+	font-size: 32px;
+	font-weight: 700;
+	margin: 0;
+	letter-spacing: 2px;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.login-subtitle {
+	font-size: 14px;
+	margin: 8px 0 0 0;
+	opacity: 0.9;
+	font-weight: 300;
+}
+
+.login-footer {
+	text-align: center;
+	margin-top: 24px;
+	font-size: 14px;
+	color: #555;
+}
+
+.login-footer a {
+	color: #667eea;
+	text-decoration: none;
+	font-weight: 600;
+	transition: color 0.3s ease;
+}
+
+.login-footer a:hover {
+	color: #764ba2;
+	text-decoration: underline;
+}
+
+.login-footer-info {
+	background: #f5f7fa;
+	padding: 16px 20px;
+	text-align: center;
+	font-size: 12px;
+	color: #888;
+	border-top: 1px solid #e0e0e0;
+}
+
+.login-footer-info p {
+	margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+	.login-wrapper {
+		max-width: 100%;
+		border-radius: 12px;
+	}
+
+	.login-header {
+		padding: 30px 15px;
+	}
+
+	.login-title {
+		font-size: 24px;
+		letter-spacing: 1px;
+	}
+
+	.login-subtitle {
+		font-size: 12px;
+	}
+
+	.logo-icon {
+		font-size: 36px;
+	}
+
+	.logo-container {
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+}
+
+/* Form dentro del login wrapper */
+.login-wrapper .form {
+	background: white;
+	padding: 40px 30px;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.login-wrapper .form h1 {
+	color: #333;
+	font-size: 24px;
+	margin-bottom: 30px;
+	text-align: center;
+}
+
+.login-wrapper .container_inputs {
+	margin-bottom: 20px;
+}
+
+.login-wrapper .container_inputs label {
+	display: block;
+	font-size: 14px;
+	font-weight: 500;
+	color: #333;
+	margin-bottom: 8px;
+}
+
+.login-wrapper .container_inputs input,
+.login-wrapper .container_inputs select {
+	width: 100%;
+	padding: 12px 14px;
+	font-size: 14px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	transition: all 0.3s ease;
+	box-sizing: border-box;
+}
+
+.login-wrapper .container_inputs input:focus,
+.login-wrapper .container_inputs select:focus {
+	outline: none;
+	border-color: #667eea;
+	box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.login-wrapper .form button {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	padding: 12px 24px;
+	font-size: 16px;
+	font-weight: 600;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	width: 100%;
+	margin-top: 24px;
+}
+
+.login-wrapper .form button:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.login-wrapper .form button:active {
+	transform: translateY(0);
+}
+
+.login-wrapper .container_inputs span {
+	color: #e74c3c;
+	font-size: 12px;
+	margin-top: 4px;
+	display: block;
+}
+

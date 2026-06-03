@@ -124,6 +124,7 @@ export async function registrarMovimientoService(data, responsableId) {
 
     await queryRunner.commitTransaction();
     if (material.stockActual <= material.stockMinimo) {
+      // Se deja preparado para notificaciones futuras sin romper el flujo actual.
     }
 
     return [movimiento, null];

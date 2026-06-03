@@ -113,7 +113,7 @@ export async function solicitarMaterial(req, res) {
     if (solicitudError)
       return handleErrorClient(res, 400, "Error al solicitar material", solicitudError);
 
-    handleSuccess(res, 201, "Solicitud enviada al encargado de invenatario", solicitud);
+    handleSuccess(res, 201, "Solicitud enviada al administrador", solicitud);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }

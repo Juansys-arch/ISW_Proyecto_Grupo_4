@@ -3,11 +3,10 @@ import { TabulatorFull as Tabulator } from 'tabulator-tables';
 import "tabulator-tables/dist/css/tabulator.min.css";
 import '@styles/table.css';
 
-function useTable({ data, columns, filter, dataToFilter, initialSortName, onSelectionChange, onActionClick, onButtonClick }) {
+function useTable({ data, columns, filter, dataToFilter, initialSortName, onSelectionChange }) {
     const tableRef = useRef(null);
     const [table, setTable] = useState(null);
     const [isTableBuilt, setIsTableBuilt] = useState(false);
-    const buttonCallbacksRef = useRef({});
 
     useEffect(() => {
         if (tableRef.current) {
@@ -15,7 +14,7 @@ function useTable({ data, columns, filter, dataToFilter, initialSortName, onSele
                 ...col,
                 title: col.label || col.title,
                 field: col.key || col.field,
-                formatter: col.key === 'acciones' ? 'html' : col.formatter
+                formatter: col.key === 'acciones' ? (cell) => cell.getValue() : col.formatter
             }));
 
             const updatedColumns = [
@@ -67,27 +66,9 @@ function useTable({ data, columns, filter, dataToFilter, initialSortName, onSele
                 setIsTableBuilt(true);
             });
 
-            // Agregar delegador de eventos para botones
-            const handleButtonClick = (e) => {
-                const button = e.target.closest('button');
-                if (button) {
-                    const buttonId = button.id;
-                    if (buttonCallbacksRef.current[buttonId]) {
-                        buttonCallbacksRef.current[buttonId]();
-                    }
-                }
-            };
-
-            if (tableRef.current) {
-                tableRef.current.addEventListener('click', handleButtonClick);
-            }
-
             setTable(tabulatorTable);
 
             return () => {
-                if (tableRef.current) {
-                    tableRef.current.removeEventListener('click', handleButtonClick);
-                }
                 tabulatorTable.destroy();
                 setIsTableBuilt(false);
                 setTable(null);
@@ -112,6 +93,6 @@ function useTable({ data, columns, filter, dataToFilter, initialSortName, onSele
         }
     }, [filter, table, dataToFilter, isTableBuilt]);
 
-    return { tableRef, buttonCallbacksRef };
+    return { tableRef };
 }
 export default useTable;
