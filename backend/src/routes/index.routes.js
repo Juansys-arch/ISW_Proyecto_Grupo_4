@@ -4,6 +4,7 @@ import userRoutes from "./user.routes.js";
 import authRoutes from "./auth.routes.js";
 import studentRoutes from "./student.routes.js";
 import inventarioRoutes from "./inventario.routes.js";
+import notificacionRoutes from "./notificacion.routes.js";
 import gestionRoutes from "./gestion.routes.js";
 import kitRoutes from "./kit.routes.js";
 import transporteRoutes from "./transporte.routes.js";
@@ -15,6 +16,7 @@ router
   .use("/user", userRoutes)
   .use("/students", studentRoutes)
   .use("/inventario", inventarioRoutes)
+  .use("/notificaciones", notificacionRoutes)
   .use("/gestion", gestionRoutes)
   .use("/kits", kitRoutes)
   .use("/transporte", transporteRoutes);

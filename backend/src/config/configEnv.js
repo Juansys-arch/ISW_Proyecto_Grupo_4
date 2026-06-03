@@ -8,7 +8,9 @@ const _filename = fileURLToPath(import.meta.url);
 
 const _dirname = path.dirname(_filename);
 
-const envFilePath = path.resolve(_dirname, ".env");
+const srcEnvFilePath = path.resolve(_dirname, "../.env");
+const rootEnvFilePath = path.resolve(_dirname, "../../.env");
+const envFilePath = fs.existsSync(srcEnvFilePath) ? srcEnvFilePath : rootEnvFilePath;
 
 dotenv.config({ path: envFilePath, override: true });
 
@@ -25,7 +27,8 @@ export const DB_USERNAME = readEnv("DB_USERNAME", "ale");
 export const PASSWORD = readEnv("PASSWORD", "12345");
 export const DATABASE = readEnv("DATABASE", "techo");
 export const DATABASE_URL = readEnv("DATABASE_URL", "postgresql://postgres:1213@localhost:5433/techo?schema=public");
-export const ACCESS_TOKEN_SECRET = readEnv("ACCESS_TOKEN_SECRET", readEnv("JWT_SECRET", "dev-access-token-secret"));
+export const ACCESS_TOKEN_SECRET = readEnv("ACCESS_TOKEN_SECRET", "dev-access-token-secret");
+export const JWT_SECRET = readEnv("JWT_SECRET", ACCESS_TOKEN_SECRET);
 export const cookieKey = readEnv("cookieKey", "dev-cookie-key");
 
 export const config = {
@@ -36,5 +39,6 @@ export const config = {
   DATABASE,
   DATABASE_URL,
   ACCESS_TOKEN_SECRET,
+  JWT_SECRET,
   cookieKey
 };

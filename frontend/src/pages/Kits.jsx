@@ -18,9 +18,12 @@ export default function Kits() {
   const [loading, setLoading] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [kitSeleccionado, setKitSeleccionado] = useState(null);
+<<<<<<< HEAD
   const [kitsIncompletos, setKitsIncompletos] = useState([]);
   const [buscar, setBuscar] = useState('');
   const buttonCallbacksRef = useRef({});
+=======
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
 
   const columnasTabla = [
     { key: 'id', label: 'ID' },
@@ -39,16 +42,26 @@ export default function Kits() {
 
   const cargarKits = async () => {
     setLoading(true);
+<<<<<<< HEAD
     const res = await obtenerKits({ buscar });
     setLoading(false);
     if (res.status === 'Success') {
       const datos = res.data || [];
+=======
+    const res = await obtenerKits();
+    setLoading(false);
+    console.log('Respuesta obtenerKits:', res);
+    if (res.status === 'Success') {
+      const datos = res.data || [];
+      console.log('Datos kits:', datos);
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
       setKits(Array.isArray(datos) ? datos : []);
     } else {
       showErrorAlert('Error', res.message || 'No se pudo cargar los kits');
     }
   };
 
+<<<<<<< HEAD
   const verificarIncompletos = async () => {
     const res = await verificarKitsIncompletos();
     if (res.status === 'Success') {
@@ -68,6 +81,11 @@ export default function Kits() {
     cargarKits();
     verificarIncompletos();
   }, [buscar]);
+=======
+  useEffect(() => {
+    cargarKits();
+  }, []);
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
 
   const handleSubmit = async (data) => {
     if (kitSeleccionado) {
@@ -97,6 +115,7 @@ export default function Kits() {
     setMostrarFormulario(true);
   };
 
+<<<<<<< HEAD
   const handleMarcarIncompleto = async (kit) => {
     const razon = prompt('¿Cuál es la razón por la cual el kit está incompleto?');
     if (!razon) return;
@@ -111,13 +130,18 @@ export default function Kits() {
     }
   };
 
+=======
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
   const handleEliminar = async (kit) => {
     if (window.confirm(`¿Eliminar kit ${kit.nombre}?`)) {
       const res = await eliminarKit(kit.id);
       if (res.status === 'Success') {
         showSuccessAlert('Éxito', 'Kit eliminado correctamente');
         cargarKits();
+<<<<<<< HEAD
         verificarIncompletos();
+=======
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
       } else {
         showErrorAlert('Error', res.message || 'No se pudo eliminar el kit');
       }
@@ -128,6 +152,7 @@ export default function Kits() {
     <div className="main-container">
       <h1>🛠️ Gestión de Kits de Herramientas</h1>
 
+<<<<<<< HEAD
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
         <input
           type="text"
@@ -170,16 +195,24 @@ export default function Kits() {
       )}
 
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+=======
+      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
         <button
           onClick={() => {
             setMostrarFormulario(!mostrarFormulario);
             setKitSeleccionado(null);
           }}
+<<<<<<< HEAD
           style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+=======
+          style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer' }}
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
         >
           {mostrarFormulario ? 'Cancelar' : '+ Nuevo Kit'}
         </button>
         <button
+<<<<<<< HEAD
           onClick={verificarIncompletos}
           style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
         >
@@ -188,12 +221,17 @@ export default function Kits() {
         <button
           onClick={() => navigate('/gestion-jornada')}
           style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+=======
+          onClick={() => navigate('/gestion-jornada')}
+          style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', cursor: 'pointer' }}
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
         >
           ← Volver al Dashboard
         </button>
       </div>
 
       {mostrarFormulario && (
+<<<<<<< HEAD
         <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '5px', border: '1px solid #ddd' }}>
           <h3>{kitSeleccionado ? 'Editar Kit' : 'Crear Nuevo Kit'}</h3>
           <Form 
@@ -202,10 +240,16 @@ export default function Kits() {
             onSubmit={handleSubmit}
             initialValues={kitSeleccionado}
           />
+=======
+        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+          <h3>{kitSeleccionado ? 'Editar Kit' : 'Crear Nuevo Kit'}</h3>
+          <Form fields={camposFormulario} buttonText={kitSeleccionado ? 'Actualizar' : 'Crear'} onSubmit={handleSubmit} />
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
         </div>
       )}
 
       <div style={{ marginTop: '20px' }}>
+<<<<<<< HEAD
         <h3>Kits Disponibles ({kits.length})</h3>
         <Table
           columns={[...columnasTabla, { key: 'acciones', label: 'Acciones' }]}
@@ -232,6 +276,20 @@ export default function Kits() {
               `,
             };
           })}
+=======
+        <h3>Kits Disponibles</h3>
+        <Table
+          columns={columnasTabla}
+          data={kits.map((kit) => ({
+            ...kit,
+            acciones: (
+              <div style={{ display: 'flex', gap: '5px' }}>
+                <button onClick={() => handleEditar(kit)} style={{ padding: '5px 10px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}>✏️ Editar</button>
+                <button onClick={() => handleEliminar(kit)} style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', cursor: 'pointer' }}>🗑️ Eliminar</button>
+              </div>
+            ),
+          }))}
+>>>>>>> cf985d0a5c3a7df8bd0c18eceeb1d3f2fd80d4cb
           loading={loading}
         />
       </div>
