@@ -3,10 +3,12 @@ import { AppDataSource } from "../config/configDb.js";
 import Vivienda from "../entity/vivienda.entity.js";
 import Hito from "../entity/hito.entity.js";
 import User from "../entity/user.entity.js";
+import Notificacion from "../entity/notificacion.entity.js";
 
 const viviendasRepository = AppDataSource.getRepository(Vivienda);
 const hitosRepository = AppDataSource.getRepository(Hito);
 const usersRepository = AppDataSource.getRepository(User);
+const notificacionRepository = AppDataSource.getRepository(Notificacion);
 
 class ConstruccionService {
   async crearVivienda(data) {
@@ -27,6 +29,22 @@ class ConstruccionService {
       });
 
       await viviendasRepository.save(vivienda);
+
+      // Notificar a jefes de cuadrilla
+      const jefes = await usersRepository.find({
+        where: { rol: "jefe_cuadrilla" },
+      });
+
+      if (jefes.length > 0) {
+        const notificaciones = jefes.map((jefe) => ({
+          administradorId: jefe.id,
+          tipo: "vivienda_creada",
+          mensaje: `🏠 Nueva vivienda creada: ${direccion} (${numeroPropiedad}). Plazo: ${diasHito} días.`,
+          leida: false,
+        }));
+        await notificacionRepository.save(notificaciones);
+      }
+
       return vivienda;
     } catch (error) {
       throw new Error(`Error al crear vivienda: ${error.message}`);
@@ -78,6 +96,22 @@ class ConstruccionService {
       });
       
       console.log(`✓ Vivienda guardada con ${resultado.hitos?.length || 0} hitos`);
+
+      // Notificar a administradores que la construcción comenzó
+      const admins = await usersRepository.find({
+        where: { rol: "administrador" },
+      });
+
+      if (admins.length > 0) {
+        const notificaciones = admins.map((admin) => ({
+          administradorId: admin.id,
+          tipo: "construccion_iniciada",
+          mensaje: `▶️ Construcción iniciada: ${vivienda.direccion}. Inicio: ${new Date(vivienda.fechaInicio).toLocaleDateString("es-ES")}`,
+          leida: false,
+        }));
+        await notificacionRepository.save(notificaciones);
+      }
+
       return resultado;
     } catch (error) {
       throw new Error(`Error al iniciar construcción: ${error.message}`);
@@ -106,6 +140,31 @@ class ConstruccionService {
 
       // Actualizar avance general
       await this.actualizarAvanceGeneral(viviendaId);
+
+      // Notificar a administradores del cambio de progreso
+      const vivienda = await viviendasRepository.findOne({
+        where: { id: viviendaId },
+      });
+      const admins = await usersRepository.find({
+        where: { rol: "administrador" },
+      });
+
+      if (admins.length > 0) {
+        let mensaje = "";
+        if (progreso === 100) {
+          mensaje = `✅ Hito completado: ${hito.descripcion} en ${vivienda.direccion}`;
+        } else {
+          mensaje = `📊 Progreso actualizado: ${hito.descripcion} en ${vivienda.direccion} - ${progreso}%`;
+        }
+
+        const notificaciones = admins.map((admin) => ({
+          administradorId: admin.id,
+          tipo: progreso === 100 ? "hito_completado" : "progreso_actualizado",
+          mensaje,
+          leida: false,
+        }));
+        await notificacionRepository.save(notificaciones);
+      }
 
       return hito;
     } catch (error) {
@@ -156,7 +215,24 @@ class ConstruccionService {
       });
 
       await hitosRepository.save(vivienda.hitos);
-      return await viviendasRepository.save(vivienda);
+      const resultado = await viviendasRepository.save(vivienda);
+
+      // Notificar a administradores que la construcción completó
+      const admins = await usersRepository.find({
+        where: { rol: "administrador" },
+      });
+
+      if (admins.length > 0) {
+        const notificaciones = admins.map((admin) => ({
+          administradorId: admin.id,
+          tipo: "construccion_completada",
+          mensaje: `🎉 Construcción completada: ${vivienda.direccion}. Finalización: ${new Date(vivienda.fechaTermino).toLocaleDateString("es-ES")}`,
+          leida: false,
+        }));
+        await notificacionRepository.save(notificaciones);
+      }
+
+      return resultado;
     } catch (error) {
       throw new Error(`Error al completar construcción: ${error.message}`);
     }
@@ -171,7 +247,24 @@ class ConstruccionService {
       if (!vivienda) throw new Error("Vivienda no encontrada");
 
       vivienda.estado = "pausada";
-      return await viviendasRepository.save(vivienda);
+      const resultado = await viviendasRepository.save(vivienda);
+
+      // Notificar a administradores que la construcción se pausó
+      const admins = await usersRepository.find({
+        where: { rol: "administrador" },
+      });
+
+      if (admins.length > 0) {
+        const notificaciones = admins.map((admin) => ({
+          administradorId: admin.id,
+          tipo: "construccion_pausada",
+          mensaje: `⏸️ Construcción pausada: ${vivienda.direccion}`,
+          leida: false,
+        }));
+        await notificacionRepository.save(notificaciones);
+      }
+
+      return resultado;
     } catch (error) {
       throw new Error(`Error al pausar construcción: ${error.message}`);
     }

@@ -14,7 +14,7 @@ router
   .use("/user", userRoutes)
   .use("/students", studentRoutes)
   .use("/inventario", inventarioRoutes)
-  .use("/notificaciones", notificacionRoutes)
+  .use("/notificacion", notificacionRoutes)
   .use("/construccion", construccionRoutes);
 
 export default router;
