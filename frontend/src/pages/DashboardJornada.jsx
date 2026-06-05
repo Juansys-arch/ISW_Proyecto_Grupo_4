@@ -66,11 +66,11 @@ const DashboardJornada = () => {
                 <button onClick={() => setStep(3)} className={step === 3 ? 'active' : ''} style={{ padding: '8px 12px' }}>3. Bitácora</button>
 
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate('/asistencias')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>📋 Ver Asistencias</button>
-                    <button onClick={() => navigate('/herramientas')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>🔧 Ver Actas</button>
-                    <button onClick={() => navigate('/bitacora')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>📝 Ver Bitácora</button>
-                    <button onClick={() => navigate('/kits')} style={{ padding: '8px 12px', backgroundColor: '#007bff' }}>🛠️ Kits</button>
-                    <button onClick={() => navigate('/transporte')} style={{ padding: '8px 12px', backgroundColor: '#fd7e14' }}>🚌 Transporte</button>
+                    <button onClick={() => navigate('/asistencias')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>Ver Asistencias</button>
+                    <button onClick={() => navigate('/herramientas')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>Ver Actas</button>
+                    <button onClick={() => navigate('/bitacora')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>Ver Bitácora</button>
+                    <button onClick={() => navigate('/kits')} style={{ padding: '8px 12px', backgroundColor: '#007bff' }}>Kits</button>
+                    <button onClick={() => navigate('/transporte')} style={{ padding: '8px 12px', backgroundColor: '#fd7e14' }}>Transporte</button>
                 </div>
             </div>
 
