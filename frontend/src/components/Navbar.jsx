@@ -13,7 +13,7 @@ const Navbar = () => {
     const logoutSubmit = () => {
         try {
             logout();
-            navigate('/auth'); 
+            navigate('/auth');
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
         }
@@ -47,52 +47,68 @@ const Navbar = () => {
             <div className={`nav-menu ${menuOpen ? 'activado' : ''}`}>
                 <ul>
                     <li>
-                        <NavLink 
-                            to="/home" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
+                        <NavLink
+                            to="/home"
+                            onClick={() => {
+                                setMenuOpen(false);
                                 addActiveClass();
-                            }} 
+                            }}
                             activeClassName="active"
                         >
                             Inicio
                         </NavLink>
                     </li>
+
+                    {/* Gestión de Usuarios: Solo administrador o coordinador */}
                     {(userRole === 'administrador' || userRole === 'coordinador') && (
+                        <li>
+                            <NavLink
+                                to="/users"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Usuarios
+                            </NavLink>
+                        </li>
+                    )}
+
+                    {(userRole === 'administrador' || userRole === 'encargado_inventario' || userRole === 'jefe_cuadrilla') && (
+                        <li>
+                            <NavLink
+                                to="/gestion-operativa"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Gestión operativa
+                            </NavLink>
+                        </li>
+                    )}
                     <li>
-                        <NavLink 
-                            to="/users" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
+                        <NavLink
+                            to="/notificaciones"
+                            onClick={() => {
+                                setMenuOpen(false);
                                 addActiveClass();
-                            }} 
+                            }}
                             activeClassName="active"
                         >
-                            Usuarios
+                            Notificaciones
                         </NavLink>
                     </li>
-                    )}
-                    {(userRole === 'administrador' || userRole === 'coordinador') && (
+
                     <li>
-                        <NavLink 
-                            to="/admin/requests" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Solicitudes
-                        </NavLink>
-                    </li>
-                    )}
-                    <li>
-                        <NavLink 
-                            to="/auth" 
-                            onClick={() => { 
-                                logoutSubmit(); 
-                                setMenuOpen(false); 
-                            }} 
+                        <NavLink
+                            to="/auth"
+                            onClick={() => {
+                                logoutSubmit();
+                                setMenuOpen(false);
+                            }}
                             activeClassName="active"
                         >
                             Cerrar sesión
