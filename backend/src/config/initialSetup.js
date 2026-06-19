@@ -1,5 +1,6 @@
 "use strict";
 import User from "../entity/user.entity.js";
+import Cuadrilla from "../entity/cuadrilla.entity.js";
 import { AppDataSource } from "./configDb.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
 
@@ -93,6 +94,35 @@ async function createUsers() {
     );
 
     console.log("* => Usuarios (incluyendo voluntarios demo) creados exitosamente");
+
+    // Crear cuadrilla por defecto
+    const cuadrillaRepository = AppDataSource.getRepository(Cuadrilla);
+    const jefe = await userRepository.findOne({ where: { email: "jefe.cuadrilla2024@gmail.cl" } });
+    if (jefe) {
+      const existingCuadrilla = await cuadrillaRepository.findOne({ where: { nombre: "Cuadrilla por Defecto" } });
+      if (!existingCuadrilla) {
+        const defaultCuadrilla = await cuadrillaRepository.save(
+          cuadrillaRepository.create({
+            nombre: "Cuadrilla por Defecto",
+            jefeCuadrillaId: jefe.id,
+          })
+        );
+        console.log("* => Cuadrilla por Defecto creada exitosamente");
+
+        const volunteer1 = await userRepository.findOne({ where: { email: "voluntario1@gmail.cl" } });
+        const volunteer2 = await userRepository.findOne({ where: { email: "voluntario2@gmail.cl" } });
+
+        if (volunteer1) {
+          volunteer1.cuadrillaId = defaultCuadrilla.id;
+          await userRepository.save(volunteer1);
+        }
+        if (volunteer2) {
+          volunteer2.cuadrillaId = defaultCuadrilla.id;
+          await userRepository.save(volunteer2);
+        }
+        console.log("* => Voluntarios demo asignados a Cuadrilla por Defecto");
+      }
+    }
   } catch (error) {
     console.error("Error al crear usuarios en initialSetup:", error);
   }

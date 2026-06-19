@@ -23,11 +23,11 @@ export default function Kits() {
   const buttonCallbacksRef = useRef({});
 
   const columnasTabla = [
-    { key: 'id', label: 'ID' },
     { key: 'codigoKit', label: 'Código' },
     { key: 'nombre', label: 'Nombre' },
     { key: 'estado', label: 'Estado' },
     { key: 'cantidadItems', label: 'Cantidad' },
+    { key: 'acciones', label: 'Acciones' },
   ];
 
   const camposFormulario = [
@@ -57,7 +57,7 @@ export default function Kits() {
       
       if (incompletos.length > 0) {
         showWarningAlert(
-          '⚠️ ALERTA: Kits Incompletos',
+          'ALERTA: Kits Incompletos',
           `Se encontraron ${incompletos.length} kit(s) incompleto(s) que requieren atención inmediata`
         );
       }
@@ -126,12 +126,12 @@ export default function Kits() {
 
   return (
     <div className="main-container">
-      <h1>🛠️ Gestión de Kits de Herramientas</h1>
+      <h1>Gestión de Kits de Herramientas</h1>
 
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
         <input
           type="text"
-          placeholder="🔍 Buscar por código o nombre..."
+          placeholder="Buscar por código o nombre..."
           value={buscar}
           onChange={(e) => setBuscar(e.target.value)}
           style={{
@@ -155,7 +155,7 @@ export default function Kits() {
           borderRadius: '5px',
           color: '#721c24'
         }}>
-          <h3 style={{ margin: '0 0 10px 0' }}>🚨 ALERTA: {kitsIncompletos.length} KIT(S) INCOMPLETO(S)</h3>
+          <h3 style={{ margin: '0 0 10px 0' }}>ALERTA: {kitsIncompletos.length} KIT(S) INCOMPLETO(S)</h3>
           <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
             {kitsIncompletos.map((kit) => (
               <li key={kit.id} style={{ marginBottom: '5px', fontWeight: 'bold' }}>
@@ -164,7 +164,7 @@ export default function Kits() {
             ))}
           </ul>
           <p style={{ margin: '10px 0 0 0', fontSize: '14px' }}>
-            ⚠️ Por favor, revise y complete estos kits de inmediato.
+            Por favor, revise y complete estos kits de inmediato.
           </p>
         </div>
       )}
@@ -183,13 +183,13 @@ export default function Kits() {
           onClick={verificarIncompletos}
           style={{ padding: '10px 20px', backgroundColor: '#dc3545', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
         >
-          🔍 Verificar Alertas
+          Verificar Alertas
         </button>
         <button
           onClick={() => navigate('/gestion-jornada')}
           style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
         >
-          ← Volver al Dashboard
+          Volver al Dashboard
         </button>
       </div>
 
@@ -208,31 +208,24 @@ export default function Kits() {
       <div style={{ marginTop: '20px' }}>
         <h3>Kits Disponibles ({kits.length})</h3>
         <Table
-          columns={[...columnasTabla, { key: 'acciones', label: 'Acciones' }]}
+          columns={columnasTabla}
           data={kits.map((kit) => {
             const esIncompleto = kitsIncompletos.some(k => k.id === kit.id);
             const btnEditarId = `btn-editar-kit-${kit.id}`;
             const btnEliminarId = `btn-eliminar-kit-${kit.id}`;
-            const btnMarcarId = `btn-marcar-kit-${kit.id}`;
             
-            // Registrar callbacks en el ref
+            // Registrar callbacks en el ref compartido con useTable
             buttonCallbacksRef.current[btnEditarId] = () => handleEditar(kit);
-            buttonCallbacksRef.current[btnMarcarId] = () => handleMarcarIncompleto(kit);
             buttonCallbacksRef.current[btnEliminarId] = () => handleEliminar(kit);
             
             return {
               ...kit,
-              estado: esIncompleto ? '🚨 faltante' : kit.estado,
-              acciones: `
-                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                  <button id="${btnEditarId}" title="Editar kit" style="padding: 5px 10px; background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: 500;">✏️ Editar</button>
-                  <button id="${btnMarcarId}" title="Marcar como incompleto" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: 500;">🚨 Incompleto</button>
-                  <button id="${btnEliminarId}" title="Eliminar kit" style="padding: 5px 10px; background-color: #6c757d; color: white; border: none; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: 500;">🗑️ Eliminar</button>
-                </div>
-              `,
+              estado: esIncompleto ? 'faltante' : kit.estado,
+              acciones: `<div style="display:flex;gap:5px;"><button id="${btnEditarId}" style="padding:5px 10px;background-color:#007bff;color:white;border:none;cursor:pointer;border-radius:3px;font-size:12px;">Actualizar</button><button id="${btnEliminarId}" style="padding:5px 10px;background-color:#dc3545;color:white;border:none;cursor:pointer;border-radius:3px;font-size:12px;">Eliminar</button></div>`,
             };
           })}
           loading={loading}
+          buttonCallbacksRef={buttonCallbacksRef}
         />
       </div>
     </div>

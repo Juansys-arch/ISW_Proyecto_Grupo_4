@@ -20,4 +20,4 @@ router
   .use("/notificaciones", notificacionRoutes)
   .use("/incidencias", incidenciaRoutes);
 
-export default router;
+export default router;

@@ -30,6 +30,7 @@ export default function Transporte() {
     { key: 'estado', label: 'Estado' },
     { key: 'abordajosRegistrados', label: 'Abordajes' },
     { key: 'horaPartida', label: 'Hora Partida' },
+    { key: 'acciones', label: 'Acciones', minWidth: 420, headerSort: false },
   ];
 
   const camposFormulario = [
@@ -124,12 +125,12 @@ export default function Transporte() {
 
   return (
     <div className="main-container">
-      <h1>🚌 Gestión de Transporte</h1>
+      <h1>Gestión de Transporte</h1>
 
       <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
         <input
           type="text"
-          placeholder="🔍 Buscar por número, placa o conductor..."
+          placeholder="Buscar por número, placa o conductor..."
           value={buscar}
           onChange={(e) => setBuscar(e.target.value)}
           style={{
@@ -172,7 +173,7 @@ export default function Transporte() {
           onClick={() => navigate('/gestion-jornada')}
           style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
         >
-          ← Volver al Dashboard
+          Volver al Dashboard
         </button>
       </div>
 
@@ -191,14 +192,14 @@ export default function Transporte() {
       <div style={{ marginTop: '20px' }}>
         <h3>Transportes Disponibles</h3>
         <Table
-          columns={[...columnasTabla, { key: 'acciones', label: 'Acciones' }]}
+          columns={columnasTabla}
           data={transportes.map((transporte) => {
             const btnAbordajeId = `btn-abordaje-${transporte.id}`;
             const btnEditarId = `btn-editar-${transporte.id}`;
             const btnFinalizarId = `btn-finalizar-${transporte.id}`;
             const btnEliminarId = `btn-eliminar-${transporte.id}`;
             
-            // Registrar callbacks en el ref
+            // Registrar callbacks en el ref compartido con useTable
             buttonCallbacksRef.current[btnAbordajeId] = () => handleAbordaje(transporte);
             buttonCallbacksRef.current[btnEditarId] = () => handleEditar(transporte);
             buttonCallbacksRef.current[btnFinalizarId] = () => handleFinalizarJornada(transporte);
@@ -206,18 +207,12 @@ export default function Transporte() {
             
             return {
               ...transporte,
-              estado: `${transporte.estado === 'en_ruta' ? '🚀' : transporte.estado === 'finalizado' ? '✅' : '⏳'} ${transporte.estado}`,
-              acciones: `
-                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                  <button id="${btnAbordajeId}" title="Registrar abordaje" style="padding: 5px 10px; background-color: #17a2b8; color: white; border: none; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: 500;">👤 Abordaje</button>
-                  <button id="${btnEditarId}" title="Editar transporte" style="padding: 5px 10px; background-color: #ffc107; color: black; border: none; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: 500;">✏️ Editar</button>
-                  <button id="${btnFinalizarId}" title="Finalizar jornada" style="padding: 5px 10px; background-color: #28a745; color: white; border: none; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: 500;">✔️ Finalizar</button>
-                  <button id="${btnEliminarId}" title="Eliminar transporte" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: 500;">🗑️ Eliminar</button>
-                </div>
-              `,
+              estado: transporte.estado,
+              acciones: `<div style="display:flex;gap:5px;flex-wrap:wrap;"><button id="${btnAbordajeId}" style="padding:5px 10px;background-color:#17a2b8;color:white;border:none;cursor:pointer;border-radius:3px;font-size:12px;">Abordaje</button><button id="${btnEditarId}" style="padding:5px 10px;background-color:#ffc107;color:black;border:none;cursor:pointer;border-radius:3px;font-size:12px;">Actualizar</button><button id="${btnFinalizarId}" style="padding:5px 10px;background-color:#28a745;color:white;border:none;cursor:pointer;border-radius:3px;font-size:12px;">Finalizar</button><button id="${btnEliminarId}" style="padding:5px 10px;background-color:#dc3545;color:white;border:none;cursor:pointer;border-radius:3px;font-size:12px;">Eliminar</button></div>`,
             };
           })}
           loading={loading}
+          buttonCallbacksRef={buttonCallbacksRef}
         />
       </div>
     </div>
