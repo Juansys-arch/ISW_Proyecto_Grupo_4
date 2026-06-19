@@ -133,12 +133,12 @@
 		display: none;
 	}
 
-	.hamburger {
-		display: flex;
-	}
-
 	.navbar a {
 		font-size: 0.9rem;
+	}
+
+	.hamburger {
+		display: flex;
 	}
 }
 

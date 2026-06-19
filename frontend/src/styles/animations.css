@@ -1,4 +1,5 @@
 @keyframes heartbeat {
+
 	0% {
 		transform: scaleX(1);
 	}
@@ -72,4 +73,4 @@
 	100% {
 		background-position: 1000px 0;
 	}
-}
+}

@@ -4,12 +4,15 @@ import { AppDataSource } from "../config/configDb.js";
 import Material from "../entity/material.entity.js";
 import MovimientoInventario from "../entity/movimientoinventario.entity.js";
 import Notificacion from "../entity/notificacion.entity.js";
+import Solicitud from "../entity/solicitud.entity.js";
 import User from "../entity/user.entity.js";
+import { notificarPorRoles } from "./notificacion.service.js";
 
 const materialRepository = AppDataSource.getRepository(Material);
 const movimientoRepository = AppDataSource.getRepository(MovimientoInventario);
 const notificacionRepository = AppDataSource.getRepository(Notificacion);
 const userRepository = AppDataSource.getRepository(User);
+const solicitudRepository = AppDataSource.getRepository(Solicitud);
 
 export async function crearMaterialService(data) {
   try {
@@ -87,10 +90,29 @@ export async function registrarMovimientoService(data, responsableId) {
   await queryRunner.startTransaction();
 
   try {
-    const material = await queryRunner.manager.findOne(Material, {
-      where: { id: data.materialId },
-      lock: { mode: "pessimistic_write" },
-    });
+    let material = null;
+    if (data.materialId) {
+      material = await queryRunner.manager.findOne(Material, {
+        where: { id: data.materialId },
+        lock: { mode: "pessimistic_write" },
+      });
+    }
+
+    // Si no existe material por id, permitir crear uno nuevo si se envía materialNombre
+    if (!material && data.materialNombre) {
+      material = await queryRunner.manager.save(Material, {
+        nombre: data.materialNombre,
+        descripcion: data.descripcion ?? null,
+        unidadMedida: data.unidadMedida ?? "unid.",
+        stockActual: 0,
+        stockMinimo: data.stockMinimo ?? 0,
+      });
+      // lock the newly created material for update
+      material = await queryRunner.manager.findOne(Material, {
+        where: { id: material.id },
+        lock: { mode: "pessimistic_write" },
+      });
+    }
 
     if (!material) {
       await queryRunner.rollbackTransaction();
@@ -114,7 +136,7 @@ export async function registrarMovimientoService(data, responsableId) {
     await queryRunner.manager.save(Material, material);
 
     const movimiento = await queryRunner.manager.save(MovimientoInventario, {
-      materialId: data.materialId,
+      materialId: material.id,
       tipo: data.tipo,
       cantidad: data.cantidad,
       observacion: data.observacion ?? null,
@@ -123,8 +145,14 @@ export async function registrarMovimientoService(data, responsableId) {
     });
 
     await queryRunner.commitTransaction();
+
     if (material.stockActual <= material.stockMinimo) {
-      // Se deja preparado para notificaciones futuras sin romper el flujo actual.
+await notificarPorRoles({
+  roles: ["encargado_inventario", "administrador"],
+  tipo: "stock_bajo",
+  mensaje: `El material "${material.nombre}" quedó con stock ${material.stockActual}. Stock mínimo: ${material.stockMinimo}.`,
+  materialId: material.id,
+});
     }
 
     return [movimiento, null];
@@ -143,7 +171,7 @@ export async function obtenerMovimientosService(materialId = null) {
     const movimientos = await movimientoRepository.find({
       where,
       order: { fecha: "DESC" },
-      relations: ["material"],
+      relations: ["material", "responsable"],
     });
 
     return [movimientos, null];
@@ -167,10 +195,22 @@ export async function solicitarMaterialService(data, solicitante) {
     if (!encargadosInventario.length) {
       return [null, "No hay encargados de inventario disponibles para recibir la solicitud"];
     }
+    // persistir solicitud
+    const solicitud = await solicitudRepository.save(
+      solicitudRepository.create({
+        materialId: material.id,
+        solicitanteId: solicitante.id,
+        cantidad: data.cantidad,
+        observacion: data.observacion ?? null,
+        ubicacion: data.ubicacion ?? null,
+        estado: "pendiente",
+      }),
+    );
 
+    // notificar encargados
     const mensaje =
-      `Solicitud de material: ${solicitante.nombreCompleto} (${solicitante.email}) ` +
-      `solicita ${data.cantidad} ${material.unidadMedida} de \"${material.nombre}\".` +
+      `Solicitud de material: ${solicitante.nombreCompleto} (${solicitante.email}) solicita ${data.cantidad} ${material.unidadMedida} de "${material.nombre}".` +
+      `${data.ubicacion ? ` Ubicación: ${data.ubicacion}.` : ""}` +
       `${data.observacion ? ` Observacion: ${data.observacion}` : ""}`;
 
     await Promise.all(
@@ -181,20 +221,64 @@ export async function solicitarMaterialService(data, solicitante) {
             mensaje,
             administradorId: encargadoInventario.id,
             materialId: material.id,
+            incidenciaId: null,
           }),
         ),
       ),
     );
 
-    return [
-      {
-        materialId: material.id,
-        material: material.nombre,
-        cantidad: data.cantidad,
-        estado: "solicitado",
-      },
-      null,
-    ];
+    return [solicitud, null];
+  } catch (error) {
+    return [null, error.message];
+  }
+}
+
+export async function obtenerSolicitudesService() {
+  try {
+    const solicitudes = await solicitudRepository.find({
+      order: { createdAt: "DESC" },
+      relations: ["material", "solicitante"],
+    });
+    return [solicitudes, null];
+  } catch (error) {
+    return [null, error.message];
+  }
+}
+
+export async function obtenerSolicitudesPorSolicitanteService(solicitanteId) {
+  try {
+    const solicitudes = await solicitudRepository.find({
+      where: { solicitanteId },
+      order: { createdAt: "DESC" },
+      relations: ["material"],
+    });
+    return [solicitudes, null];
+  } catch (error) {
+    return [null, error.message];
+  }
+}
+
+export async function actualizarEstadoSolicitudService(id, nuevoEstado, encargadoId) {
+  try {
+    const solicitud = await solicitudRepository.findOne({ where: { id }, relations: ["solicitante", "material"] });
+    if (!solicitud) return [null, "Solicitud no encontrada"];
+
+    solicitud.estado = nuevoEstado;
+    await solicitudRepository.save(solicitud);
+
+    // notificar al solicitante sobre el cambio de estado
+    const mensaje = `Su solicitud #${solicitud.id} para ${solicitud.material?.nombre || ''} cambió a estado: ${nuevoEstado}`;
+    await notificacionRepository.save(
+      notificacionRepository.create({
+        tipo: "estado_solicitud",
+        mensaje,
+        administradorId: solicitud.solicitanteId,
+        materialId: solicitud.materialId,
+        incidenciaId: null,
+      }),
+    );
+
+    return [solicitud, null];
   } catch (error) {
     return [null, error.message];
   }

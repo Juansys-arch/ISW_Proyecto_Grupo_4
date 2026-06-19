@@ -53,7 +53,7 @@ const Login = () => {
                             type: "email",
                             required: true,
                             minLength: 15,
-                            maxLength: 30,
+                            maxLength: 64,
                             errorMessageData: errorEmail,
                             validate: {
                                 emailDomain: (value) => value.endsWith('@gmail.cl') || 'El correo debe ser institucional (@gmail.cl)'

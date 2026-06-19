@@ -1,37 +1,38 @@
 @media (max-width: 480px) {
-    .form {
-        padding-left: 2px;
-		padding-right: 2px;
-        width: 90%;
-    }
+  .form {
+    padding-left: 2px;
+    padding-right: 2px;
+    width: 90%;
+  }
 
-    .form h1 {
-        font-size: 24px;
-        margin-bottom: 2vh;
-    }
+  .form h1 {
+    font-size: 24px;
+    margin-bottom: 2vh;
+  }
 
-    .form input, .form select {
-        padding: 10px;
-        font-size: 14px;
-    }
+  .form input,
+  .form select {
+    padding: 10px;
+    font-size: 14px;
+  }
 
-    .form button {
-        padding: 10px;
-        font-size: 16px;
-    }
+  .form button {
+    padding: 10px;
+    font-size: 16px;
+  }
 
-    .form .footerContent {
-        font-size: 12px;
-    }
-    
-    .container {
-        padding: 0 10px;
-    }
-    
-    .toggle-password-icon {
-        width: 20px;
-        height: 20px;
-    }
+  .form .footerContent {
+    font-size: 12px;
+  }
+
+  .container {
+    padding: 0 10px;
+  }
+
+  .toggle-password-icon {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 
@@ -168,64 +169,67 @@
 		margin-top: 10px;
 	}
 }
+
 .form .error-message {
-    visibility: hidden;
-    height: 20px;
-    color: red;
-    font-size: 13px;
-	padding-left: 5px;
+  visibility: hidden;
+  height: 20px;
+  color: red;
+  font-size: 13px;
+  padding-left: 5px;
 }
+
 .form .error-message.visible {
-    visibility: visible;
+  visibility: visible;
 }
 
 .container {
-	height: 100vh;	
-	background: linear-gradient(90deg, #003366, #001a33); /*Color principal para login (gradiente)*/
-	display: flex;
-	justify-content: center;
-	align-items: center;
+  height: 100vh;
+  background: linear-gradient(90deg, #003366, #001a33);
+  /*Color principal para login (gradiente)*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 input[type='email'] {
-	background-image: url('../assets/MentionIcon.svg');
+  background-image: url('../assets/MentionIcon.svg');
 }
 
 input[name='rut'] {
-	background-image: url('../assets/IdentityCardIcon.svg');
+  background-image: url('../assets/IdentityCardIcon.svg');
 }
 
 input[name='nombreCompleto'] {
-	background-image: url('../assets/PersonIcon.svg');
+  background-image: url('../assets/PersonIcon.svg');
 }
 
 input[name='rol'] {
-	background-image: url('../assets/PasskeyIcon.svg');
-	
+  background-image: url('../assets/PasskeyIcon.svg');
+
 }
 
 .container_inputs {
-    position: relative;
-    margin-bottom: 5px;
+  position: relative;
+  margin-bottom: 5px;
 }
 
 input {
-    padding-right: 40px;
-    width: 100%;
+  padding-right: 40px;
+  width: 100%;
 }
 
 .toggle-password-icon {
-    position: absolute;
-    right: 15px;
-    top: 44%;
-    transform: translateY(-50%);
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
+  position: absolute;
+  right: 15px;
+  top: 44%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
 }
 
 .newPassword span {
-	top: 10px;
+  top: 10px;
 }
 
 .toggle-password-icon img{
@@ -437,4 +441,3 @@ input {
 	margin-top: 4px;
 	display: block;
 }
-
