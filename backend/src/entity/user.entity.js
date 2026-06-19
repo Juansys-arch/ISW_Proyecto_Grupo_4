@@ -65,6 +65,19 @@ const UserSchema = new EntitySchema({
       onUpdate: "CURRENT_TIMESTAMP",
       nullable: false,
     },
+    cuadrillaId: {
+      type: "int",
+      nullable: true,
+    },
+  },
+  relations: {
+    cuadrilla: {
+      type: "many-to-one",
+      target: "Cuadrilla",
+      joinColumn: { name: "cuadrillaId" },
+      nullable: true,
+      onDelete: "SET NULL",
+    },
   },
   indices: [
     {
