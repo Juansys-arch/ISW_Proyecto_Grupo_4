@@ -36,11 +36,30 @@ const IncidenciaSchema = new EntitySchema({
       length: 20,
       default: "pendiente",
       nullable: false,
-      // valores: "pendiente" | "en_proceso" | "resuelto"
+      // valores: "pendiente" | "listo" | "en_proceso" | "resuelto"
     },
     jefeCuadrillaId: {
       type: "int",
       nullable: false,
+    },
+    nombrePaciente: {
+      type: "varchar",
+      length: 255,
+      nullable: true,
+    },
+    rutPaciente: {
+      type: "varchar",
+      length: 20,
+      nullable: true,
+    },
+    ubicacionPaciente: {
+      type: "varchar",
+      length: 255,
+      nullable: true,
+    },
+    observacionMedica: {
+      type: "text",
+      nullable: true,
     },
     createdAt: {
       type: "timestamp with time zone",
@@ -63,4 +82,5 @@ const IncidenciaSchema = new EntitySchema({
     },
   },
 });
+
 export default IncidenciaSchema;

@@ -7,6 +7,7 @@ import {
   crearIncidencia,
   obtenerIncidencias,
   obtenerIncidenciaPorId,
+  generarReporteEmergencia,
 } from "../controllers/incidencia.controller.js";
 
 const router = Router();
@@ -29,6 +30,12 @@ router.get(
   "/:id",
   isAuthorized(["jefe_cuadrilla", "encargado_inventario", "administrador"]),
   obtenerIncidenciaPorId,
+);
+
+router.post(
+  "/:id/reporte-emergencia",
+  isAuthorized(["administrador"]),
+  generarReporteEmergencia,
 );
 
 export default router;

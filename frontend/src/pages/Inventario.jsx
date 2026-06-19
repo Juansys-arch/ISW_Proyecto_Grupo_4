@@ -1,6 +1,6 @@
 "use strict";
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     getMateriales,
     crearMaterial,
     registrarMovimiento,
@@ -18,7 +18,7 @@ export default function Inventario() {
     const [materiales, setMateriales] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userRole, setUserRole] = useState('');
-    
+
     // 2. Estados para controlar ventanas emergentes (Modales)
     const [showModalMaterial, setShowModalMaterial] = useState(false);
     const [showModalMovimiento, setShowModalMovimiento] = useState(false);
@@ -33,11 +33,11 @@ export default function Inventario() {
     const [solicitudesEncargado, setSolicitudesEncargado] = useState([]);
     const [movimientos, setMovimientos] = useState([]);
 
-    // Cargar datos iniciales (Materiales y Rol de usuario)
+
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                // Recuperar el usuario desde tu sessionStorage configurado en auth.service.js
+
                 const usuarioSession = sessionStorage.getItem('usuario');
                 let parsedUser = null;
                 if (usuarioSession) {
@@ -51,13 +51,13 @@ export default function Inventario() {
                 } else {
                     showErrorAlert('Error', 'No se pudieron cargar los materiales.');
                 }
-                // cargar solicitudes desde API según rol
+
                 try {
-                    if (parsedUser.rol === 'jefe_cuadrilla'){
+                    if (parsedUser.rol === 'jefe_cuadrilla') {
                         const mis = await getMisSolicitudes();
                         if (Array.isArray(mis)) setMisSolicitudes(mis);
                     }
-                    if (parsedUser.rol === 'encargado_inventario' || parsedUser.rol === 'administrador'){
+                    if (parsedUser.rol === 'encargado_inventario' || parsedUser.rol === 'administrador') {
                         const all = await getSolicitudes();
                         if (Array.isArray(all)) setSolicitudesEncargado(all);
                     }
@@ -88,12 +88,12 @@ export default function Inventario() {
         }
     };
 
-    // --- Controladores de Envíos de Formularios (Submit) ---
+
 
     const handleSubmitMaterial = async (e) => {
         e.preventDefault();
         const response = await crearMaterial(nuevoMaterial);
-        
+
         if (response.status === "Success" || response.id) {
             showSuccessAlert('¡Creado!', 'El material ha sido registrado correctamente.');
             setShowModalMaterial(false);
@@ -148,18 +148,18 @@ export default function Inventario() {
             cantidad: parseInt(nuevaSolicitud.cantidad)
         };
 
-        const response = await solicitarMaterial({...payload, ubicacion: nuevaSolicitud.ubicacion});
+        const response = await solicitarMaterial({ ...payload, ubicacion: nuevaSolicitud.ubicacion });
         if (response && (response.status === "Success" || response.id)) {
             showSuccessAlert('Enviado', 'La solicitud fue enviada al Encargado de Inventario.');
             setShowModalSolicitud(false);
             setNuevaSolicitud({ materialId: '', cantidad: 1, observacion: '', ubicacion: '' });
             // refrescar listas desde API
-            try{
+            try {
                 const mis = await getMisSolicitudes();
                 if (Array.isArray(mis)) setMisSolicitudes(mis);
                 const all = await getSolicitudes();
                 if (Array.isArray(all)) setSolicitudesEncargado(all);
-            }catch(err){console.error(err)}
+            } catch (err) { console.error(err) }
         } else {
             showErrorAlert('Error', response.message || 'No se pudo procesar la solicitud.');
         }
@@ -172,25 +172,25 @@ export default function Inventario() {
             <div className="header-section">
                 <h1>Panel de Control de Inventario</h1>
                 <p>Bienvenido. Tu rol actual es: <strong>{userRole}</strong></p>
-                
+
                 {/* Botonera dinámica según roles */}
                 <div className="action-buttons">
                     {(userRole === 'administrador' || userRole === 'encargado_inventario') && (
                         <>
                             <button className={`btn btn-primary tab-link ${activeTab === 'materiales' ? 'active' : ''}`} onClick={() => setActiveTab('materiales')}>
-                                📦 Materiales
+                                Materiales
                             </button>
                             <button className={`btn btn-primary tab-link ${activeTab === 'movimientos' ? 'active' : ''}`} onClick={handleOpenMovimientos}>
-                                🧾 Historial de movimientos
+                                Historial de movimientos
                             </button>
                             <button className="btn btn-secondary" onClick={() => setShowModalMovimiento(true)}>
-                                ⇅ Registrar Entrada/Salida
+                                Registrar Entrada/Salida
                             </button>
                         </>
                     )}
                     {userRole === 'jefe_cuadrilla' && (
                         <button className="btn btn-success" onClick={() => setShowModalSolicitud(true)}>
-                            📋 Solicitar Material para Cuadrilla
+                            Solicitar Material para Cuadrilla
                         </button>
                     )}
                 </div>
@@ -199,84 +199,84 @@ export default function Inventario() {
             {/* Tabla de Existencias (oculta para jefe de cuadrilla) */}
             {userRole !== 'jefe_cuadrilla' ? (
                 <>
-                {activeTab === 'materiales' && (
-                <div className="table-container">
-                    <table className="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Stock Actual</th>
-                                <th>Mínimo Requerido</th>
-                                <th>U. Medida</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {materiales.map((material) => {
-                                const esStockBajo = material.stockActual <= material.stockMinimo;
-                                return (
-                                    <tr key={material.id} className={esStockBajo ? 'row-alert-stock' : ''}>
-                                        <td><strong>{material.nombre}</strong></td>
-                                        <td>{material.descripcion || 'Sin descripción'}</td>
-                                        <td className="stock-number">{material.stockActual}</td>
-                                        <td>{material.stockMinimo}</td>
-                                        <td><span className="badge-unit">{material.unidadMedida}</span></td>
-                                        <td>
-                                            {esStockBajo ? (
-                                                <span className="status-badge critico">Crítico</span>
-                                            ) : (
-                                                <span className="status-badge ok">Óptimo</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-                )}
-
-                {activeTab === 'movimientos' && (
-                    <div className="table-container" style={{ marginTop: '20px' }}>
-                        <div className="header-section movimientos-header" style={{ marginBottom: '10px' }}>
-                            <div>
-                                <h1>Historial de movimientos</h1>
-                                <p>Entradas, salidas y responsable de cada cambio.</p>
-                            </div>
-                        </div>
-                        <table className="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Material</th>
-                                    <th>Tipo</th>
-                                    <th>Cantidad</th>
-                                    <th>Realizado por</th>
-                                    <th>Observación</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {movimientos.length === 0 ? (
+                    {activeTab === 'materiales' && (
+                        <div className="table-container">
+                            <table className="custom-table">
+                                <thead>
                                     <tr>
-                                        <td colSpan="6" className="text-center">No hay movimientos registrados.</td>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Stock Actual</th>
+                                        <th>Mínimo Requerido</th>
+                                        <th>U. Medida</th>
+                                        <th>Estado</th>
                                     </tr>
-                                ) : (
-                                    movimientos.map((movimiento) => (
-                                        <tr key={movimiento.id}>
-                                            <td>{new Date(movimiento.fecha || movimiento.createdAt).toLocaleString()}</td>
-                                            <td>{movimiento.material?.nombre || '—'}</td>
-                                            <td>{movimiento.tipo}</td>
-                                            <td>{movimiento.cantidad}</td>
-                                            <td>{movimiento.responsable?.nombreCompleto || movimiento.responsable?.email || `ID: ${movimiento.responsableId}`}</td>
-                                            <td>{movimiento.observacion || '—'}</td>
+                                </thead>
+                                <tbody>
+                                    {materiales.map((material) => {
+                                        const esStockBajo = material.stockActual <= material.stockMinimo;
+                                        return (
+                                            <tr key={material.id} className={esStockBajo ? 'row-alert-stock' : ''}>
+                                                <td><strong>{material.nombre}</strong></td>
+                                                <td>{material.descripcion || 'Sin descripción'}</td>
+                                                <td className="stock-number">{material.stockActual}</td>
+                                                <td>{material.stockMinimo}</td>
+                                                <td><span className="badge-unit">{material.unidadMedida}</span></td>
+                                                <td>
+                                                    {esStockBajo ? (
+                                                        <span className="status-badge critico">Crítico</span>
+                                                    ) : (
+                                                        <span className="status-badge ok">Óptimo</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {activeTab === 'movimientos' && (
+                        <div className="table-container" style={{ marginTop: '20px' }}>
+                            <div className="header-section movimientos-header" style={{ marginBottom: '10px' }}>
+                                <div>
+                                    <h1>Historial de movimientos</h1>
+                                    <p>Entradas, salidas y responsable de cada cambio.</p>
+                                </div>
+                            </div>
+                            <table className="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Material</th>
+                                        <th>Tipo</th>
+                                        <th>Cantidad</th>
+                                        <th>Realizado por</th>
+                                        <th>Observación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {movimientos.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="6" className="text-center">No hay movimientos registrados.</td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                    ) : (
+                                        movimientos.map((movimiento) => (
+                                            <tr key={movimiento.id}>
+                                                <td>{new Date(movimiento.fecha || movimiento.createdAt).toLocaleString()}</td>
+                                                <td>{movimiento.material?.nombre || '—'}</td>
+                                                <td>{movimiento.tipo}</td>
+                                                <td>{movimiento.cantidad}</td>
+                                                <td>{movimiento.responsable?.nombreCompleto || movimiento.responsable?.email || `ID: ${movimiento.responsableId}`}</td>
+                                                <td>{movimiento.observacion || '—'}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </>
             ) : (
                 <div>
@@ -365,17 +365,17 @@ export default function Inventario() {
                         <h2>Registrar Nuevo Material en Catálogo</h2>
                         <form onSubmit={handleSubmitMaterial}>
                             <label>Nombre del Material:</label>
-                            <input type="text" required value={nuevoMaterial.nombre} onChange={(e) => setNuevoMaterial({...nuevoMaterial, nombre: e.target.value})} />
-                            
+                            <input type="text" required value={nuevoMaterial.nombre} onChange={(e) => setNuevoMaterial({ ...nuevoMaterial, nombre: e.target.value })} />
+
                             <label>Descripción:</label>
-                            <textarea value={nuevoMaterial.descripcion} onChange={(e) => setNuevoMaterial({...nuevoMaterial, descripcion: e.target.value})} />
-                            
+                            <textarea value={nuevoMaterial.descripcion} onChange={(e) => setNuevoMaterial({ ...nuevoMaterial, descripcion: e.target.value })} />
+
                             <label>Unidad de Medida (Ej: Kg, Unidades, Litros):</label>
-                            <input type="text" required value={nuevoMaterial.unidadMedida} onChange={(e) => setNuevoMaterial({...nuevoMaterial, unidadMedida: e.target.value})} />
-                            
+                            <input type="text" required value={nuevoMaterial.unidadMedida} onChange={(e) => setNuevoMaterial({ ...nuevoMaterial, unidadMedida: e.target.value })} />
+
                             <label>Stock Mínimo de Seguridad:</label>
-                            <input type="number" min="0" required value={nuevoMaterial.stockMinimo} onChange={(e) => setNuevoMaterial({...nuevoMaterial, stockMinimo: parseInt(e.target.value)})} />
-                            
+                            <input type="number" min="0" required value={nuevoMaterial.stockMinimo} onChange={(e) => setNuevoMaterial({ ...nuevoMaterial, stockMinimo: parseInt(e.target.value) })} />
+
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={() => setShowModalMaterial(false)}>Cancelar</button>
                                 <button type="submit" className="btn-submit">Guardar Material</button>
@@ -407,28 +407,28 @@ export default function Inventario() {
                             {nuevoMovimiento.materialId === 'new' && (
                                 <>
                                     <label>Nombre del nuevo material:</label>
-                                    <input required type="text" value={nuevoMovimiento.newMaterialNombre} onChange={(e) => setNuevoMovimiento({...nuevoMovimiento, newMaterialNombre: e.target.value})} />
+                                    <input required type="text" value={nuevoMovimiento.newMaterialNombre} onChange={(e) => setNuevoMovimiento({ ...nuevoMovimiento, newMaterialNombre: e.target.value })} />
 
                                     <label>Descripción del nuevo material:</label>
                                     <textarea
                                         value={nuevoMovimiento.newMaterialDescripcion}
-                                        onChange={(e) => setNuevoMovimiento({...nuevoMovimiento, newMaterialDescripcion: e.target.value})}
+                                        onChange={(e) => setNuevoMovimiento({ ...nuevoMovimiento, newMaterialDescripcion: e.target.value })}
                                         placeholder="Ej: Material para uso general en cuadrilla"
                                     />
 
                                     <label>Unidad de medida:</label>
-                                    <input required type="text" value={nuevoMovimiento.newMaterialUnidad} onChange={(e) => setNuevoMovimiento({...nuevoMovimiento, newMaterialUnidad: e.target.value})} placeholder="Ej: unid., Kg" />
+                                    <input required type="text" value={nuevoMovimiento.newMaterialUnidad} onChange={(e) => setNuevoMovimiento({ ...nuevoMovimiento, newMaterialUnidad: e.target.value })} placeholder="Ej: unid., Kg" />
                                 </>
                             )}
 
                             <label>Tipo de Flujo:</label>
-                            <select value={nuevoMovimiento.tipo} onChange={(e) => setNuevoMovimiento({...nuevoMovimiento, tipo: e.target.value})}>
+                            <select value={nuevoMovimiento.tipo} onChange={(e) => setNuevoMovimiento({ ...nuevoMovimiento, tipo: e.target.value })}>
                                 <option value="entrada">Entrada (+) (Abastecimiento)</option>
                                 <option value="salida">Salida (-) (Despacho a terreno)</option>
                             </select>
 
                             <label>Cantidad:</label>
-                            <input type="number" min="1" required value={nuevoMovimiento.cantidad} onChange={(e) => setNuevoMovimiento({...nuevoMovimiento, cantidad: e.target.value})} />
+                            <input type="number" min="1" required value={nuevoMovimiento.cantidad} onChange={(e) => setNuevoMovimiento({ ...nuevoMovimiento, cantidad: e.target.value })} />
 
                             {nuevoMovimiento.materialId && nuevoMovimiento.materialId !== 'new' && (
                                 <>
@@ -437,7 +437,7 @@ export default function Inventario() {
                                         type="text"
                                         placeholder="Ej: Salida para obra sector norte"
                                         value={nuevoMovimiento.observacion}
-                                        onChange={(e) => setNuevoMovimiento({...nuevoMovimiento, observacion: e.target.value})}
+                                        onChange={(e) => setNuevoMovimiento({ ...nuevoMovimiento, observacion: e.target.value })}
                                     />
                                 </>
                             )}
@@ -458,7 +458,7 @@ export default function Inventario() {
                         <h2>Formulario de Requerimiento de Materiales</h2>
                         <form onSubmit={handleSubmitSolicitud}>
                             <label>Material Necesario:</label>
-                            <select required value={nuevaSolicitud.materialId} onChange={(e) => setNuevaSolicitud({...nuevaSolicitud, materialId: e.target.value})}>
+                            <select required value={nuevaSolicitud.materialId} onChange={(e) => setNuevaSolicitud({ ...nuevaSolicitud, materialId: e.target.value })}>
                                 <option value="">-- Seleccionar --</option>
                                 {materiales.map(m => (
                                     <option key={m.id} value={m.id}>{m.nombre} ({m.unidadMedida})</option>
@@ -466,13 +466,13 @@ export default function Inventario() {
                             </select>
 
                             <label>Cantidad Solicitada:</label>
-                            <input type="number" min="1" required value={nuevaSolicitud.cantidad} onChange={(e) => setNuevaSolicitud({...nuevaSolicitud, cantidad: e.target.value})} />
+                            <input type="number" min="1" required value={nuevaSolicitud.cantidad} onChange={(e) => setNuevaSolicitud({ ...nuevaSolicitud, cantidad: e.target.value })} />
 
                             <label>Detalle de la Faena u Observaciones:</label>
-                            <textarea placeholder="Ej: Para reparaciones en sector Norte..." value={nuevaSolicitud.observacion} onChange={(e) => setNuevaSolicitud({...nuevaSolicitud, observacion: e.target.value})} />
+                            <textarea placeholder="Ej: Para reparaciones en sector Norte..." value={nuevaSolicitud.observacion} onChange={(e) => setNuevaSolicitud({ ...nuevaSolicitud, observacion: e.target.value })} />
 
                             <label>Ubicación / Dirección de despacho:</label>
-                            <input type="text" placeholder="Ej: Sector Norte - Avenida 123" value={nuevaSolicitud.ubicacion} onChange={(e) => setNuevaSolicitud({...nuevaSolicitud, ubicacion: e.target.value})} />
+                            <input type="text" placeholder="Ej: Sector Norte - Avenida 123" value={nuevaSolicitud.ubicacion} onChange={(e) => setNuevaSolicitud({ ...nuevaSolicitud, ubicacion: e.target.value })} />
 
                             <div className="modal-actions">
                                 <button type="button" className="btn-cancel" onClick={() => setShowModalSolicitud(false)}>Cancelar</button>

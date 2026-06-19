@@ -12,7 +12,7 @@ export async function getMateriales() {
 }
 export async function getMaterialPorId(id){
     try{
-        const {data}=await axios.get('/inventario/materiales/${id}');
+        const {data}=await axios.get(`/inventario/materiales/${id}`);
         return data.data
     }catch(error){
         return error.response.data;
@@ -28,8 +28,8 @@ export async function crearMaterial(dataMaterial){
 }
 export async function updateMaterial(id, dataMovimiento){
     try{
-        const{data} = await axios.put('/inventario/materiales/${id}',dataMovimiento);
-        return response.data.data;
+        const{data} = await axios.patch(`/inventario/materiales/${id}`,dataMovimiento);
+        return data.data;
     }catch(error){
         return error.response.data;
     }

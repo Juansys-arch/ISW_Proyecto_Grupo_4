@@ -27,3 +27,12 @@ export async function getIncidenciaPorId(id){
         return error.response.data;
     }
 }
+
+export async function generarReporteEmergencia(id, dataReporte) {
+    try {
+        const { data } = await axios.post(`/incidencias/${id}/reporte-emergencia`, dataReporte);
+        return data;
+    } catch (error) {
+        return error.response.data;
+    }
+}

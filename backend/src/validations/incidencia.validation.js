@@ -34,6 +34,63 @@ export const crearIncidenciaValidation = Joi.object({
       "any.required": "El tipo es requerido.",
     }),
   estado: Joi.string()
-    .valid("pendiente", "en_proceso", "resuelto")
+    .valid("pendiente", "listo", "en_proceso", "resuelto")
+    .optional(),
+  nombrePaciente: Joi.string()
+    .allow(null, "")
+    .max(255)
+    .optional(),
+  rutPaciente: Joi.string()
+    .pattern(/^\d{9}$/)
+    .allow(null, "")
+    .max(20)
+    .optional(),
+  ubicacionPaciente: Joi.string()
+    .allow(null, "")
+    .max(255)
+    .optional(),
+  observacionMedica: Joi.string()
+    .allow(null, "")
+    .max(1000)
+    .optional(),
+}).unknown(false);
+
+export const reporteEmergenciaValidation = Joi.object({
+  nombrePaciente: Joi.string()
+    .min(3)
+    .max(255)
+    .required()
+    .messages({
+      "string.empty": "El nombre del paciente es requerido.",
+      "any.required": "El nombre del paciente es requerido.",
+      "string.min": "El nombre del paciente debe tener al menos 3 caracteres.",
+    }),
+  rutPaciente: Joi.string()
+    .pattern(/^\d{9}$/)
+    .required()
+    .messages({
+      "string.empty": "El RUT del paciente es requerido.",
+      "any.required": "El RUT del paciente es requerido.",
+      "string.pattern.base": "El RUT del paciente debe tener exactamente 9 números.",
+    }),
+  ubicacionPaciente: Joi.string()
+    .min(3)
+    .max(255)
+    .required()
+    .messages({
+      "string.empty": "La ubicación del paciente es requerida.",
+      "any.required": "La ubicación del paciente es requerida.",
+      "string.min": "La ubicación del paciente debe tener al menos 3 caracteres.",
+    }),
+  gravedad: Joi.string()
+    .valid("alta", "critica")
+    .required()
+    .messages({
+      "any.only": "La gravedad debe ser alta o critica.",
+      "any.required": "La gravedad es requerida.",
+    }),
+  observacionMedica: Joi.string()
+    .allow(null, "")
+    .max(1000)
     .optional(),
 }).unknown(false);

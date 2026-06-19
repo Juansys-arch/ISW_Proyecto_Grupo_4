@@ -79,7 +79,7 @@ const NotificacionesDropdown = ({ userRole }) => {
                             {notificaciones.map(n => (
                                 <li key={n.id} style={{ fontSize: '0.85rem', color: '#17324d', padding: '8px 0', borderBottom: '1px solid #edf2f7', display: 'flex', flexDirection: 'column', gap: '5px' }}>
                                     <span>{n.mensaje}</span>
-                                    <button 
+                                    <button
                                         onClick={() => handleMarcarLeida(n.id)}
                                         style={{ alignSelf: 'flex-end', background: '#0b5ca8', color: '#fff', border: 'none', borderRadius: '6px', padding: '2px 6px', fontSize: '0.75rem', cursor: 'pointer' }}
                                     >
