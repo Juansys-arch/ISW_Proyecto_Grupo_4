@@ -1,18 +1,70 @@
 "use strict";
 import { DataSource } from "typeorm";
-import { DATABASE, DB_USERNAME, HOST, PASSWORD, DB_PORT } from "./configEnv.js";
+import { DATABASE_URL, DB_USERNAME, HOST, PASSWORD, DATABASE } from "./configEnv.js";
 
-export const AppDataSource = new DataSource({
-  type: "postgres",
-  host: `${HOST}`,
-  port: Number(DB_PORT),
-  username: `${DB_USERNAME}`,
-  password: `${PASSWORD}`,
-  database: `${DATABASE}`,
-  entities: ["src/entity/**/*.js"],
-  synchronize: true,
-  logging: false,
-});
+import AsignacionHerramientas from "../entity/asignacionHerramientas.entity.js";
+import Asistencia from "../entity/asistencia.entity.js";
+import Incidencia from "../entity/incidencia.entity.js";
+import Material from "../entity/material.entity.js";
+import MovimientoInventario from "../entity/movimientoinventario.entity.js";
+import Notificacion from "../entity/notificacion.entity.js";
+import User from "../entity/user.entity.js";
+import KitHerramientas from "../entity/kitHerramientas.entity.js";
+import Transporte from "../entity/transporte.entity.js";
+import Cuadrilla from "../entity/cuadrilla.entity.js";
+
+// Función para parsear DATABASE_URL
+function getDatabaseConfig() {
+  if (DATABASE_URL) {
+    // Usar DATABASE_URL si está disponible
+    return {
+      type: "postgres",
+      url: DATABASE_URL,
+      entities: [
+        AsignacionHerramientas,
+        Asistencia,
+        Incidencia,
+        Material,
+        MovimientoInventario,
+        Notificacion,
+        User,
+        KitHerramientas,
+        Transporte,
+        Cuadrilla
+      ],
+      synchronize: true,
+      logging: false,
+    };
+  } else if (DB_USERNAME && PASSWORD && DATABASE && HOST) {
+    // Usar variables individuales como fallback
+    return {
+      type: "postgres",
+      host: `${HOST}`,
+      port: 5432,
+      username: `${DB_USERNAME}`,
+      password: `${PASSWORD}`,
+      database: `${DATABASE}`,
+      entities: [
+        AsignacionHerramientas,
+        Asistencia,
+        Incidencia,
+        Material,
+        MovimientoInventario,
+        Notificacion,
+        User,
+        KitHerramientas,
+        Transporte,
+        Cuadrilla
+      ],
+      synchronize: true,
+      logging: false,
+    };
+  } else {
+    throw new Error("No DATABASE_URL o variables de BD individuales configuradas");
+  }
+}
+
+export const AppDataSource = new DataSource(getDatabaseConfig());
 
 export async function connectDB() {
   try {

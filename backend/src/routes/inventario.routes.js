@@ -2,15 +2,15 @@
 import { Router } from "express";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAuthorized } from "../middlewares/authorization.middleware.js";
-import {crearMaterial,obtenerMateriales,obtenerMaterialPorId,actualizarMaterial,registrarMovimiento,obtenerMovimientos,solicitarMaterial,} from "../controllers/inventario.controller.js"; 
+import {crearMaterial,obtenerMateriales,obtenerMaterialPorId,actualizarMaterial,registrarMovimiento,obtenerMovimientos,solicitarMaterial, obtenerSolicitudes, obtenerMisSolicitudes, actualizarEstadoSolicitud } from "../controllers/inventario.controller.js"; 
 const router = Router();
+
 router.use(authenticateJwt);
  
 
- 
 router.post(
   "/materiales",
-  isAuthorized(["encargado_inventario", "administrador"]),
+  isAuthorized(["jefe_cuadrilla"]),
   crearMaterial
 );
  
@@ -30,23 +30,23 @@ router.patch(
   isAuthorized(["encargado_inventario", "administrador"]),
   actualizarMaterial
 );
-//movimientos
-router.post(
-  "/movimientos",
+
+router.get(
+  "/solicitudes",
   isAuthorized(["encargado_inventario", "administrador"]),
-  registrarMovimiento
+  obtenerSolicitudes
 );
 
 router.get(
-  "/movimientos",
-  isAuthorized(["encargado_inventario", "administrador"]),
-  obtenerMovimientos
+  "/solicitudes/mis",
+  isAuthorized(["jefe_cuadrilla", "administrador"]),
+  obtenerMisSolicitudes
 );
-///solicitudes
-router.post(
-  "/solicitudes",
-  isAuthorized(["jefe_cuadrilla"]),
-  solicitarMaterial
+
+router.patch(
+  "/solicitudes/:id/estado",
+  isAuthorized(["encargado_inventario", "administrador"]),
+  actualizarEstadoSolicitud
 );
 
 

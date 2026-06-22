@@ -4,17 +4,23 @@ import { AppDataSource } from "../config/configDb.js";
 const notificacionRepository = AppDataSource.getRepository("Notificacion");
 const userRepository = AppDataSource.getRepository("User");
 
-export async function notificarAdministrador({ tipo, mensaje, incidenciaId = null, materialId = null }) {
+export async function notificarPorRoles({
+  roles = ["encargado_inventario", "administrador"],
+  tipo,
+  mensaje,
+  incidenciaId = null,
+  materialId = null,
+}) {
   try {
-    const administradores = await userRepository.find({
-      where: { rol: "encargado_inventario" },
+    const destinatarios = await userRepository.find({
+      where: roles.map((rol) => ({ rol })),
       select: ["id"],
     });
 
-    if (!administradores.length) return;
+    if (!destinatarios.length) return;
 
-    const notificaciones = administradores.map((admin) => ({
-      administradorId: admin.id,
+    const notificaciones = destinatarios.map((destinatario) => ({
+      administradorId: destinatario.id,
       tipo,
       mensaje,
       incidenciaId,
@@ -26,6 +32,13 @@ export async function notificarAdministrador({ tipo, mensaje, incidenciaId = nul
   } catch (error) {
     console.error("Error al generar notificación:", error.message);
   }
+}
+
+export async function notificarAdministrador(datos) {
+  return notificarPorRoles({
+    ...datos,
+    roles: ["encargado_inventario", "administrador"],
+  });
 }
 
 export async function obtenerNotificacionesService(administradorId) {

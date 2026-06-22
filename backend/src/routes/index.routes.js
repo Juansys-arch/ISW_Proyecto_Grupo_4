@@ -2,20 +2,24 @@
 import { Router } from "express";
 import userRoutes from "./user.routes.js";
 import authRoutes from "./auth.routes.js";
-import studentRoutes from "./student.routes.js";
 import inventarioRoutes from "./inventario.routes.js";
+import gestionRoutes from "./gestion.routes.js";
+import kitRoutes from "./kit.routes.js";
+import transporteRoutes from "./transporte.routes.js";
 import notificacionRoutes from "./notificacion.routes.js";
 import volunteerRoutes from "./volunteer.routes.js";
+import incidenciaRoutes from "./incidencia.routes.js";
 
 const router = Router();
-
 router
   .use("/auth", authRoutes)
   .use("/user", userRoutes)
-  .use("/students", studentRoutes)
   .use("/inventario", inventarioRoutes)
-  .use("/notificaciones", notificacionRoutes);
-
-router.use("/volunteer", volunteerRoutes);
+  .use("/gestion", gestionRoutes)
+  .use("/kits", kitRoutes)
+  .use("/transporte", transporteRoutes)
+  .use("/notificaciones", notificacionRoutes)
+  .use("/incidencias", incidenciaRoutes)
+  .use("/volunteer", volunteerRoutes);
 
 export default router;

@@ -4,8 +4,10 @@ import '@styles/form.css';
 import HideIcon from '../assets/HideIcon.svg';
 import ViewIcon from '../assets/ViewIcon.svg';
 
-const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundColor }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundColor, initialValues }) => {
+    const { register, handleSubmit, formState: { errors } } = useForm({
+        defaultValues: initialValues || {}
+    });
     const [showPassword, setShowPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
 
@@ -28,79 +30,88 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
             onSubmit={handleSubmit(onFormSubmit)}
             autoComplete="off"
         >
-            <h1>{title}</h1>
-            {fields.map((field, index) => (
-                <div className="container_inputs" key={index}>
-                    {field.label && <label htmlFor={field.name}>{field.label}</label>}
-                    {field.fieldType === 'input' && (
-                        <input
-                            {...register(field.name, {
-                                required: field.required ? 'Este campo es obligatorio' : false,
-                                minLength: field.minLength ? { value: field.minLength, message: `Debe tener al menos ${field.minLength} caracteres` } : false,
-                                maxLength: field.maxLength ? { value: field.maxLength, message: `Debe tener máximo ${field.maxLength} caracteres` } : false,
-                                pattern: field.pattern ? { value: field.pattern, message: field.patternMessage || 'Formato no válido' } : false,
-                                validate: field.validate || {},
-                            })}
-                            name={field.name}
-                            placeholder={field.placeholder}
-                            type={field.type === 'password' && field.name === 'password' ? (showPassword ? 'text' : 'password') :
-                                field.type === 'password' && field.name === 'newPassword' ? (showNewPassword ? 'text' : 'password') :
-                                field.type}
-                            defaultValue={field.defaultValue || ''}
-                            disabled={field.disabled}
-                            onChange={field.onChange}
-                        />
-                    )}
-                    {field.fieldType === 'textarea' && (
-                        <textarea
-                            {...register(field.name, {
-                                required: field.required ? 'Este campo es obligatorio' : false,
-                                minLength: field.minLength ? { value: field.minLength, message: `Debe tener al menos ${field.minLength} caracteres` } : false,
-                                maxLength: field.maxLength ? { value: field.maxLength, message: `Debe tener máximo ${field.maxLength} caracteres` } : false,
-                                pattern: field.pattern ? { value: field.pattern, message: field.patternMessage || 'Formato no válido' } : false,
-                                validate: field.validate || {},
-                            })}
-                            name={field.name}
-                            placeholder={field.placeholder}
-                            defaultValue={field.defaultValue || ''}
-                            disabled={field.disabled}
-                            onChange={field.onChange}
-                        />
-                    )}
-                    {field.fieldType === 'select' && (
-                        <select
-                            {...register(field.name, {
-                                required: field.required ? 'Este campo es obligatorio' : false,
-                                validate: field.validate || {},
-                            })}
-                            name={field.name}
-                            defaultValue={field.defaultValue || ''}
-                            disabled={field.disabled}
-                            onChange={field.onChange}
-                        >
-                            <option value="">Seleccionar opción</option>
-                            {field.options && field.options.map((option, optIndex) => (
-                                <option className="options-class" key={optIndex} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                    {field.type === 'password' && field.name === 'password' && (
-                        <span className="toggle-password-icon" onClick={togglePasswordVisibility}>
-                            <img src={showPassword ? ViewIcon : HideIcon} />
-                        </span>
-                    )}
-                    {field.type === 'password' && field.name === 'newPassword' && (
-                        <span className="toggle-password-icon" onClick={toggleNewPasswordVisibility}>
-                            <img src={showNewPassword ? ViewIcon : HideIcon} />
-                        </span>
-                    )}
-                    <div className={`error-message ${errors[field.name] || field.errorMessageData ? 'visible' : ''}`}>
-                        {errors[field.name]?.message || field.errorMessageData || ''}
+            {title && <h1>{title}</h1>}
+            {fields && fields.map((field, index) => {
+                // Detectar tipo de campo automáticamente
+                const fieldType = field.fieldType || (field.type === 'textarea' ? 'textarea' : field.type === 'select' ? 'select' : 'input');
+                const isPasswordField = (field.type === 'password');
+                const isText = fieldType === 'input' || fieldType === 'text' || fieldType === 'number' || fieldType === 'date' || fieldType === 'time' || fieldType === 'email' || fieldType === 'password';
+                
+                return (
+                    <div className="container_inputs" key={index}>
+                        {field.label && <label htmlFor={field.name}>{field.label}</label>}
+                        
+                        {isText && (
+                            <input
+                                {...register(field.name, {
+                                    required: field.required ? 'Este campo es obligatorio' : false,
+                                    minLength: field.minLength ? { value: field.minLength, message: `Debe tener al menos ${field.minLength} caracteres` } : false,
+                                    maxLength: field.maxLength ? { value: field.maxLength, message: `Debe tener máximo ${field.maxLength} caracteres` } : false,
+                                    pattern: field.pattern ? { value: field.pattern, message: field.patternMessage || 'Formato no válido' } : false,
+                                    validate: field.validate || {},
+                                })}
+                                name={field.name}
+                                placeholder={field.placeholder || ''}
+                                type={isPasswordField && field.name === 'password' ? (showPassword ? 'text' : 'password') :
+                                    isPasswordField && field.name === 'newPassword' ? (showNewPassword ? 'text' : 'password') :
+                                    field.type}
+                                disabled={field.disabled || false}
+                                onChange={field.onChange}
+                            />
+                        )}
+                        
+                        {fieldType === 'textarea' && (
+                            <textarea
+                                {...register(field.name, {
+                                    required: field.required ? 'Este campo es obligatorio' : false,
+                                    minLength: field.minLength ? { value: field.minLength, message: `Debe tener al menos ${field.minLength} caracteres` } : false,
+                                    maxLength: field.maxLength ? { value: field.maxLength, message: `Debe tener máximo ${field.maxLength} caracteres` } : false,
+                                    pattern: field.pattern ? { value: field.pattern, message: field.patternMessage || 'Formato no válido' } : false,
+                                    validate: field.validate || {},
+                                })}
+                                name={field.name}
+                                placeholder={field.placeholder || ''}
+                                disabled={field.disabled || false}
+                                onChange={field.onChange}
+                            />
+                        )}
+                        
+                        {fieldType === 'select' && (
+                            <select
+                                {...register(field.name, {
+                                    required: field.required ? 'Este campo es obligatorio' : false,
+                                    validate: field.validate || {},
+                                })}
+                                name={field.name}
+                                disabled={field.disabled || false}
+                                onChange={field.onChange}
+                            >
+                                <option value="">Seleccionar opción</option>
+                                {field.options && field.options.map((option, optIndex) => (
+                                    <option className="options-class" key={optIndex} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                        
+                        {isPasswordField && field.name === 'password' && (
+                            <span className="toggle-password-icon" onClick={togglePasswordVisibility}>
+                                <img src={showPassword ? ViewIcon : HideIcon} alt="toggle" />
+                            </span>
+                        )}
+                        {isPasswordField && field.name === 'newPassword' && (
+                            <span className="toggle-password-icon" onClick={toggleNewPasswordVisibility}>
+                                <img src={showNewPassword ? ViewIcon : HideIcon} alt="toggle" />
+                            </span>
+                        )}
+                        
+                        <div className={`error-message ${errors[field.name] || field.errorMessageData ? 'visible' : ''}`}>
+                            {errors[field.name]?.message || field.errorMessageData || ''}
+                        </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
             {buttonText && <button type="submit">{buttonText}</button>}
             {footerContent && <div className="footerContent">{footerContent}</div>}
         </form>

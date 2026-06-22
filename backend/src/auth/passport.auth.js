@@ -5,17 +5,8 @@ import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import { ACCESS_TOKEN_SECRET } from "../config/configEnv.js";
 import { AppDataSource } from "../config/configDb.js";
 
-function cookieJwtExtractor(req) {
-  if (!req || !req.cookies) return null;
-
-  return req.cookies.jwt || req.cookies["jwt-auth"] || null;
-}
-
 const options = {
-  jwtFromRequest: ExtractJwt.fromExtractors([
-    cookieJwtExtractor,
-    ExtractJwt.fromAuthHeaderAsBearerToken(),
-  ]),
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: ACCESS_TOKEN_SECRET,
 };
 

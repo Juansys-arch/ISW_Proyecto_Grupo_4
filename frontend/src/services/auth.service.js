@@ -27,8 +27,7 @@ export async function register(data) {
     try {
         const dataRegister = convertirMinusculas(data);
         const { nombreCompleto, email, rut, password } = dataRegister
-        // Send registration as a student so it goes into pending approval
-        const response = await axios.post('/students/register', {
+        const response = await axios.post('/auth/register', {
             nombreCompleto,
             email,
             rut,

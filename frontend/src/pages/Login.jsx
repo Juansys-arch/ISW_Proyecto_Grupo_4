@@ -20,7 +20,6 @@ const Login = () => {
             if (response.status === 'Success') {
                 navigate('/home');
             } else if (response.status === 'Client error') {
-                // If the error is about account status (pending), show a user-friendly alert
                 if (response.details && response.details.dataInfo === 'status') {
                     showErrorAlert('Acceso restringido', response.details.message);
                 } else {
@@ -33,49 +32,63 @@ const Login = () => {
     };
 
     return (
-        <main className="container">
-            <Form
-                title="Iniciar sesión"
-                fields={[
-                    {
-                        label: "Correo electrónico",
-                        name: "email",
-                        placeholder: "example@gmail.cl",
-                        fieldType: 'input',
-                        type: "email",
-                        required: true,
-                        minLength: 15,
-                        maxLength: 30,
-                        errorMessageData: errorEmail,
-                        validate: {
-                            emailDomain: (value) => value.endsWith('@gmail.cl') || 'El correo debe ser institucional (@gmail.cl)'
+        <div className="login-container">
+            <div className="login-wrapper">
+                <div className="login-header">
+                    <div className="logo-container">
+                        <div className="logo-icon">🏢</div>
+                        <h1 className="login-title">TECHO-CORE</h1>
+                    </div>
+                    <p className="login-subtitle">Sistema de Gestión de Jornadas</p>
+                </div>
+
+                <Form
+                    title="Iniciar sesión"
+                    fields={[
+                        {
+                            label: "Correo electrónico",
+                            name: "email",
+                            placeholder: "example@gmail.cl",
+                            fieldType: 'input',
+                            type: "email",
+                            required: true,
+                            minLength: 15,
+                            maxLength: 64,
+                            errorMessageData: errorEmail,
+                            validate: {
+                                emailDomain: (value) => value.endsWith('@gmail.cl') || 'El correo debe ser institucional (@gmail.cl)'
+                            },
+                            onChange: (e) => handleInputChange('email', e.target.value),
                         },
-                        onChange: (e) => handleInputChange('email', e.target.value),
-                    },
-                    {
-                        label: "Contraseña",
-                        name: "password",
-                        placeholder: "**********",
-                        fieldType: 'input',
-                        type: "password",
-                        required: true,
-                        minLength: 8,
-                        maxLength: 26,
-                        pattern: /^[a-zA-Z0-9]+$/,
-                        patternMessage: "Debe contener solo letras y números",
-                        errorMessageData: errorPassword,
-                        onChange: (e) => handleInputChange('password', e.target.value)
-                    },
-                ]}
-                buttonText="Iniciar sesión"
-                onSubmit={loginSubmit}
-                footerContent={
-                    <p>
-                        ¿No tienes cuenta?, <a href="/register">¡Regístrate aquí!</a>
-                    </p>
-                }
-            />
-        </main>
+                        {
+                            label: "Contraseña",
+                            name: "password",
+                            placeholder: "**********",
+                            fieldType: 'input',
+                            type: "password",
+                            required: true,
+                            minLength: 8,
+                            maxLength: 26,
+                            pattern: /^[a-zA-Z0-9]+$/,
+                            patternMessage: "Debe contener solo letras y números",
+                            errorMessageData: errorPassword,
+                            onChange: (e) => handleInputChange('password', e.target.value)
+                        },
+                    ]}
+                    buttonText="Iniciar sesión"
+                    onSubmit={loginSubmit}
+                    footerContent={
+                        <p className="login-footer">
+                            ¿No tienes cuenta?, <a href="/register">¡Regístrate aquí!</a>
+                        </p>
+                    }
+                />
+
+                <div className="login-footer-info">
+                    <p>© 2026 TECHO-CORE. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
     );
 };
 

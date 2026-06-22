@@ -1,6 +1,5 @@
 ﻿"use strict";
 import User from "../entity/user.entity.js";
-import Volunteer from "../entity/volunteer.entity.js";
 import { AppDataSource } from "./configDb.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
 import fs from "fs";
@@ -19,6 +18,7 @@ async function createUsers() {
         telefono: "+56912345678",
         password: "admin1234",
         rol: "administrador",
+  status: "approved",
       },
       {
         nombreCompleto: "Luis Alberto Paredes Rojas",
@@ -27,6 +27,7 @@ async function createUsers() {
         telefono: "+56923456789",
         password: "jefe1234",
         rol: "jefe_cuadrilla",
+        status: "approved",
       },
       {
         nombreCompleto: "Camila Andrea Fuentes Rivas",
@@ -34,7 +35,26 @@ async function createUsers() {
         email: "encargado.inventario2024@gmail.cl",
         password: "inventario1234",
         rol: "encargado_inventario",
+        status: "approved",
       },
+      
+      {
+        nombreCompleto: "Voluntario Demo 1",
+        rut: "11.111.111-1",
+        email: "voluntario1@gmail.cl",
+        password: "voluntario123",
+        rol: "voluntario",
+        status: "approved",
+      },
+      {
+        nombreCompleto: "Voluntario Demo 2",
+        rut: "22.222.222-2",
+        email: "voluntario2@gmail.cl",
+        password: "voluntario123",
+        rol: "voluntario",
+        status: "approved",
+      },
+      
       {
         nombreCompleto: "Diego SebastiÃ¡n Ampuero Belmar",
         rut: "21.151.897-9",
@@ -57,7 +77,7 @@ async function createUsers() {
         rol: "usuario",
       },
       {
-        nombreCompleto: "Felipe AndrÃ©s HenrÃ­quez Zapata",
+        nombreCompleto: "Felipe Andrés Henríquez Zapata",
         rut: "20.976.635-3",
         email: "usuario4.2024@gmail.cl",
         password: "user1234",
@@ -80,25 +100,56 @@ async function createUsers() {
     ];
 
     await Promise.all(
-      defaultUsers.map(async (defaultUser) => {
+      defaultUsers.map(async (user) => {
+        
         const existingUser = await userRepository.findOne({
-          where: { email: defaultUser.email },
+          where: { email: user.email },
         });
 
-        if (existingUser) return;
-
-        await userRepository.save(
-          userRepository.create({
-            ...defaultUser,
-            password: await encryptPassword(defaultUser.password),
-          }),
-        );
+        if (!existingUser) {
+          
+          await userRepository.save(
+            userRepository.create({
+              ...user,
+              password: await encryptPassword(user.password),
+            }),
+          );
+        }
       }),
     );
 
-    console.log("* => Usuarios creados exitosamente");
+    console.log("* => Usuarios (incluyendo voluntarios demo) creados exitosamente");
+
+    // Crear cuadrilla por defecto
+    const cuadrillaRepository = AppDataSource.getRepository(Cuadrilla);
+    const jefe = await userRepository.findOne({ where: { email: "jefe.cuadrilla2024@gmail.cl" } });
+    if (jefe) {
+      const existingCuadrilla = await cuadrillaRepository.findOne({ where: { nombre: "Cuadrilla por Defecto" } });
+      if (!existingCuadrilla) {
+        const defaultCuadrilla = await cuadrillaRepository.save(
+          cuadrillaRepository.create({
+            nombre: "Cuadrilla por Defecto",
+            jefeCuadrillaId: jefe.id,
+          })
+        );
+        console.log("* => Cuadrilla por Defecto creada exitosamente");
+
+        const volunteer1 = await userRepository.findOne({ where: { email: "voluntario1@gmail.cl" } });
+        const volunteer2 = await userRepository.findOne({ where: { email: "voluntario2@gmail.cl" } });
+
+        if (volunteer1) {
+          volunteer1.cuadrillaId = defaultCuadrilla.id;
+          await userRepository.save(volunteer1);
+        }
+        if (volunteer2) {
+          volunteer2.cuadrillaId = defaultCuadrilla.id;
+          await userRepository.save(volunteer2);
+        }
+        console.log("* => Voluntarios demo asignados a Cuadrilla por Defecto");
+      }
+    }
   } catch (error) {
-    console.error("Error al crear usuarios:", error);
+    console.error("Error al crear usuarios en initialSetup:", error);
   }
 }
 
