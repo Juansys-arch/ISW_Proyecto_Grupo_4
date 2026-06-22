@@ -2,6 +2,7 @@ import Table from '@components/Table';
 import useUsers from '@hooks/users/useGetUsers.jsx';
 import Search from '../components/Search';
 import Popup from '../components/Popup';
+import PlusIcon from '../assets/plusIcon.svg';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
@@ -10,9 +11,8 @@ import { useCallback, useState } from 'react';
 import '@styles/users.css';
 import useEditUser from '@hooks/users/useEditUser';
 import useDeleteUser from '@hooks/users/useDeleteUser';
-import { createUser } from '@services/user.service.js';
+import { createVolunteerOnSite } from '@services/volunteer.service.js';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
-import { formatPostUpdate } from '@helpers/formatData.js';
 
 const Users = () => {
   const { users, fetchUsers, setUsers } = useUsers();
@@ -37,17 +37,25 @@ const Users = () => {
 
   const handleCreate = async (newVolunteerData) => {
     try {
-      const response = await createUser(newVolunteerData);
+      const payload = {
+        ...newVolunteerData,
+        rol: 'voluntario',
+      };
+      const response = await createVolunteerOnSite(payload);
 
-      if (!response || response.status === 'Client error') {
-        const message = response?.details || 'Ocurrió un error al agregar el voluntario.';
+      if (!response || response.status === 'Client error' || response.status === 'Server error') {
+        const message = response?.details || response?.message || 'Ocurrió un error al agregar el voluntario.';
         return showErrorAlert('Error', message);
+      }
+
+      const createdVolunteer = response.data;
+      if (!createdVolunteer) {
+        return showErrorAlert('Error', 'Respuesta inválida del servidor.');
       }
 
       showSuccessAlert('¡Agregado!', 'El voluntario ha sido agregado correctamente.');
       setIsPopupOpen(false);
-      const formattedVolunteer = formatPostUpdate(response);
-      setUsers((prevUsers) => [...prevUsers, formattedVolunteer]);
+      setUsers((prevUsers) => [...prevUsers, createdVolunteer]);
       setDataUser([]);
     } catch (error) {
       console.error('Error al añadir voluntario:', error);
@@ -66,8 +74,9 @@ const Users = () => {
   const columns = [
     { title: "Nombre", field: "nombreCompleto", width: 350, responsive: 0 },
     { title: "Correo electrónico", field: "email", width: 300, responsive: 3 },
+    { title: "Teléfono", field: "numeroContacto", width: 200, responsive: 3 },
     { title: "Rut", field: "rut", width: 150, responsive: 2 },
-    { title: "Rol", field: "rolDisplay", width: 200, responsive: 2 },
+    { title: "Rol", field: "rol", width: 200, responsive: 2 },
     { title: "Creado", field: "createdAt", width: 200, responsive: 2 }
   ];
 
@@ -87,7 +96,8 @@ const Users = () => {
               <span>Editar</span>
             </button>
             <button className='add-user-button' type='button' onClick={handleClickAdd}>
-              Añadir voluntario
+              <img src={PlusIcon} alt="add" />
+              <span>Añadir</span>
             </button>
             <button className='delete-user-button' type='button' disabled={dataUser.length === 0} onClick={() => handleDelete(dataUser)}>
               {dataUser.length === 0 ? (

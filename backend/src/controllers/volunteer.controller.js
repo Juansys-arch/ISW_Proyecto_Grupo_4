@@ -7,6 +7,8 @@ import {
   updateVolunteerDetailsService,
   getAllVolunteersService,
   deleteVolunteerService,
+  getVolunteersByRegionService,
+  getRegionsListService,
 } from "../services/volunteer.service.js";
 import {
   volunteerRegisterValidation,
@@ -127,6 +129,18 @@ export async function getAllVolunteers(req, res) {
   }
 }
 
+export async function getVolunteersByRegion(req, res) {
+  try {
+    const [data, error] = await getVolunteersByRegionService();
+
+    if (error) return handleErrorClient(res, 500, "Error obteniendo datos por región", error);
+
+    handleSuccess(res, 200, "Voluntarios por región obtenidos con éxito", data);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+
 export async function deleteVolunteer(req, res) {
   try {
     const id = req.params.id || req.query.id;
@@ -140,6 +154,18 @@ export async function deleteVolunteer(req, res) {
     if (errorDelete) return handleErrorClient(res, 400, "Error eliminando voluntario", errorDelete);
 
     handleSuccess(res, 200, "Voluntario eliminado con éxito", { id: volunteerId });
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+
+export async function getRegionsList(req, res) {
+  try {
+    const [data, error] = await getRegionsListService();
+
+    if (error) return handleErrorClient(res, 500, "Error obteniendo lista de regiones", error);
+
+    handleSuccess(res, 200, "Lista de regiones obtenida con éxito", data);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }

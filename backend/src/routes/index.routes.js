@@ -5,6 +5,7 @@ import authRoutes from "./auth.routes.js";
 import studentRoutes from "./student.routes.js";
 import inventarioRoutes from "./inventario.routes.js";
 import notificacionRoutes from "./notificacion.routes.js";
+import volunteerRoutes from "./volunteer.routes.js";
 
 const router = Router();
 
@@ -14,5 +15,7 @@ router
   .use("/students", studentRoutes)
   .use("/inventario", inventarioRoutes)
   .use("/notificaciones", notificacionRoutes);
+
+router.use("/volunteer", volunteerRoutes);
 
 export default router;

@@ -1,0 +1,320 @@
+[
+  {
+    "region": "Región de Arica y Parinacota",
+    "comunas": [
+      "Arica",
+      "Camarones",
+      "Putre",
+      "General Lagos"
+    ]
+  },
+  {
+    "region": "Región de Tarapacá",
+    "comunas": [
+      "Iquique",
+      "Alto Hospicio",
+      "Pozo Almonte",
+      "Camiña",
+      "Colchane",
+      "Huara",
+      "Pica"
+    ]
+  },
+  {
+    "region": "Región de Antofagasta",
+    "comunas": [
+      "Antofagasta",
+      "Mejillones",
+      "Sierra Gorda",
+      "Taltal",
+      "Calama",
+      "Olla de Sal",
+      "San Pedro de Atacama",
+      "Tocopilla",
+      "María Elena"
+    ]
+  },
+  {
+    "region": "Región de Atacama",
+    "comunas": [
+      "Copiapó",
+      "Caldera",
+      "Tierra Amarilla",
+      "Chañaral",
+      "Diego de Almagro",
+      "Vallenar",
+      "Alto del Carmen",
+      "Freirina",
+      "Huasco"
+    ]
+  },
+  {
+    "region": "Región de Coquimbo",
+    "comunas": [
+      "La Serena",
+      "Coquimbo",
+      "Andacollo",
+      "Ovalle",
+      "Combarbalá",
+      "Monte Patria",
+      "Punitaqui",
+      "Río Hurtado",
+      "Illapel",
+      "Los Vilos",
+      "Salamanca"
+    ]
+  },
+  {
+    "region": "Región de Valparaíso",
+    "comunas": [
+      "Valparaíso",
+      "Viña del Mar",
+      "Concón",
+      "Quilpué",
+      "Villa Alemana",
+      "Casablanca",
+      "San Antonio",
+      "Cartagena",
+      "El Quisco",
+      "El Tabo",
+      "Algarrobo",
+      "Quintero",
+      "Puchuncaví",
+      "Limache",
+      "Olmué",
+      "Nogales",
+      "San Felipe",
+      "Los Andes",
+      "San Esteban",
+      "Santa María"
+    ]
+  },
+  {
+    "region": "Región Metropolitana de Santiago",
+    "comunas": [
+      "Santiago",
+      "Cerrillos",
+      "Cerro Navia",
+      "Conchalí",
+      "El Bosque",
+      "Estación Central",
+      "Huechuraba",
+      "Independencia",
+      "La Cisterna",
+      "La Florida",
+      "La Granja",
+      "La Reina",
+      "Las Condes",
+      "Lo Barnechea",
+      "Lo Espejo",
+      "Lo Prado",
+      "Macul",
+      "Maipú",
+      "Ñuñoa",
+      "Pedro Aguirre Cerda",
+      "Peñalolén",
+      "Providencia",
+      "Pudahuel",
+      "Quilicura",
+      "Quinta Normal",
+      "Recoleta",
+      "Renca",
+      "San Joaquín",
+      "San Miguel",
+      "San Ramón",
+      "Vitacura",
+      "Pirque",
+      "San José de Maipo",
+      "Buin",
+      "Calera de Tango",
+      "Paine",
+      "Melipilla",
+      "Alhué",
+      "Curacaví",
+      "María Pinto",
+      "San Pedro",
+      "Talagante",
+      "Peñaflor"
+    ]
+  },
+  {
+    "region": "Región del Libertador General Bernardo O'Higgins",
+    "comunas": [
+      "Rancagua",
+      "San Fernando",
+      "Rengo",
+      "Santa Cruz",
+      "Machalí",
+      "Graneros",
+      "Mostazal",
+      "Doñihue",
+      "Requínoa",
+      "Coinco",
+      "Las Cabras",
+      "Placilla",
+      "Pichidegua",
+      "Quinta de Tilcoco",
+      "Malloa",
+      "Nancagua",
+      "Palmilla",
+      "Peralillo",
+      "Litueche",
+      "Paredones",
+      "Vecinales"
+    ]
+  },
+  {
+    "region": "Región del Maule",
+    "comunas": [
+      "Talca",
+      "Constitución",
+      "Curepto",
+      "Curicó",
+      "Empedrado",
+      "Hualañé",
+      "Linares",
+      "Maule",
+      "Parral",
+      "Pelluhue",
+      "Pencahue",
+      "Rauco",
+      "Retiro",
+      "Romeral",
+      "Sagrada Familia",
+      "San Clemente",
+      "San Javier",
+      "Santo Domingo",
+      "Teno",
+      "Vichuquén"
+    ]
+  },
+  {
+    "region": "Región de Ñuble",
+    "comunas": [
+      "Chillán",
+      "Chillán Viejo",
+      "Bulnes",
+      "Quirihue",
+      "San Carlos",
+      "San Fabián",
+      "San Ignacio",
+      "Pinto",
+      "Quillón",
+      "Trehuaco",
+      "Yungay",
+      "Cobquecura",
+      "Coelemu",
+      "Ninhue",
+      "Pemuco"
+    ]
+  },
+  {
+    "region": "Región del Biobío",
+    "comunas": [
+      "Concepción",
+      "Chiguayante",
+      "Hualpén",
+      "Talcahuano",
+      "Tomé",
+      "Penco",
+      "Lota",
+      "Coronel",
+      "San Pedro de la Paz",
+      "Arauco",
+      "Cañete",
+      "Los Álamos",
+      "Cabrero",
+      "Lebu",
+      "Nacimiento",
+      "Santa Juana",
+      "Mulchén",
+      "Los Ángeles",
+      "Yumbel",
+      "Tucapel",
+      "Negrete",
+      "Quilaco"
+    ]
+  },
+  {
+    "region": "Región de La Araucanía",
+    "comunas": [
+      "Temuco",
+      "Villarrica",
+      "Pucón",
+      "Angol",
+      "Collipulli",
+      "Victoria",
+      "Loncoche",
+      "Carahue",
+      "Nueva Imperial",
+      "Freire",
+      "Padre las Casas",
+      "Melipeuco",
+      "Tolhuaca",
+      "Galvarino",
+      "Cunco",
+      "Teodoro Schmidt",
+      "Perquenco",
+      "Renaico"
+    ]
+  },
+  {
+    "region": "Región de Los Ríos",
+    "comunas": [
+      "Valdivia",
+      "La Unión",
+      "Río Bueno",
+      "Panguipulli",
+      "Los Lagos",
+      "Paillaco",
+      "Mariquina",
+      "Futrono",
+      "Lago Ranco"
+    ]
+  },
+  {
+    "region": "Región de Los Lagos",
+    "comunas": [
+      "Puerto Montt",
+      "Osorno",
+      "Castro",
+      "Ancud",
+      "Chonchi",
+      "Dalcahue",
+      "Calbuco",
+      "Fresia",
+      "Frutillar",
+      "Maullín",
+      "Puerto Varas",
+      "Quellón",
+      "Quemchi",
+      "Llanquihue",
+      "Puqueldón"
+    ]
+  },
+  {
+    "region": "Región Aysén del General Carlos Ibáñez del Campo",
+    "comunas": [
+      "Coyhaique",
+      "Aysén",
+      "Cisnes",
+      "Guaitecas",
+      "Lago Verde",
+      "O'Higgins",
+      "Tortel",
+      "Chile Chico"
+    ]
+  },
+  {
+    "region": "Región de Magallanes y de la Antártica Chilena",
+    "comunas": [
+      "Punta Arenas",
+      "Puerto Natales",
+      "Porvenir",
+      "Cabo de Hornos",
+      "Laguna Blanca",
+      "San Gregorio",
+      "Primavera"
+    ]
+  }
+]

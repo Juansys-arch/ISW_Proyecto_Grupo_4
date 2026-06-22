@@ -45,10 +45,25 @@ const UserSchema = new EntitySchema({
       nullable: false,
       unique: true,
     },
+    telefono: {
+      type: "varchar",
+      length: 20,
+      nullable: true,
+    },
     rol: {
       type: "varchar",
       length: 50,
       nullable: false,
+    },
+    region: {
+      type: "varchar",
+      length: 200,
+      nullable: true,
+    },
+    comuna: {
+      type: "varchar",
+      length: 200,
+      nullable: true,
     },
     password: {
       type: "varchar",

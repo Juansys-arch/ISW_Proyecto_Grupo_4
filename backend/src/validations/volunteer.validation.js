@@ -76,6 +76,18 @@ export const volunteerRegisterValidation = Joi.object({
     .messages({
       "string.base": "La dirección debe ser de tipo texto.",
     }),
+  region: Joi.string()
+    .optional()
+    .allow('')
+    .messages({
+      "string.base": "La región debe ser de tipo texto.",
+    }),
+  comuna: Joi.string()
+    .optional()
+    .allow('')
+    .messages({
+      "string.base": "La comuna debe ser de tipo texto.",
+    }),
   disponibilidad: Joi.string()
     .optional()
     .allow('')
@@ -152,6 +164,18 @@ export const volunteerOnSiteRegisterValidation = Joi.object({
     .allow('')
     .messages({
       "string.base": "La dirección debe ser de tipo texto.",
+    }),
+  region: Joi.string()
+    .optional()
+    .allow('')
+    .messages({
+      "string.base": "La región debe ser de tipo texto.",
+    }),
+  comuna: Joi.string()
+    .optional()
+    .allow('')
+    .messages({
+      "string.base": "La comuna debe ser de tipo texto.",
     }),
   disponibilidad: Joi.string()
     .optional()

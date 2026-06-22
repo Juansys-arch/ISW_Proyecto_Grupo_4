@@ -10,6 +10,7 @@ export function formatUserData(user) {
         rol: rolValue,
         rolDisplay: rolValue === 'usuario' ? 'Voluntario' : startCase(rolValue),
         rut: formatRut(user.rut),
+        telefono: user.telefono || '',
         createdAt: formatTempo(user.createdAt, "DD-MM-YYYY")
     };
 }
@@ -31,6 +32,7 @@ export function formatPostUpdate(user) {
         rolDisplay: rolValue === 'usuario' ? 'Voluntario' : startCase(rolValue),
         rut: formatRut(user.rut),
         email: user.email,
+        telefono: user.telefono || '',
         createdAt: formatTempo(user.createdAt, "DD-MM-YYYY")
     };
 }

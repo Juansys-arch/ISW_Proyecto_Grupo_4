@@ -80,6 +80,18 @@ export const userBodyValidation = Joi.object({
         "El correo electrónico debe tener como máximo 35 caracteres.",
     })
     .custom(domainEmailValidator, "Validación dominio email"),
+  telefono: Joi.string()
+    .min(8)
+    .max(20)
+    .pattern(/^[0-9+\-\s]+$/)
+    .allow("")
+    .messages({
+      "string.base": "El número de teléfono debe ser de tipo string.",
+      "string.min": "El número de teléfono debe tener como mínimo 8 caracteres.",
+      "string.max": "El número de teléfono debe tener como máximo 20 caracteres.",
+      "string.pattern.base":
+        "El número de teléfono solo puede contener números, espacios, + y -.",
+    }),
   password: Joi.string()
     .min(8)
     .max(26)
@@ -124,6 +136,20 @@ export const userBodyValidation = Joi.object({
       "string.min": "El rol debe tener como mínimo 4 caracteres.",
       "string.max": "El rol debe tener como máximo 15 caracteres.",
     }),
+  region: Joi.string()
+    .max(100)
+    .allow("")
+    .messages({
+      "string.base": "La región debe ser de tipo string.",
+      "string.max": "La región debe tener como máximo 100 caracteres.",
+    }),
+  comuna: Joi.string()
+    .max(100)
+    .allow("")
+    .messages({
+      "string.base": "La comuna debe ser de tipo string.",
+      "string.max": "La comuna debe tener como máximo 100 caracteres.",
+    }),
 })
   .or(
     "nombreCompleto",
@@ -131,7 +157,8 @@ export const userBodyValidation = Joi.object({
     "password",
     "newPassword",
     "rut",
-    "rol"
+    "rol",
+    "telefono"
   )
   .unknown(false)
   .messages({

@@ -57,7 +57,7 @@ export async function registerService(user) {
   try {
     const userRepository = AppDataSource.getRepository(User);
 
-    const { nombreCompleto, rut, email } = user;
+    const { nombreCompleto, rut, email, telefono } = user;
 
     const createErrorMessage = (dataInfo, message) => ({
       dataInfo,
@@ -84,6 +84,7 @@ export async function registerService(user) {
       nombreCompleto,
       email,
       rut,
+      telefono,
       password: await encryptPassword(user.password),
       rol: "usuario",
     });

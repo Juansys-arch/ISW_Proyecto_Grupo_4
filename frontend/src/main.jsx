@@ -2,11 +2,12 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
-import Users from '@pages/Users';
 import AdminRequests from '@pages/AdminRequests';
 import Register from '@pages/Register';
 import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
+import Users from '@pages/Users';
+import Regions from '@pages/Regions';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 
@@ -21,14 +22,21 @@ const router = createBrowserRouter([
         element: <Home/>
       },
       {
+        path: '/regions',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador','coordinador']}>
+            <Regions />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/users',
         element: (
-        <ProtectedRoute allowedRoles={['administrador']}>
-          <Users />
-        </ProtectedRoute>
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Users />
+          </ProtectedRoute>
         ),
-    }
-    ,
+      },
     {
       path: '/admin/requests',
       element: (

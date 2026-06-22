@@ -43,7 +43,7 @@ export async function getUsersService() {
 
 export async function createUserService(body) {
   try {
-    const { nombreCompleto, email, rut, password, rol } = body;
+    const { nombreCompleto, email, rut, telefono, password, rol, region, comuna } = body;
 
     const userRepository = AppDataSource.getRepository(User);
 
@@ -59,7 +59,10 @@ export async function createUserService(body) {
       nombreCompleto,
       email,
       rut,
+      telefono,
       rol: userRole,
+      region: region || null,
+      comuna: comuna || null,
       password: await encryptPassword(password),
     });
 
@@ -110,6 +113,18 @@ export async function updateUserService(query, body) {
       rol: body.rol,
       updatedAt: new Date(),
     };
+
+    if (body.telefono !== undefined) {
+      dataUserUpdate.telefono = body.telefono;
+    }
+
+    if (body.region !== undefined) {
+      dataUserUpdate.region = body.region || null;
+    }
+
+    if (body.comuna !== undefined) {
+      dataUserUpdate.comuna = body.comuna || null;
+    }
 
     if (body.newPassword && body.newPassword.trim() !== "") {
       dataUserUpdate.password = await encryptPassword(body.newPassword);

@@ -7,6 +7,8 @@ import {
   getPendingVolunteers,
   updateVolunteerDetails,
   getAllVolunteers,
+  getRegionsList,
+  getVolunteersByRegion,
   deleteVolunteer,
 } from "../controllers/volunteer.controller.js";
 import { isAdminOrCoordinator } from "../middlewares/authorization.middleware.js";
@@ -25,6 +27,12 @@ router.put("/approve", authenticateJwt, isAdminOrCoordinator, approveVolunteer);
 
 // Obtener todos los voluntarios (requiere autenticación y rol admin/coordinator)
 router.get("/", authenticateJwt, isAdminOrCoordinator, getAllVolunteers);
+
+// Obtener voluntarios agrupados por regiones y comunas
+router.get("/regions", authenticateJwt, isAdminOrCoordinator, getVolunteersByRegion);
+
+// Obtener lista de regiones y comunas (solo lista)
+router.get("/regions/list", authenticateJwt, isAdminOrCoordinator, getRegionsList);
 
 // Obtener voluntarios pendientes (requiere autenticación y rol admin/coordinator)
 router.get("/pending", authenticateJwt, isAdminOrCoordinator, getPendingVolunteers);

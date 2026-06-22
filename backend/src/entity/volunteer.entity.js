@@ -67,6 +67,16 @@ const VolunteerSchema = new EntitySchema({
       type: "text",
       nullable: true,
     },
+    region: {
+      type: "varchar",
+      length: 200,
+      nullable: true,
+    },
+    comuna: {
+      type: "varchar",
+      length: 200,
+      nullable: true,
+    },
     disponibilidad: {
       type: "text",
       nullable: true,
