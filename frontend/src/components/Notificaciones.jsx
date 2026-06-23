@@ -17,7 +17,7 @@ const NotificacionesDropdown = ({ userRole }) => {
         if (!tieneAcceso) return;
         const data = await obtenerNotificaciones();
         if (Array.isArray(data)) {
-            // Filtrar solo las no leídas para la insignia de la campana
+            // Filtrar solo las no leídas para la insignia de la campana aaaaa
             setNotificaciones(data.filter(n => !n.leida));
         }
     }, [tieneAcceso]);
