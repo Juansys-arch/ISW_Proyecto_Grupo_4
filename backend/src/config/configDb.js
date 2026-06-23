@@ -12,6 +12,8 @@ import User from "../entity/user.entity.js";
 import KitHerramientas from "../entity/kitHerramientas.entity.js";
 import Transporte from "../entity/transporte.entity.js";
 import Cuadrilla from "../entity/cuadrilla.entity.js";
+import Vivienda from "../entity/vivienda.entity.js";
+import Hito from "../entity/hito.entity.js";
 
 
 // Función para parsear DATABASE_URL
@@ -31,7 +33,9 @@ function getDatabaseConfig() {
         User,
         KitHerramientas,
         Transporte,
-        Cuadrilla
+        Cuadrilla,
+        Vivienda,
+        Hito
       ],
       synchronize: true,
       logging: false,
@@ -55,7 +59,9 @@ function getDatabaseConfig() {
         User,
         KitHerramientas,
         Transporte,
-        Cuadrilla
+        Cuadrilla,
+        Vivienda,
+        Hito
       ],
       synchronize: true,
       logging: false,

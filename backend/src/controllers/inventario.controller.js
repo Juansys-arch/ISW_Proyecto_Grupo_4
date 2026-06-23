@@ -1,6 +1,5 @@
 "use strict";
-import {crearMaterialService,obtenerMaterialesService,obtenerMaterialPorIdService,actualizarMaterialService,registrarMovimientoService,obtenerMovimientosService,solicitarMaterialService,} from "../services/inventario.service.js";
-import { obtenerSolicitudesService, obtenerSolicitudesPorSolicitanteService, actualizarEstadoSolicitudService } from "../services/inventario.service.js";
+import {crearMaterialService,obtenerMaterialesService,obtenerMaterialPorIdService,actualizarMaterialService,registrarMovimientoService,obtenerMovimientosService,solicitarMaterialService,obtenerSolicitudesService,obtenerSolicitudesPorSolicitanteService,actualizarEstadoSolicitudService,} from "../services/inventario.service.js";
 import {crearMaterialValidation,actualizarMaterialValidation,movimientoValidation,solicitudMaterialValidation,} from "../validations/inventario.validation.js";
 import {handleErrorClient,handleErrorServer,handleSuccess,} from "../handlers/responseHandlers.js";
 
@@ -66,6 +65,7 @@ export async function actualizarMaterial(req, res) {
 }
 
 ///
+
 export async function registrarMovimiento(req, res) {
   try {
     const { body } = req;
@@ -108,12 +108,12 @@ export async function solicitarMaterial(req, res) {
     if (error)
       return handleErrorClient(res, 400, "Error de validación", error.message);
 
-        const [solicitud, solicitudError] = await solicitarMaterialService(body, req.user);
+    const [solicitud, solicitudError] = await solicitarMaterialService(body, req.user);
 
-        if (solicitudError)
-          return handleErrorClient(res, 400, "Error al solicitar material", solicitudError);
+    if (solicitudError)
+      return handleErrorClient(res, 400, "Error al solicitar material", solicitudError);
 
-    handleSuccess(res, 201, "Solicitud enviada al administrador", solicitud);
+    handleSuccess(res, 201, "Solicitud enviada al encargado de invenatario", solicitud);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
@@ -122,8 +122,10 @@ export async function solicitarMaterial(req, res) {
 export async function obtenerSolicitudes(req, res) {
   try {
     const [solicitudes, error] = await obtenerSolicitudesService();
-    if (error) return handleErrorClient(res, 400, 'Error al obtener solicitudes', error);
-    handleSuccess(res, 200, 'Solicitudes obtenidas', solicitudes);
+    if (error)
+      return handleErrorClient(res, 400, "Error al obtener solicitudes", error);
+
+    handleSuccess(res, 200, "Solicitudes obtenidas exitosamente", solicitudes);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
@@ -133,8 +135,10 @@ export async function obtenerMisSolicitudes(req, res) {
   try {
     const solicitanteId = req.user.id;
     const [solicitudes, error] = await obtenerSolicitudesPorSolicitanteService(solicitanteId);
-    if (error) return handleErrorClient(res, 400, 'Error al obtener mis solicitudes', error);
-    handleSuccess(res, 200, 'Mis solicitudes obtenidas', solicitudes);
+    if (error)
+      return handleErrorClient(res, 400, "Error al obtener solicitudes", error);
+
+    handleSuccess(res, 200, "Solicitudes obtenidas exitosamente", solicitudes);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
@@ -144,9 +148,16 @@ export async function actualizarEstadoSolicitud(req, res) {
   try {
     const { id } = req.params;
     const { estado } = req.body;
-    const [updated, error] = await actualizarEstadoSolicitudService(parseInt(id), estado, req.user.id);
-    if (error) return handleErrorClient(res, 400, 'Error al actualizar estado', error);
-    handleSuccess(res, 200, 'Estado actualizado', updated);
+    const encargadoId = req.user.id;
+
+    if (!estado)
+      return handleErrorClient(res, 400, "Error de validación", "El estado es requerido");
+
+    const [solicitud, error] = await actualizarEstadoSolicitudService(parseInt(id), estado, encargadoId);
+    if (error)
+      return handleErrorClient(res, 400, "Error al actualizar solicitud", error);
+
+    handleSuccess(res, 200, "Solicitud actualizada exitosamente", solicitud);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }

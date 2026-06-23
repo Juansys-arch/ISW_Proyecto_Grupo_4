@@ -1,6 +1,6 @@
 "use strict";
-import React, { useState, useEffect } from 'react';
-import { getNotificaciones, marcarNotificacionLeida } from '@services/notificacion.service.js';
+import { useState, useEffect, useCallback } from 'react';
+import { obtenerNotificaciones, marcarNotificacionLeida } from '@services/notificacion.service.js';
 
 const NotificacionesDropdown = ({ userRole }) => {
     const [notificaciones, setNotificaciones] = useState([]);
@@ -11,23 +11,23 @@ const NotificacionesDropdown = ({ userRole }) => {
     const effectiveRole = userRole || sessionUser.rol;
 
     // Solo cargar notificaciones si el rol tiene acceso según tus rutas del backend
-    const tieneAcceso = ['administrador', 'encargado_inventario'].includes(effectiveRole);
+    const tieneAcceso = ['administrador', 'encargado_inventario', 'jefe_cuadrilla'].includes(effectiveRole);
 
-    const cargarNotificaciones = async () => {
+    const cargarNotificaciones = useCallback(async () => {
         if (!tieneAcceso) return;
-        const data = await getNotificaciones();
+        const data = await obtenerNotificaciones();
         if (Array.isArray(data)) {
             // Filtrar solo las no leídas para la insignia de la campana
             setNotificaciones(data.filter(n => !n.leida));
         }
-    };
+    }, [tieneAcceso]);
 
     useEffect(() => {
         cargarNotificaciones();
         // Opcional: Un intervalo para revisar alertas cada 30 segundos
         const interval = setInterval(cargarNotificaciones, 30000);
         return () => clearInterval(interval);
-    }, [effectiveRole]);
+    }, [cargarNotificaciones]);
 
     const handleMarcarLeida = async (id) => {
         const response = await marcarNotificacionLeida(id);
@@ -43,22 +43,114 @@ const NotificacionesDropdown = ({ userRole }) => {
 
     if (isPageView) {
         return (
-            <div style={{ padding: '20px', color: '#0b3b5a', background: 'linear-gradient(180deg, #f7fbff 0%, #eef4fa 100%)', minHeight: '100vh' }}>
-                <h2 style={{ marginTop: 0 }}>Notificaciones</h2>
-                {notificaciones.length === 0 ? (
-                    <p style={{ color: '#5b6b7c' }}>No tienes alertas pendientes.</p>
-                ) : (
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
-                        {notificaciones.map(n => (
-                            <li key={n.id} style={{ marginBottom: '12px', padding: '12px', background: '#ffffff', border: '1px solid #d7e3ef', borderRadius: '10px', boxShadow: '0 6px 18px rgba(11,59,90,0.06)' }}>
-                                <div style={{ color: '#17324d' }}>{n.mensaje}</div>
-                                <div style={{ marginTop: '8px' }}>
-                                    <button onClick={() => handleMarcarLeida(n.id)} style={{ background: '#0b5ca8', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer' }}>Marcar como leída</button>
+            <div style={{ backgroundColor: "#f5f7fa", minHeight: "100vh", paddingTop: "20px", paddingBottom: "40px" }}>
+                <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
+                    <h1 style={{ color: "#333", marginBottom: "30px" }}>Centro de Notificaciones</h1>
+                    
+                    {notificaciones.length === 0 ? (
+                        <div style={{
+                            backgroundColor: "white",
+                            borderRadius: "12px",
+                            padding: "60px 40px",
+                            textAlign: "center",
+                            boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)"
+                        }}>
+                            <div style={{ fontSize: "48px", marginBottom: "20px" }}>📬</div>
+                            <p style={{ color: "#666", fontSize: "18px", marginBottom: "10px" }}>
+                                No tienes notificaciones pendientes
+                            </p>
+                            <p style={{ color: "#999", fontSize: "14px" }}>
+                                Aquí aparecerán tus notificaciones del sistema
+                            </p>
+                        </div>
+                    ) : (
+                        <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
+                            gap: "20px"
+                        }}>
+                            {notificaciones.map(n => (
+                                <div key={n.id} style={{
+                                    backgroundColor: "white",
+                                    borderRadius: "12px",
+                                    padding: "24px",
+                                    boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)",
+                                    borderLeft: "4px solid #764ba2",
+                                    transition: "all 0.3s ease",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "12px"
+                                }}>
+                                    <div style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "start"
+                                    }}>
+                                        <div style={{
+                                            fontSize: "20px",
+                                            display: "inline-block"
+                                        }}>
+                                            ℹ️
+                                        </div>
+                                        <span style={{
+                                            backgroundColor: "#764ba2",
+                                            color: "white",
+                                            padding: "4px 8px",
+                                            borderRadius: "4px",
+                                            fontSize: "11px",
+                                            fontWeight: "600"
+                                        }}>
+                                            {n.tipo || "Sistema"}
+                                        </span>
+                                    </div>
+                                    
+                                    <p style={{
+                                        color: "#333",
+                                        fontSize: "16px",
+                                        fontWeight: "500",
+                                        margin: "0"
+                                    }}>
+                                        {n.mensaje}
+                                    </p>
+                                    
+                                    {n.descripcion && (
+                                        <p style={{
+                                            color: "#666",
+                                            fontSize: "14px",
+                                            margin: "0"
+                                        }}>
+                                            {n.descripcion}
+                                        </p>
+                                    )}
+                                    
+                                    <div style={{
+                                        display: "flex",
+                                        gap: "10px",
+                                        marginTop: "12px"
+                                    }}>
+                                        <button
+                                            onClick={() => handleMarcarLeida(n.id)}
+                                            style={{
+                                                backgroundColor: "#764ba2",
+                                                color: "white",
+                                                border: "none",
+                                                padding: "8px 16px",
+                                                borderRadius: "6px",
+                                                cursor: "pointer",
+                                                fontSize: "14px",
+                                                fontWeight: "600",
+                                                flex: "1"
+                                            }}
+                                        >
+                                            Marcar como leída
+                                        </button>
+                                    </div>
                                 </div>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }

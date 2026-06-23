@@ -1,7 +1,8 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { logout } from '@services/auth.service.js';
 import '@styles/navbar.css';
 import { useState } from "react";
+import NotificationBell from '@components/NotificationBell.jsx';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -63,15 +64,21 @@ const Navbar = () => {
                     </li>
                 )}
 
-                {(userRole === 'administrador' || userRole === 'encargado_inventario') && (
+                {(userRole === 'administrador' || userRole === 'jefe_cuadrilla') && (
                     <li>
                         <NavLink
-                            to="/notificaciones"
+                            to="/construccion"
                             className={getNavLinkClass}
                             onClick={() => setMenuOpen(false)}
                         >
-                            Notificaciones
+                            Construcción
                         </NavLink>
+                    </li>
+                )}
+
+                {(userRole === 'administrador' || userRole === 'encargado_inventario' || userRole === 'jefe_cuadrilla') && (
+                    <li>
+                        <NotificationBell />
                     </li>
                 )}
 

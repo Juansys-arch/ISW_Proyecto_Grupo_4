@@ -14,8 +14,9 @@ import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import Inventario from '@pages/Inventario';
 import Incidencias from '@pages/Incidencias';
-import Notificaciones from '@components/Notificaciones';
+import Construccion from '@pages/Construccion';
 import GestionOperativa from '@pages/GestionOperativa';
+import Notificaciones from '@pages/Notificaciones';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 
@@ -79,10 +80,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/notificaciones',
+        path: '/construccion',
         element: (
-          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario']}>
-            <Notificaciones />
+          <ProtectedRoute allowedRoles={['administrador', 'jefe_cuadrilla']}>
+            <Construccion />
           </ProtectedRoute>
         ),
       },
@@ -115,6 +116,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador', 'coordinador']}>
             <Users />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/notificaciones',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario', 'jefe_cuadrilla']}>
+            <Notificaciones />
           </ProtectedRoute>
         ),
       },

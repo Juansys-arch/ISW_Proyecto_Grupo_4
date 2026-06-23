@@ -4,23 +4,21 @@ import { AppDataSource } from "../config/configDb.js";
 const notificacionRepository = AppDataSource.getRepository("Notificacion");
 const userRepository = AppDataSource.getRepository("User");
 
-export async function notificarPorRoles({
-  roles = ["encargado_inventario", "administrador"],
-  tipo,
-  mensaje,
-  incidenciaId = null,
-  materialId = null,
-}) {
+// Busca todos los administradores y les crea una notificación
+export async function notificarAdministrador({ tipo, mensaje, incidenciaId = null, materialId = null }) {
   try {
-    const destinatarios = await userRepository.find({
-      where: roles.map((rol) => ({ rol })),
+    const administradores = await userRepository.find({
+      where: [
+        { rol: "encargado_inventario" },
+        { rol: "jefe_cuadrilla" }
+      ],
       select: ["id"],
     });
 
-    if (!destinatarios.length) return;
+    if (!administradores.length) return;
 
-    const notificaciones = destinatarios.map((destinatario) => ({
-      administradorId: destinatario.id,
+    const notificaciones = administradores.map((admin) => ({
+      administradorId: admin.id,
       tipo,
       mensaje,
       incidenciaId,
@@ -32,13 +30,6 @@ export async function notificarPorRoles({
   } catch (error) {
     console.error("Error al generar notificación:", error.message);
   }
-}
-
-export async function notificarAdministrador(datos) {
-  return notificarPorRoles({
-    ...datos,
-    roles: ["encargado_inventario", "administrador"],
-  });
 }
 
 export async function obtenerNotificacionesService(administradorId) {
@@ -64,5 +55,30 @@ export async function marcarNotificacionLeidaService(id, administradorId) {
     return [{ message: "Notificación marcada como leída" }, null];
   } catch (error) {
     return [null, error.message];
+  }
+}
+
+// Notifica a usuarios con roles específicos
+export async function notificarPorRoles({ roles = [], tipo, mensaje, incidenciaId = null, materialId = null }) {
+  try {
+    const usuarios = await userRepository.find({
+      where: roles.length > 0 ? roles.map(rol => ({ rol })) : undefined,
+      select: ["id"],
+    });
+
+    if (!usuarios.length) return;
+
+    const notificaciones = usuarios.map((user) => ({
+      administradorId: user.id,
+      tipo,
+      mensaje,
+      incidenciaId,
+      materialId,
+      leida: false,
+    }));
+
+    await notificacionRepository.save(notificaciones);
+  } catch (error) {
+    console.error("Error al generar notificación por roles:", error.message);
   }
 }

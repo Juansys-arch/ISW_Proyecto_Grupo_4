@@ -8,6 +8,7 @@ import kitRoutes from "./kit.routes.js";
 import transporteRoutes from "./transporte.routes.js";
 import notificacionRoutes from "./notificacion.routes.js";
 import incidenciaRoutes from "./incidencia.routes.js";
+import construccionRoutes from "./construccion.routes.js";
 
 const router = Router();
 router
@@ -18,6 +19,7 @@ router
   .use("/kits", kitRoutes)
   .use("/transporte", transporteRoutes)
   .use("/notificaciones", notificacionRoutes)
-  .use("/incidencias", incidenciaRoutes);
+  .use("/incidencias", incidenciaRoutes)
+  .use("/construccion", construccionRoutes);
 
 export default router;
