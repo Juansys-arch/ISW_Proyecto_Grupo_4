@@ -26,16 +26,40 @@
 }
 
 .filter-actions {
-  display: flex;
-  gap: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
 
-  button {
-    background: rgba(255, 255, 255, 0.87);
-    border: #fff;
+.filter-actions button {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #000;
     cursor: pointer;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 120px;
+}
 
-  }
+.add-user-button {
+    background: #007bff;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.edit-user-button {
+    background: #ffc107;
+    color: #000000;
+}
+
+.delete-user-button {
+    background: #dc3545;
+    color: #ffffff;
 }
 
 .delete-user-button {

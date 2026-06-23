@@ -151,3 +151,43 @@
 		font-size: 0.85rem;
 	}
 }
+
+/* Force tab title colors to white in all states */
+.nav-menu ul li a {
+	color: #ffffff !important;
+	font-size: 1.2rem;
+	font-weight: 600;
+}
+.nav-menu ul li a.active,
+.nav-menu ul li.active > a {
+	color: #ffffff !important;
+}
+.nav-menu.activado ul li a {
+	color: #ffffff !important;
+	font-size: 1.2rem;
+	font-weight: 600;
+}
+
+@media (max-width: 768px) {
+	.nav-menu.activado ul li a {
+		font-size: 1.1rem;
+	}
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+	.nav-menu.activado ul li a {
+		font-size: 1.1rem;
+	}
+}
+
+.nav-menu.activado ul {
+	gap: 10px;
+}
+
+.nav-menu.activado ul li {
+	margin-bottom: 8px;
+}
+
+.nav-menu.activado ul li a {
+	padding: 10px 12px;
+}

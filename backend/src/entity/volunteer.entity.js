@@ -1,9 +1,9 @@
 "use strict";
 import { EntitySchema } from "typeorm";
 
-const UserSchema = new EntitySchema({
-  name: "User",
-  tableName: "users",
+const VolunteerSchema = new EntitySchema({
+  name: "Volunteer",
+  tableName: "volunteers",
   columns: {
     id: {
       type: "int",
@@ -45,15 +45,27 @@ const UserSchema = new EntitySchema({
       nullable: false,
       unique: true,
     },
-    telefono: {
+    fechaNacimiento: {
+      type: "date",
+      nullable: true,
+    },
+    genero: {
       type: "varchar",
       length: 20,
       nullable: true,
     },
-    rol: {
+    numeroContacto: {
       type: "varchar",
-      length: 50,
-      nullable: false,
+      length: 20,
+      nullable: true,
+    },
+    password: {
+      type: "varchar",
+      nullable: true,
+    },
+    direccion: {
+      type: "text",
+      nullable: true,
     },
     region: {
       type: "varchar",
@@ -65,9 +77,27 @@ const UserSchema = new EntitySchema({
       length: 200,
       nullable: true,
     },
-    password: {
+    disponibilidad: {
+      type: "text",
+      nullable: true,
+    },
+    habilidades: {
+      type: "text",
+      nullable: true,
+    },
+    experienciaPrevia: {
+      type: "text",
+      nullable: true,
+    },
+    capacitaciones: {
+      type: "text",
+      nullable: true,
+    },
+    rol: {
       type: "varchar",
+      length: 50,
       nullable: false,
+      default: 'voluntario',
     },
     createdAt: {
       type: "timestamp with time zone",
@@ -80,37 +110,24 @@ const UserSchema = new EntitySchema({
       onUpdate: "CURRENT_TIMESTAMP",
       nullable: false,
     },
-    cuadrillaId: {
-      type: "int",
-      nullable: true,
-    },
-  },
-  relations: {
-    cuadrilla: {
-      type: "many-to-one",
-      target: "Cuadrilla",
-      joinColumn: { name: "cuadrillaId" },
-      nullable: true,
-      onDelete: "SET NULL",
-    },
   },
   indices: [
     {
-      name: "IDX_USER",
+      name: "IDX_VOLUNTEER",
       columns: ["id"],
       unique: true,
     },
     {
-      name: "IDX_USER_RUT",
+      name: "IDX_VOLUNTEER_RUT",
       columns: ["rut"],
       unique: true,
     },
     {
-      name: "IDX_USER_EMAIL",
+      name: "IDX_VOLUNTEER_EMAIL",
       columns: ["email"],
       unique: true,
     },
   ],
 });
 
-export default UserSchema;
+export default VolunteerSchema;

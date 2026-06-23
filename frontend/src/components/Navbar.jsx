@@ -46,7 +46,7 @@ const Navbar = () => {
                             className={getNavLinkClass}
                             onClick={() => setMenuOpen(false)}
                         >
-                            Usuarios
+                            Voluntarios
                         </NavLink>
                     </li>
                 )}

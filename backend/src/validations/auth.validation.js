@@ -89,11 +89,22 @@ export const registerValidation = Joi.object({
     .required()
     .messages({
       "string.empty": "La contraseña no puede estar vacía.",
-      "any.required": "La contraseña es obligatorio.",
+      "any.required": "La contraseña es obligatoria.",
       "string.base": "La contraseña debe ser de tipo texto.",
       "string.min": "La contraseña debe tener al menos 8 caracteres.",
       "string.max": "La contraseña debe tener como máximo 26 caracteres.",
       "string.pattern.base": "La contraseña solo puede contener letras y números.",
+    }),
+  telefono: Joi.string()
+    .min(8)
+    .max(20)
+    .pattern(/^[0-9+\-\s]+$/)
+    .allow("")
+    .messages({
+      "string.base": "El número de teléfono debe ser de tipo texto.",
+      "string.min": "El número de teléfono debe tener al menos 8 caracteres.",
+      "string.max": "El número de teléfono debe tener como máximo 20 caracteres.",
+      "string.pattern.base": "El número de teléfono solo puede contener números, espacios, + y -.",
     }),
 })
   .unknown(false)

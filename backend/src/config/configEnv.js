@@ -42,3 +42,4 @@ export const config = {
   JWT_SECRET,
   cookieKey
 };
+export const DB_PORT = process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432;

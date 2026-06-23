@@ -8,6 +8,9 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    open: true
+  },
   preview: {port:443, host:true},
   resolve: {
     alias: {

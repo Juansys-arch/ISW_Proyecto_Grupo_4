@@ -13,7 +13,6 @@ import KitHerramientas from "../entity/kitHerramientas.entity.js";
 import Transporte from "../entity/transporte.entity.js";
 import Cuadrilla from "../entity/cuadrilla.entity.js";
 
-
 // Función para parsear DATABASE_URL
 function getDatabaseConfig() {
   if (DATABASE_URL) {

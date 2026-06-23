@@ -66,6 +66,18 @@ const patternRut = new RegExp(/^(?:(?:[1-9]\d{0}|[1-2]\d{1})(\.\d{3}){2}|[1-9]\d
                         onChange: (e) => handleInputChange('email', e.target.value)
                     },
                     {
+                        label: "Teléfono",
+                        name: "telefono",
+                        placeholder: "+56912345678",
+                        fieldType: 'input',
+                        type: "text",
+                        required: false,
+                        minLength: 8,
+                        maxLength: 20,
+                        pattern: /^[0-9+\-\s]+$/,
+                        patternMessage: "Debe contener solo números, espacios, + y -",
+                    },
+                    {
 						label: "Rut",
                         name: "rut",
                         placeholder: "23.770.330-1",

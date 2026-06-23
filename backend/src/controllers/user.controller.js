@@ -1,5 +1,6 @@
 "use strict";
 import {
+  createUserService,
   deleteUserService,
   getUserService,
   getUsersService,
@@ -21,7 +22,7 @@ export async function getUser(req, res) {
 
     const { error } = userQueryValidation.validate({ rut, id, email });
 
-    if (error) return handleErrorClient(res, 400, error.message);
+    if (error)   return handleErrorClient(res, 400, error.message);
 
     const [user, errorUser] = await getUserService({ rut, id, email });
 
@@ -48,6 +49,33 @@ export async function getUsers(req, res) {
       500,
       error.message,
     );
+  }
+}
+
+export async function createUser(req, res) {
+  try {
+    const { body } = req;
+
+    const { error: bodyError } = userBodyValidation.validate(body);
+    if (bodyError) {
+      return handleErrorClient(
+        res,
+        400,
+        "Error de validación en los datos enviados",
+        bodyError.message,
+      );
+    }
+
+    if (!body.password) {
+      return handleErrorClient(res, 400, "Error de validación", "La contraseña es obligatoria para crear un usuario");
+    }
+
+    const [user, userError] = await createUserService(body);
+    if (userError) return handleErrorClient(res, 400, "Error creando usuario", userError);
+
+    handleSuccess(res, 201, "Usuario creado correctamente", user);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
   }
 }
 
