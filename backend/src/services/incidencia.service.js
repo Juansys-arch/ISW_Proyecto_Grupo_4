@@ -27,9 +27,9 @@ export async function crearIncidenciaService(data, jefeCuadrillaId) {
     });
 
     const requiereNotificacion =
-      (data.tipo === "accidente" && ["alta", "critica"].includes(data.prioridad)) ||
-      data.prioridad === "critica" ||
-      data.tipo === "falta_material";
+      (data.tipo === "accidente" && ["alta", "critica"].includes(data.prioridad))
+      || data.prioridad === "critica"
+      || data.tipo === "falta_material";
 
     if (requiereNotificacion) {
       const nombrePaciente = data.nombrePaciente || "No informado";
@@ -95,8 +95,8 @@ export async function generarReporteEmergenciaConDatosService(incidenciaId, admi
     if (!incidencia) return [null, "Incidencia no encontrada"];
 
     const requiereAtencionMedica =
-      incidencia.tipo === "accidente" &&
-      ["alta", "critica"].includes(incidencia.prioridad);
+      incidencia.tipo === "accidente"
+      && ["alta", "critica"].includes(incidencia.prioridad);
 
     if (!requiereAtencionMedica) {
       return [null, "Solo los accidentes de prioridad alta o crítica pueden generar reporte de emergencia"];

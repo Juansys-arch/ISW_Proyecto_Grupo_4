@@ -13,7 +13,7 @@ const VolunteerSchema = new EntitySchema({
     status: {
       type: "varchar",
       length: 20,
-      default: 'pending',
+      default: "pending",
       nullable: false,
     },
     rejectionReason: {
@@ -97,7 +97,7 @@ const VolunteerSchema = new EntitySchema({
       type: "varchar",
       length: 50,
       nullable: false,
-      default: 'voluntario',
+      default: "voluntario",
     },
     createdAt: {
       type: "timestamp with time zone",

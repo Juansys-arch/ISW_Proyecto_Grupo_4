@@ -1,7 +1,7 @@
 "use strict";
 import {
-  obtenerNotificacionesService,
   marcarNotificacionLeidaService,
+  obtenerNotificacionesService,
 } from "../services/notificacion.service.js";
 import {
   handleErrorClient,

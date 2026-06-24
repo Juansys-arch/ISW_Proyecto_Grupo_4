@@ -1,5 +1,5 @@
 "use strict";
-import { handleSuccess, handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
+import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import { AppDataSource } from "../config/configDb.js";
 import KitHerramientas from "../entity/kitHerramientas.entity.js";
 
@@ -36,11 +36,11 @@ export async function crearKit(req, res) {
 export async function obtenerKits(req, res) {
   try {
     const { buscar } = req.query;
-    let query = kitRepository.createQueryBuilder('kit');
+    let query = kitRepository.createQueryBuilder("kit");
 
     if (buscar) {
       query = query.where(
-        'kit.codigoKit ILIKE :buscar OR kit.nombre ILIKE :buscar',
+        "kit.codigoKit ILIKE :buscar OR kit.nombre ILIKE :buscar",
         { buscar: `%${buscar}%` }
       );
     }
@@ -121,7 +121,7 @@ export async function verificarKitsIncompletos(req, res) {
     
     const kitsIncompletos = kits.filter(kit => {
       // Se considera incompleto si tiene estado 'faltante' o si la cantidad de items es 0
-      return kit.estado === 'faltante' || kit.cantidadItems === 0;
+      return kit.estado === "faltante" || kit.cantidadItems === 0;
     });
 
     const alertas = kitsIncompletos.map(kit => ({
@@ -130,7 +130,7 @@ export async function verificarKitsIncompletos(req, res) {
       nombre: kit.nombre,
       estado: kit.estado,
       cantidadItems: kit.cantidadItems,
-      severidad: 'alta', // Alerta roja
+      severidad: "alta", // Alerta roja
       mensaje: `Kit ${kit.nombre} está incompleto`,
       fechaAlerta: new Date(),
     }));
@@ -152,10 +152,10 @@ export async function marcarKitIncompleto(req, res) {
       return handleErrorClient(res, 404, "Kit no encontrado");
     }
 
-    kit.estado = 'faltante';
+    kit.estado = "faltante";
     const kitActualizado = await kitRepository.save(kit);
     
-    handleSuccess(res, 200, `Kit marcado como incompleto: ${razon || 'Sin especificar'}`, kitActualizado);
+    handleSuccess(res, 200, `Kit marcado como incompleto: ${razon || "Sin especificar"}`, kitActualizado);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }

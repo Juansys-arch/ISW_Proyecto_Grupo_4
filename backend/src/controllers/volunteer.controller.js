@@ -1,19 +1,19 @@
 "use strict";
 import {
-  registerVolunteerService,
-  registerVolunteerOnSiteService,
   approveVolunteerService,
-  getPendingVolunteersService,
-  updateVolunteerDetailsService,
-  getAllVolunteersService,
   deleteVolunteerService,
-  getVolunteersByRegionService,
+  getAllVolunteersService,
+  getPendingVolunteersService,
   getRegionsListService,
+  getVolunteersByRegionService,
+  registerVolunteerOnSiteService,
+  registerVolunteerService,
+  updateVolunteerDetailsService,
 } from "../services/volunteer.service.js";
 import {
-  volunteerRegisterValidation,
-  volunteerOnSiteRegisterValidation,
   approveVolunteerValidation,
+  volunteerOnSiteRegisterValidation,
+  volunteerRegisterValidation,
 } from "../validations/volunteer.validation.js";
 import {
   handleErrorClient,

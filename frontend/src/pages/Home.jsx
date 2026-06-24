@@ -13,8 +13,12 @@ const Home = () => {
       return;
     }
 
-    if (user?.rol === 'jefe_cuadrilla' || user?.rol === 'administrador') {
+    if (user?.rol === 'administrador' || user?.rol === 'coordinador') {
+      navigate('/users');
+    } else if (user?.rol === 'jefe_cuadrilla') {
       navigate('/gestion-jornada');
+    } else if (user?.rol === 'encargado_inventario') {
+      navigate('/gestion-operativa');
     } else {
       navigate('/asistencias');
     }

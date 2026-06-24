@@ -5,9 +5,9 @@ import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAuthorized } from "../middlewares/authorization.middleware.js";
 import {
   crearIncidencia,
-  obtenerIncidencias,
-  obtenerIncidenciaPorId,
   generarReporteEmergencia,
+  obtenerIncidenciaPorId,
+  obtenerIncidencias,
 } from "../controllers/incidencia.controller.js";
 
 const router = Router();

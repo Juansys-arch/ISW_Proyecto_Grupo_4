@@ -209,9 +209,9 @@ export async function solicitarMaterialService(data, solicitante) {
 
     // notificar encargados
     const mensaje =
-      `Solicitud de material: ${solicitante.nombreCompleto} (${solicitante.email}) solicita ${data.cantidad} ${material.unidadMedida} de "${material.nombre}".` +
-      `${data.ubicacion ? ` Ubicación: ${data.ubicacion}.` : ""}` +
-      `${data.observacion ? ` Observacion: ${data.observacion}` : ""}`;
+      `Solicitud de material: ${solicitante.nombreCompleto} (${solicitante.email}) solicita ${data.cantidad} ${material.unidadMedida} de "${material.nombre}".`
+      + `${data.ubicacion ? ` Ubicación: ${data.ubicacion}.` : ""}`
+      + `${data.observacion ? ` Observacion: ${data.observacion}` : ""}`;
 
     await Promise.all(
       encargadosInventario.map((encargadoInventario) =>
@@ -267,7 +267,7 @@ export async function actualizarEstadoSolicitudService(id, nuevoEstado, encargad
     await solicitudRepository.save(solicitud);
 
     // notificar al solicitante sobre el cambio de estado
-    const mensaje = `Su solicitud #${solicitud.id} para ${solicitud.material?.nombre || ''} cambió a estado: ${nuevoEstado}`;
+    const mensaje = `Su solicitud #${solicitud.id} para ${solicitud.material?.nombre || ""} cambió a estado: ${nuevoEstado}`;
     await notificacionRepository.save(
       notificacionRepository.create({
         tipo: "estado_solicitud",

@@ -1,15 +1,15 @@
 "use strict";
 import { Router } from "express";
 import {
-  registerVolunteer,
-  registerVolunteerOnSite,
   approveVolunteer,
-  getPendingVolunteers,
-  updateVolunteerDetails,
+  deleteVolunteer,
   getAllVolunteers,
+  getPendingVolunteers,
   getRegionsList,
   getVolunteersByRegion,
-  deleteVolunteer,
+  registerVolunteer,
+  registerVolunteerOnSite,
+  updateVolunteerDetails,
 } from "../controllers/volunteer.controller.js";
 import { isAdminOrCoordinator } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";

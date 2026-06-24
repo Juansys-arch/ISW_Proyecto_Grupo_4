@@ -1,15 +1,15 @@
 "use strict";
 import { Router } from "express";
 import {
-  crearVivienda,
-  iniciarConstruccion,
   actualizarAvanceHito,
   completarConstruccion,
-  pausarConstruccion,
-  obtenerViviendas,
-  obtenerVivienda,
-  verificarRetrasos,
+  crearVivienda,
   eliminarVivienda,
+  iniciarConstruccion,
+  obtenerVivienda,
+  obtenerViviendas,
+  pausarConstruccion,
+  verificarRetrasos,
 } from "../controllers/construccion.controller.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAuthorized } from "../middlewares/authorization.middleware.js";

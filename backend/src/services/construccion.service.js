@@ -48,7 +48,7 @@ class ConstruccionService {
       // Recargar vivienda con hitos
       const viviendasConHitos = await viviendasRepository.findOne({
         where: { id: vivienda.id },
-        relations: ['hitos']
+        relations: ["hitos"]
       });
 
       return viviendasConHitos;
@@ -63,12 +63,12 @@ class ConstruccionService {
       if (estado) {
         return await viviendasRepository.find({
           where: { estado },
-          relations: ['hitos'],
+          relations: ["hitos"],
           order: { createdAt: "DESC" }
         });
       }
       return await viviendasRepository.find({
-        relations: ['hitos'],
+        relations: ["hitos"],
         order: { createdAt: "DESC" }
       });
     } catch (error) {
@@ -81,7 +81,7 @@ class ConstruccionService {
       const viviendasRepository = this.getViviendasRepository();
       const vivienda = await viviendasRepository.findOne({
         where: { id: viviendaId },
-        relations: ['hitos']
+        relations: ["hitos"]
       });
 
       if (!vivienda) throw new Error("Vivienda no encontrada");
@@ -224,7 +224,7 @@ class ConstruccionService {
       const viviendasRepository = this.getViviendasRepository();
       const viviendas = await viviendasRepository.find({
         where: { estado: "en_progreso" },
-        relations: ['hitos']
+        relations: ["hitos"]
       });
 
       const ahora = new Date();

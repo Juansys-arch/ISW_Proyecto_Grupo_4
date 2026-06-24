@@ -77,7 +77,7 @@ export async function registrarDevolucionService(asignacionId, cantidadDevuelta)
 // REQUISITO 3: Control de asistencia con validación de cupos
 export async function registrarAsistenciaService(data, jefeCuadrillaId) {
   try {
-    const fechaHoy = new Date().toISOString().split('T')[0];
+    const fechaHoy = new Date().toISOString().split("T")[0];
     
     // Comparación con cupos asignados (Ejemplo: límite de 40 por bus)
     const totalAsistentes = await asistenciaRepository.count({ where: { fecha: fechaHoy } });

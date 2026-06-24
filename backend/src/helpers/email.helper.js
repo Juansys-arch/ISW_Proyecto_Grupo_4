@@ -3,11 +3,11 @@
 export async function sendEmail(to, subject, text, html = null) {
   try {
     // Log the email that would be sent
-    console.log('Email would be sent:', {
+    console.log("Email would be sent:", {
       to,
       subject,
       text,
-      html: html ? '[HTML content]' : 'No HTML'
+      html: html ? "[HTML content]" : "No HTML"
     });
     return [true, null];
   } catch (error) {
@@ -36,7 +36,7 @@ export async function enviarComprobanteTransporte(emailDestino, transporte, punt
       <ul>
         <li><strong>Ruta de Partida:</strong> ${transporte.rutaPartida}</li>
         <li><strong>Ruta de Destino:</strong> ${transporte.rutaDestino}</li>
-        <li><strong>Hora de Partida:</strong> ${transporte.horaPartida || 'Por confirmar'}</li>
+        <li><strong>Hora de Partida:</strong> ${transporte.horaPartida || "Por confirmar"}</li>
         <li><strong>Fecha de Jornada:</strong> ${transporte.fechaJornada}</li>
         <li><strong>Abordajes Registrados:</strong> ${transporte.abordajosRegistrados}/${transporte.capacidad}</li>
       </ul>
@@ -55,7 +55,7 @@ export async function enviarComprobanteTransporte(emailDestino, transporte, punt
       
       Partida desde: ${transporte.rutaPartida}
       Destino: ${transporte.rutaDestino}
-      Hora de Partida: ${transporte.horaPartida || 'Por confirmar'}
+      Hora de Partida: ${transporte.horaPartida || "Por confirmar"}
       Fecha: ${transporte.fechaJornada}
     `;
 
@@ -67,7 +67,7 @@ export async function enviarComprobanteTransporte(emailDestino, transporte, punt
 }
 
 // Función para enviar alerta de kits incompletos
-export async function enviarAlertaKitIncompleto(emailDestino, kit, razon = '') {
+export async function enviarAlertaKitIncompleto(emailDestino, kit, razon = "") {
   try {
     const subject = `⚠️ ALERTA: Kit Incompleto - ${kit.nombre}`;
     
@@ -80,7 +80,7 @@ export async function enviarAlertaKitIncompleto(emailDestino, kit, razon = '') {
           <li><strong>Código del Kit:</strong> ${kit.codigoKit}</li>
           <li><strong>Estado:</strong> <span style="color: red; font-weight: bold;">FALTANTE/INCOMPLETO</span></li>
           <li><strong>Cantidad de Items:</strong> ${kit.cantidadItems}</li>
-          <li><strong>Razón:</strong> ${razon || 'No especificada'}</li>
+          <li><strong>Razón:</strong> ${razon || "No especificada"}</li>
           <li><strong>Fecha de Alerta:</strong> ${new Date().toLocaleString()}</li>
         </ul>
         <hr/>
@@ -95,7 +95,7 @@ export async function enviarAlertaKitIncompleto(emailDestino, kit, razon = '') {
       Código: ${kit.codigoKit}
       Estado: FALTANTE/INCOMPLETO
       Cantidad de Items: ${kit.cantidadItems}
-      Razón: ${razon || 'No especificada'}
+      Razón: ${razon || "No especificada"}
       
       Por favor, revise y complete el kit de inmediato.
     `;

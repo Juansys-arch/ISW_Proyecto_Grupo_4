@@ -1,13 +1,13 @@
 "use strict";
 import { Router } from "express";
 import {
-  crearKit,
-  obtenerKits,
-  obtenerKitPorId,
   actualizarKit,
+  crearKit,
   eliminarKit,
-  verificarKitsIncompletos,
   marcarKitIncompleto,
+  obtenerKitPorId,
+  obtenerKits,
+  verificarKitsIncompletos,
 } from "../controllers/kit.controller.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAdminOrJefeCuadrilla } from "../middlewares/authorization.middleware.js";

@@ -1,13 +1,13 @@
 "use strict";
 import { Router } from "express";
 import {
-  crearTransporte,
-  obtenerTransportes,
-  obtenerTransportePorId,
   actualizarTransporte,
-  registrarAbordaje,
+  crearTransporte,
   eliminarTransporte,
   finalizarJornada,
+  obtenerTransportePorId,
+  obtenerTransportes,
+  registrarAbordaje,
 } from "../controllers/transporte.controller.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAdminOrJefeCuadrilla } from "../middlewares/authorization.middleware.js";

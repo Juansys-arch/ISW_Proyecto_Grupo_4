@@ -1,6 +1,6 @@
 "use strict";
-import { registrarAsignacionService, registrarDevolucionService, registrarAsistenciaService } from "../services/gestion.service.js";
-import { handleSuccess, handleErrorClient } from "../handlers/responseHandlers.js";
+import { registrarAsignacionService, registrarAsistenciaService, registrarDevolucionService } from "../services/gestion.service.js";
+import { handleErrorClient, handleSuccess } from "../handlers/responseHandlers.js";
 
 export async function crearAsignacion(req, res) {
     const [result, error] = await registrarAsignacionService(req.body, req.user.id);

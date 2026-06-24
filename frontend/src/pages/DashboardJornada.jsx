@@ -214,7 +214,7 @@ const DashboardJornada = () => {
 
     return (
         <div className="main-container">
-            <h1>Panel de Control - Jefe de Cuadrilla</h1>
+            <h1>Panel de Control - {user?.rol === 'administrador' ? 'Administrador' : 'Jefe de Cuadrilla'}</h1>
             
             <div className="tabs-container" style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
                 <button onClick={() => setStep(1)} className={step === 1 ? 'active' : ''} style={{ padding: '8px 12px' }}>1. Asistencia</button>

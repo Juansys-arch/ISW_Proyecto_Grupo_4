@@ -1,7 +1,7 @@
 "use strict";
-import {crearMaterialService,obtenerMaterialesService,obtenerMaterialPorIdService,actualizarMaterialService,registrarMovimientoService,obtenerMovimientosService,solicitarMaterialService,} from "../services/inventario.service.js";
-import {crearMaterialValidation,actualizarMaterialValidation,movimientoValidation,solicitudMaterialValidation,} from "../validations/inventario.validation.js";
-import {handleErrorClient,handleErrorServer,handleSuccess,} from "../handlers/responseHandlers.js";
+import { actualizarMaterialService,crearMaterialService,obtenerMaterialesService,obtenerMaterialPorIdService,obtenerMovimientosService,registrarMovimientoService,solicitarMaterialService, } from "../services/inventario.service.js";
+import { actualizarMaterialValidation,crearMaterialValidation,movimientoValidation,solicitudMaterialValidation, } from "../validations/inventario.validation.js";
+import { handleErrorClient,handleErrorServer,handleSuccess, } from "../handlers/responseHandlers.js";
 
 /// Materiales
 export async function crearMaterial(req, res) {

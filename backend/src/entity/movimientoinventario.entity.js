@@ -48,13 +48,13 @@ const MovimientoInventarioSchema = new EntitySchema({
         material:{
             type:"many-to-one",
             target:"Material",
-            joinColumn:{name:"materialId"},
+            joinColumn:{ name:"materialId" },
             eager:true,
         },
         responsable:{
             type:"many-to-one",
             target:"User",
-            joinColumn:{name:"responsableId"},
+            joinColumn:{ name:"responsableId" },
             eager:true,
         },
     },

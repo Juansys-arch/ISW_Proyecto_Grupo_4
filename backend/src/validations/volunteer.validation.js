@@ -57,7 +57,7 @@ export const volunteerRegisterValidation = Joi.object({
       "any.required": "La fecha de nacimiento es obligatoria.",
     }),
   genero: Joi.string()
-    .valid('masculino', 'femenino', 'otro')
+    .valid("masculino", "femenino", "otro")
     .required()
     .messages({
       "any.only": "El género debe ser masculino, femenino u otro.",
@@ -72,25 +72,25 @@ export const volunteerRegisterValidation = Joi.object({
     }),
   direccion: Joi.string()
     .optional()
-    .allow('')
+    .allow("")
     .messages({
       "string.base": "La dirección debe ser de tipo texto.",
     }),
   region: Joi.string()
     .optional()
-    .allow('')
+    .allow("")
     .messages({
       "string.base": "La región debe ser de tipo texto.",
     }),
   comuna: Joi.string()
     .optional()
-    .allow('')
+    .allow("")
     .messages({
       "string.base": "La comuna debe ser de tipo texto.",
     }),
   disponibilidad: Joi.string()
     .optional()
-    .allow('')
+    .allow("")
     .messages({
       "string.base": "La disponibilidad debe ser de tipo texto.",
     }),
@@ -146,7 +146,7 @@ export const volunteerOnSiteRegisterValidation = Joi.object({
       "any.required": "La fecha de nacimiento es obligatoria.",
     }),
   genero: Joi.string()
-    .valid('masculino', 'femenino', 'otro')
+    .valid("masculino", "femenino", "otro")
     .required()
     .messages({
       "any.only": "El género debe ser masculino, femenino u otro.",
@@ -161,25 +161,25 @@ export const volunteerOnSiteRegisterValidation = Joi.object({
     }),
   direccion: Joi.string()
     .optional()
-    .allow('')
+    .allow("")
     .messages({
       "string.base": "La dirección debe ser de tipo texto.",
     }),
   region: Joi.string()
     .optional()
-    .allow('')
+    .allow("")
     .messages({
       "string.base": "La región debe ser de tipo texto.",
     }),
   comuna: Joi.string()
     .optional()
-    .allow('')
+    .allow("")
     .messages({
       "string.base": "La comuna debe ser de tipo texto.",
     }),
   disponibilidad: Joi.string()
     .optional()
-    .allow('')
+    .allow("")
     .messages({
       "string.base": "La disponibilidad debe ser de tipo texto.",
     }),
@@ -199,20 +199,20 @@ export const approveVolunteerValidation = Joi.object({
       "any.required": "El ID del voluntario es obligatorio.",
     }),
   action: Joi.string()
-    .valid('approve', 'reject')
+    .valid("approve", "reject")
     .required()
     .messages({
       "any.only": "La acción debe ser 'approve' o 'reject'.",
       "any.required": "La acción es obligatoria.",
     }),
   rejectionReason: Joi.string()
-    .when('action', { is: 'reject', then: Joi.required(), otherwise: Joi.optional() })
+    .when("action", { is: "reject", then: Joi.required(), otherwise: Joi.optional() })
     .messages({
       "string.base": "La razón de rechazo debe ser de tipo texto.",
       "any.required": "La razón de rechazo es obligatoria cuando se rechaza.",
     }),
   rolAsignado: Joi.string()
-    .when('action', { is: 'approve', then: Joi.required(), otherwise: Joi.optional() })
+    .when("action", { is: "approve", then: Joi.required(), otherwise: Joi.optional() })
     .messages({
       "string.base": "El rol asignado debe ser de tipo texto.",
       "any.required": "El rol asignado es obligatorio cuando se aprueba.",

@@ -1,6 +1,6 @@
 "use strict";
 import { DataSource } from "typeorm";
-import { DATABASE_URL, DB_USERNAME, HOST, PASSWORD, DATABASE } from "./configEnv.js";
+import { DATABASE, DATABASE_URL, DB_USERNAME, HOST, PASSWORD } from "./configEnv.js";
 
 import AsignacionHerramientas from "../entity/asignacionHerramientas.entity.js";
 import Asistencia from "../entity/asistencia.entity.js";
@@ -14,7 +14,9 @@ import Transporte from "../entity/transporte.entity.js";
 import Cuadrilla from "../entity/cuadrilla.entity.js";
 import Vivienda from "../entity/vivienda.entity.js";
 import Hito from "../entity/hito.entity.js";
-
+import Solicitud from "../entity/solicitud.entity.js";
+import Volunteer from "../entity/volunteer.entity.js";
+import Evaluacion from "../entity/evaluacion.entity.js";
 
 // Función para parsear DATABASE_URL
 function getDatabaseConfig() {
@@ -35,7 +37,10 @@ function getDatabaseConfig() {
         Transporte,
         Cuadrilla,
         Vivienda,
-        Hito
+        Hito,
+        Solicitud,
+        Volunteer,
+        Evaluacion
       ],
       synchronize: true,
       logging: false,
@@ -61,7 +66,10 @@ function getDatabaseConfig() {
         Transporte,
         Cuadrilla,
         Vivienda,
-        Hito
+        Hito,
+        Solicitud,
+        Volunteer,
+        Evaluacion
       ],
       synchronize: true,
       logging: false,

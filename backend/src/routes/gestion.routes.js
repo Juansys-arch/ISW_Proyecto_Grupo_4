@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { tomarAsistencia, crearAsignacion, marcarDevolucion } from "../controllers/gestion.controller.js";
+import { crearAsignacion, marcarDevolucion, tomarAsistencia } from "../controllers/gestion.controller.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAdminOrJefeCuadrilla } from "../middlewares/authorization.middleware.js";
 

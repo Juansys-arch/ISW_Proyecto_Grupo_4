@@ -2,9 +2,9 @@
 
 import {
   crearIncidenciaService,
-  obtenerIncidenciasService,
-  obtenerIncidenciaPorIdService,
   generarReporteEmergenciaConDatosService,
+  obtenerIncidenciaPorIdService,
+  obtenerIncidenciasService,
 } from "../services/incidencia.service.js";
 import { crearIncidenciaValidation, reporteEmergenciaValidation } from "../validations/incidencia.validation.js";
 import {

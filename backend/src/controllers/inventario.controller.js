@@ -1,7 +1,7 @@
 "use strict";
-import {crearMaterialService,obtenerMaterialesService,obtenerMaterialPorIdService,actualizarMaterialService,registrarMovimientoService,obtenerMovimientosService,solicitarMaterialService,obtenerSolicitudesService,obtenerSolicitudesPorSolicitanteService,actualizarEstadoSolicitudService,} from "../services/inventario.service.js";
-import {crearMaterialValidation,actualizarMaterialValidation,movimientoValidation,solicitudMaterialValidation,} from "../validations/inventario.validation.js";
-import {handleErrorClient,handleErrorServer,handleSuccess,} from "../handlers/responseHandlers.js";
+import { actualizarEstadoSolicitudService,actualizarMaterialService,crearMaterialService,obtenerMaterialesService,obtenerMaterialPorIdService,obtenerMovimientosService,obtenerSolicitudesPorSolicitanteService,obtenerSolicitudesService,registrarMovimientoService,solicitarMaterialService, } from "../services/inventario.service.js";
+import { actualizarMaterialValidation,crearMaterialValidation,movimientoValidation,solicitudMaterialValidation, } from "../validations/inventario.validation.js";
+import { handleErrorClient,handleErrorServer,handleSuccess, } from "../handlers/responseHandlers.js";
 
 
 export async function crearMaterial(req, res) {

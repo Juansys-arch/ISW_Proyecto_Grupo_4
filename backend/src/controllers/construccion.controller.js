@@ -1,6 +1,6 @@
 "use strict";
 import construccionService from "../services/construccion.service.js";
-import { validarCrearVivienda, validarActualizarAvance } from "../validations/construccion.validation.js";
+import { validarActualizarAvance, validarCrearVivienda } from "../validations/construccion.validation.js";
 
 export const crearVivienda = async (req, res) => {
   try {

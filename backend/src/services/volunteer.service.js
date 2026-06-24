@@ -40,8 +40,8 @@ export async function registerVolunteerService(volunteerData) {
       disponibilidad,
       region: region || null,
       comuna: comuna || null,
-      status: 'pending',
-      rol: 'voluntario',
+      status: "pending",
+      rol: "voluntario",
     });
 
     await volunteerRepository.save(newVolunteer);
@@ -91,8 +91,8 @@ export async function registerVolunteerOnSiteService(volunteerData, userId) {
       disponibilidad,
       region: region || null,
       comuna: comuna || null,
-      status: 'pending',
-      rol: 'voluntario',
+      status: "pending",
+      rol: "voluntario",
       // Podríamos agregar un campo para quién registró
     });
 
@@ -132,13 +132,13 @@ export async function approveVolunteerService(volunteerId, action, rejectionReas
       return [null, "Voluntario no encontrado"];
     }
 
-    if (action === 'approve') {
-      volunteer.status = 'approved';
+    if (action === "approve") {
+      volunteer.status = "approved";
       volunteer.approvedBy = approvedBy;
       volunteer.approvalDate = new Date();
       volunteer.rolAsignado = rolAsignado;
-    } else if (action === 'reject') {
-      volunteer.status = 'rejected';
+    } else if (action === "reject") {
+      volunteer.status = "rejected";
       volunteer.rejectionReason = rejectionReason;
     }
 
@@ -156,7 +156,7 @@ export async function getPendingVolunteersService() {
     const volunteerRepository = AppDataSource.getRepository(Volunteer);
 
     const pendingVolunteers = await volunteerRepository.find({
-      where: { status: 'pending' },
+      where: { status: "pending" },
     });
 
     return [pendingVolunteers, null];
@@ -238,28 +238,28 @@ export async function getVolunteersByRegionService() {
   try {
     const volunteerRepository = AppDataSource.getRepository(Volunteer);
 
-    const fs = await import('fs');
-    const regionsPath = new URL('../data/chile-regions.json', import.meta.url);
-    const regionsData = JSON.parse(fs.readFileSync(regionsPath, 'utf8'));
+    const fs = await import("fs");
+    const regionsPath = new URL("../data/chile-regions.json", import.meta.url);
+    const regionsData = JSON.parse(fs.readFileSync(regionsPath, "utf8"));
 
     const volunteers = await volunteerRepository.find({
       select: [
-        'id',
-        'nombreCompleto',
-        'rut',
-        'email',
-        'numeroContacto',
-        'status',
-        'direccion',
-        'region',
-        'comuna',
+        "id",
+        "nombreCompleto",
+        "rut",
+        "email",
+        "numeroContacto",
+        "status",
+        "direccion",
+        "region",
+        "comuna",
       ],
     });
 
     const normalizeText = (value) =>
-      typeof value === 'string'
-        ? value.trim().toLowerCase().normalize('NFD').replace(/\p{M}/gu, '')
-        : '';
+      typeof value === "string"
+        ? value.trim().toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")
+        : "";
 
     const result = regionsData.map((r) => ({
       region: r.region,
@@ -275,12 +275,12 @@ export async function getVolunteersByRegionService() {
     });
 
     const ensureRegionGroup = (regionName) => {
-      const normalizedRegion = normalizeText(regionName) || 'sin region asignada';
+      const normalizedRegion = normalizeText(regionName) || "sin region asignada";
       let regionIndex = regionIndexByNormalizedName.get(normalizedRegion);
 
       if (regionIndex === undefined) {
         const newRegion = {
-          region: regionName || 'Sin región asignada',
+          region: regionName || "Sin región asignada",
           comunas: [],
         };
         result.push(newRegion);
@@ -292,12 +292,12 @@ export async function getVolunteersByRegionService() {
     };
 
     const ensureComunaGroup = (regionObj, comunaName) => {
-      const normalizedComuna = normalizeText(comunaName) || 'sin comuna asignada';
+      const normalizedComuna = normalizeText(comunaName) || "sin comuna asignada";
       let comunaObj = regionObj.comunas.find((c) => normalizeText(c.comuna) === normalizedComuna);
 
       if (!comunaObj) {
         comunaObj = {
-          comuna: comunaName || 'Sin comuna asignada',
+          comuna: comunaName || "Sin comuna asignada",
           volunteers: [],
         };
         regionObj.comunas.push(comunaObj);
@@ -314,19 +314,19 @@ export async function getVolunteersByRegionService() {
 
     return [result, null];
   } catch (error) {
-    console.error('Error al obtener voluntarios por región:', error);
-    return [null, 'Error interno del servidor'];
+    console.error("Error al obtener voluntarios por región:", error);
+    return [null, "Error interno del servidor"];
   }
 }
 export async function getRegionsListService() {
   try {
-    const fs = await import('fs');
-    const regionsPath = new URL('../data/chile-regions.json', import.meta.url);
-    const regionsData = JSON.parse(fs.readFileSync(regionsPath, 'utf8'));
+    const fs = await import("fs");
+    const regionsPath = new URL("../data/chile-regions.json", import.meta.url);
+    const regionsData = JSON.parse(fs.readFileSync(regionsPath, "utf8"));
 
     return [regionsData, null];
   } catch (error) {
-    console.error('Error al leer lista de regiones:', error);
-    return [null, 'Error interno del servidor'];
+    console.error("Error al leer lista de regiones:", error);
+    return [null, "Error interno del servidor"];
   }
 }
