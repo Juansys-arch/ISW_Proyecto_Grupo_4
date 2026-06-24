@@ -40,6 +40,7 @@ export default function Transporte() {
     { label: 'Conductor', name: 'conductor', type: 'text', required: true },
     { label: 'Ruta Partida', name: 'rutaPartida', type: 'text', placeholder: 'Punto de encuentro' },
     { label: 'Ruta Destino', name: 'rutaDestino', type: 'text', placeholder: 'Sitio de obra' },
+    { label: 'Correo Punto Encuentro', name: 'correoPuntoEncuentro', type: 'email', placeholder: 'punto.encuentro@techo.org' },
     { label: 'Hora Partida', name: 'horaPartida', type: 'time' },
     { label: 'Fecha Jornada', name: 'fechaJornada', type: 'date' },
   ];

@@ -71,6 +71,26 @@ export const completarConstruccion = async (req, res) => {
   }
 };
 
+export const firmarGarantia = async (req, res) => {
+  try {
+    const { viviendasId } = req.params;
+    const { firmaBase64 } = req.body;
+    
+    if (!firmaBase64) {
+      return res.status(400).json({ mensaje: "Debe proporcionar una firma digital" });
+    }
+
+    const vivienda = await construccionService.firmarGarantia(viviendasId, firmaBase64);
+
+    res.status(200).json({
+      mensaje: "Firma de garantía registrada exitosamente",
+      data: vivienda,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const pausarConstruccion = async (req, res) => {
   try {
     const { viviendasId } = req.params;

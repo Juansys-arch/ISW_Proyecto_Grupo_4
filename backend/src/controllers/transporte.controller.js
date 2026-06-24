@@ -8,7 +8,7 @@ import { sendEmail } from "../helpers/email.helper.js";
 
 export async function crearTransporte(req, res) {
   try {
-    const { numeroAutobus, placa, capacidad, conductor, rutaPartida, rutaDestino, horaPartida, fechaJornada } = req.body;
+    const { numeroAutobus, placa, capacidad, conductor, rutaPartida, rutaDestino, horaPartida, fechaJornada, correoPuntoEncuentro } = req.body;
 
     if (!numeroAutobus || !placa || !capacidad || !conductor) {
       return handleErrorClient(res, 400, "Campos obligatorios faltantes");
@@ -28,6 +28,7 @@ export async function crearTransporte(req, res) {
       rutaDestino: rutaDestino || "Sitio de obra",
       horaPartida,
       fechaJornada: fechaJornada || new Date().toISOString().split("T")[0],
+      correoPuntoEncuentro: correoPuntoEncuentro || "punto.encuentro@techo.org",
       estado: "disponible",
       abordajosRegistrados: 0,
     });
@@ -76,7 +77,7 @@ export async function obtenerTransportePorId(req, res) {
 export async function actualizarTransporte(req, res) {
   try {
     const { id } = req.params;
-    const { numeroAutobus, placa, capacidad, conductor, rutaPartida, rutaDestino, horaPartida, fechaJornada, estado, horaLlegada, abordajosRegistrados } = req.body;
+    const { numeroAutobus, placa, capacidad, conductor, rutaPartida, rutaDestino, horaPartida, fechaJornada, estado, horaLlegada, abordajosRegistrados, correoPuntoEncuentro } = req.body;
 
     const transporte = await transporteRepository.findOne({ where: { id: parseInt(id) } });
     if (!transporte) {
@@ -102,6 +103,7 @@ export async function actualizarTransporte(req, res) {
     if (estado) transporte.estado = estado;
     if (horaLlegada) transporte.horaLlegada = horaLlegada;
     if (abordajosRegistrados !== undefined) transporte.abordajosRegistrados = abordajosRegistrados;
+    if (correoPuntoEncuentro) transporte.correoPuntoEncuentro = correoPuntoEncuentro;
 
     const transporteActualizado = await transporteRepository.save(transporte);
     handleSuccess(res, 200, "Transporte actualizado exitosamente", transporteActualizado);
@@ -121,12 +123,24 @@ export async function registrarAbordaje(req, res) {
 
     transporte.abordajosRegistrados += 1;
 
+    let comprobanteEnviado = false;
     if (transporte.abordajosRegistrados >= transporte.capacidad) {
       transporte.estado = "en_ruta";
+      
+      // Enviar comprobante automáticamente
+      if (transporte.correoPuntoEncuentro) {
+        await sendEmail(
+          transporte.correoPuntoEncuentro,
+          `Comprobante de Abordaje - Bus ${transporte.numeroAutobus}`,
+          `Comprobante de Transporte - ${transporte.numeroAutobus}\nConductor: ${transporte.conductor}\nCapacidad: ${transporte.capacidad}`,
+          `<p><strong>Bus:</strong> ${transporte.numeroAutobus}</p><p><strong>Estado:</strong> En Ruta. Capacidad llena.</p>`
+        );
+        comprobanteEnviado = true;
+      }
     }
 
     const transporteActualizado = await transporteRepository.save(transporte);
-    handleSuccess(res, 200, `Abordaje registrado (${transporteActualizado.abordajosRegistrados}/${transporteActualizado.capacidad})`, transporteActualizado);
+    handleSuccess(res, 200, `Abordaje registrado (${transporteActualizado.abordajosRegistrados}/${transporteActualizado.capacidad})${comprobanteEnviado ? ' - Comprobante automático enviado!' : ''}`, transporteActualizado);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
@@ -169,6 +183,7 @@ export async function finalizarJornada(req, res) {
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
+}
 
 export async function enviarComprobanteTransporte(req, res) {
   try {

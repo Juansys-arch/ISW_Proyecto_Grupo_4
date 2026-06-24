@@ -26,7 +26,7 @@ export const HOST = readEnv("HOST", "localhost");
 export const DB_USERNAME = readEnv("DB_USERNAME", "ale");
 export const PASSWORD = readEnv("PASSWORD", "12345");
 export const DATABASE = readEnv("DATABASE", "techo");
-export const DATABASE_URL = readEnv("DATABASE_URL", "postgresql://postgres:1213@localhost:5433/techo?schema=public");
+export const DATABASE_URL = readEnv("DATABASE_URL", "");
 export const ACCESS_TOKEN_SECRET = readEnv("ACCESS_TOKEN_SECRET", "dev-access-token-secret");
 export const JWT_SECRET = readEnv("JWT_SECRET", ACCESS_TOKEN_SECRET);
 export const cookieKey = readEnv("cookieKey", "dev-cookie-key");

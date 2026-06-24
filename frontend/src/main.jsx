@@ -17,6 +17,8 @@ import Incidencias from '@pages/Incidencias';
 import Construccion from '@pages/Construccion';
 import GestionOperativa from '@pages/GestionOperativa';
 import Notificaciones from '@pages/Notificaciones';
+import EvaluacionCuadrilla from '@pages/EvaluacionCuadrilla';
+import DashboardVoluntarios from '@pages/DashboardVoluntarios';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 
@@ -108,6 +110,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
             <Transporte />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/evaluacion-cuadrilla',
+        element: (
+          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
+            <EvaluacionCuadrilla />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/voluntarios',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador', 'encargado_voluntarios']}>
+            <DashboardVoluntarios />
           </ProtectedRoute>
         ),
       },

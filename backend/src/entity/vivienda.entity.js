@@ -53,9 +53,13 @@ const ViviendasSchema = new EntitySchema({
     },
     estado: {
       type: "enum",
-      enum: ["no_iniciada", "en_progreso", "completada", "pausada"],
+      enum: ["no_iniciada", "en_progreso", "completada", "completada_con_firma", "pausada"],
       default: "no_iniciada",
       nullable: false,
+    },
+    firmaGarantiaUrl: {
+      type: "text",
+      nullable: true,
     },
     fechaInicio: {
       type: "timestamp with time zone",

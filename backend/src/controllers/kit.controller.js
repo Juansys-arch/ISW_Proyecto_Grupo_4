@@ -114,26 +114,45 @@ export async function eliminarKit(req, res) {
   }
 }
 
+import Notificacion from "../entity/notificacion.entity.js";
+import { enviarAlertaKitIncompleto } from "../helpers/email.helper.js";
+
+const notificacionRepository = AppDataSource.getRepository(Notificacion);
+
 // Verificar kits incompletos y generar alertas
 export async function verificarKitsIncompletos(req, res) {
   try {
     const kits = await kitRepository.find();
     
     const kitsIncompletos = kits.filter(kit => {
-      // Se considera incompleto si tiene estado 'faltante' o si la cantidad de items es 0
       return kit.estado === "faltante" || kit.cantidadItems === 0;
     });
 
-    const alertas = kitsIncompletos.map(kit => ({
-      id: kit.id,
-      codigoKit: kit.codigoKit,
-      nombre: kit.nombre,
-      estado: kit.estado,
-      cantidadItems: kit.cantidadItems,
-      severidad: "alta", // Alerta roja
-      mensaje: `Kit ${kit.nombre} está incompleto`,
-      fechaAlerta: new Date(),
-    }));
+    const alertas = [];
+    for (const kit of kitsIncompletos) {
+      const alerta = {
+        id: kit.id,
+        codigoKit: kit.codigoKit,
+        nombre: kit.nombre,
+        estado: kit.estado,
+        cantidadItems: kit.cantidadItems,
+        severidad: "alta", // Alerta roja
+        mensaje: `Kit ${kit.nombre} está incompleto`,
+        fechaAlerta: new Date(),
+      };
+      alertas.push(alerta);
+
+      // Crear Notificacion en BD
+      const nuevaNotificacion = notificacionRepository.create({
+        mensaje: `Alerta Roja: Kit ${kit.nombre} (${kit.codigoKit}) está incompleto o faltante.`,
+        tipo: "kit_incompleto",
+        administradorId: req.user ? req.user.id : 1 // Asumiendo un adminId por defecto o del token
+      });
+      await notificacionRepository.save(nuevaNotificacion);
+
+      // Enviar correo (usamos un correo configurado por defecto para el encargado de herramientas)
+      await enviarAlertaKitIncompleto('encargado.herramientas@techo.org', kit, "Verificación automática del sistema");
+    }
 
     handleSuccess(res, 200, `Se encontraron ${alertas.length} kits incompletos`, alertas);
   } catch (error) {

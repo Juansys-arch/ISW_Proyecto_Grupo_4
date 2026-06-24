@@ -1,31 +1,4 @@
-import axios from "axios";
-import cookies from "js-cookie";
-
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-
-// Create axios instance with interceptor for authorization
-const instance = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
-  },
-});
-
-instance.interceptors.request.use(
-  (config) => {
-    const token = cookies.get('jwt-auth', { path: '/' });
-    if(token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    // Disable Axios cache
-    config.headers['Cache-Control'] = 'no-cache';
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+import instance from "./root.service.js";
 
 export const construccionService = {
   // Viviendas

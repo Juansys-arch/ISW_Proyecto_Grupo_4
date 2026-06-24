@@ -46,6 +46,12 @@ const TransporteSchema = new EntitySchema({
             length: 255,
             nullable: false,
         },
+        correoPuntoEncuentro: {
+            type: "varchar",
+            length: 255,
+            nullable: false,
+            default: "punto.encuentro@techo.org",
+        },
         horaPartida: {
             type: "time",
             nullable: true,

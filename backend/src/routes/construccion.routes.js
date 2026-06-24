@@ -5,6 +5,7 @@ import {
   completarConstruccion,
   crearVivienda,
   eliminarVivienda,
+  firmarGarantia,
   iniciarConstruccion,
   obtenerVivienda,
   obtenerViviendas,
@@ -27,6 +28,13 @@ router.delete("/viviendas/:viviendasId", authenticateJwt, isAuthorized(["adminis
 router.patch("/viviendas/:viviendasId/iniciar", authenticateJwt, isAuthorized(["jefe_cuadrilla"]), iniciarConstruccion);
 router.patch("/viviendas/:viviendasId/completar", authenticateJwt, isAuthorized(["jefe_cuadrilla", "administrador"]), completarConstruccion);
 router.patch("/viviendas/:viviendasId/pausar", authenticateJwt, isAuthorized(["jefe_cuadrilla", "administrador"]), pausarConstruccion);
+
+router.post(
+  "/:viviendasId/firma-garantia",
+  authenticateJwt,
+  isAuthorized(["jefe_cuadrilla", "administrador"]),
+  firmarGarantia
+);
 
 // Rutas para actualizar avance (usuarios normales pueden participar)
 router.patch("/viviendas/:viviendasId/hitos/:hitoId/avance", authenticateJwt, isAuthorized(["usuario", "jefe_cuadrilla", "administrador"]), actualizarAvanceHito);

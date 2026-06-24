@@ -160,6 +160,18 @@ class ConstruccionService {
     }
   }
 
+  async firmarGarantia(id, firmaBase64) {
+    try {
+      const viviendasRepository = this.getViviendasRepository();
+      const vivienda = await this.obtenerVivienda(id);
+      vivienda.estado = "completada_con_firma";
+      vivienda.firmaGarantiaUrl = firmaBase64;
+      return await viviendasRepository.save(vivienda);
+    } catch (error) {
+      throw new Error(`Error al firmar garantía: ${error.message}`);
+    }
+  }
+
   async actualizarVivienda(viviendaId, data) {
     try {
       const viviendasRepository = this.getViviendasRepository();
