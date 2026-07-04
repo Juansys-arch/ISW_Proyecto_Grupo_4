@@ -20,6 +20,18 @@ const ViviendasSchema = new EntitySchema({
       length: 150,
       nullable: false,
     },
+    region: {
+      type: "varchar",
+      length: 100,
+      nullable: false,
+      default: "Sin información",
+    },
+    comuna: {
+      type: "varchar",
+      length: 100,
+      nullable: false,
+      default: "Sin información",
+    },
     ci: {
       type: "varchar",
       length: 50,
@@ -53,7 +65,7 @@ const ViviendasSchema = new EntitySchema({
     },
     estado: {
       type: "enum",
-      enum: ["no_iniciada", "en_progreso", "completada", "completada_con_firma", "pausada"],
+      enum: ["no_iniciada", "en_progreso", "atrasada", "completada", "completada_con_firma", "pausada"],
       default: "no_iniciada",
       nullable: false,
     },

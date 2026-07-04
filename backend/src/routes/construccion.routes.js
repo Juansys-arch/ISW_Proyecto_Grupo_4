@@ -10,6 +10,7 @@ import {
   obtenerVivienda,
   obtenerViviendas,
   pausarConstruccion,
+  reanudarConstruccion,
   verificarRetrasos,
 } from "../controllers/construccion.controller.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
@@ -28,6 +29,7 @@ router.delete("/viviendas/:viviendasId", authenticateJwt, isAuthorized(["adminis
 router.patch("/viviendas/:viviendasId/iniciar", authenticateJwt, isAuthorized(["jefe_cuadrilla"]), iniciarConstruccion);
 router.patch("/viviendas/:viviendasId/completar", authenticateJwt, isAuthorized(["jefe_cuadrilla", "administrador"]), completarConstruccion);
 router.patch("/viviendas/:viviendasId/pausar", authenticateJwt, isAuthorized(["jefe_cuadrilla", "administrador"]), pausarConstruccion);
+router.patch("/viviendas/:viviendasId/reanudar", authenticateJwt, isAuthorized(["jefe_cuadrilla", "administrador"]), reanudarConstruccion);
 
 router.post(
   "/:viviendasId/firma-garantia",

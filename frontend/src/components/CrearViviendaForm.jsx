@@ -5,6 +5,9 @@ import { showSuccessAlert, showErrorAlert } from "@helpers/sweetAlert.js";
 export default function CrearViviendaForm({ onSuccess, onCancel }) {
   const [formData, setFormData] = useState({
     direccion: "",
+    beneficiario: "",
+    region: "",
+    comuna: "",
     hitos: "2",
   });
   const [loading, setLoading] = useState(false);
@@ -25,11 +28,17 @@ export default function CrearViviendaForm({ onSuccess, onCancel }) {
       // Enviamos los datos al backend
       await construccionService.crearVivienda({
         direccion: formData.direccion,
+        beneficiario: formData.beneficiario,
+        region: formData.region,
+        comuna: formData.comuna,
         hitos: parseInt(formData.hitos),
       });
       showSuccessAlert("Éxito", "Vivienda creada correctamente");
       setFormData({
         direccion: "",
+        beneficiario: "",
+        region: "",
+        comuna: "",
         hitos: "2",
       });
       onSuccess();
@@ -70,6 +79,77 @@ export default function CrearViviendaForm({ onSuccess, onCancel }) {
                 fontFamily: "inherit",
               }}
             />
+          </div>
+
+          <div>
+            <label style={{ display: "block", marginBottom: "8px", color: "#333", fontWeight: "500", fontSize: "14px" }}>
+              Nombre del dueño <span style={{ color: "red" }}>*</span>
+            </label>
+            <input
+              type="text"
+              name="beneficiario"
+              value={formData.beneficiario}
+              onChange={handleChange}
+              required
+              placeholder="Ej: Juan Pérez"
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ddd",
+                fontSize: "14px",
+                boxSizing: "border-box",
+                fontFamily: "inherit",
+              }}
+            />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div>
+              <label style={{ display: "block", marginBottom: "8px", color: "#333", fontWeight: "500", fontSize: "14px" }}>
+                Región <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                name="region"
+                value={formData.region}
+                onChange={handleChange}
+                required
+                placeholder="Ej: Región Metropolitana"
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  borderRadius: "6px",
+                  border: "1px solid #ddd",
+                  fontSize: "14px",
+                  boxSizing: "border-box",
+                  fontFamily: "inherit",
+                }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", marginBottom: "8px", color: "#333", fontWeight: "500", fontSize: "14px" }}>
+                Comuna <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                name="comuna"
+                value={formData.comuna}
+                onChange={handleChange}
+                required
+                placeholder="Ej: Santiago"
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  borderRadius: "6px",
+                  border: "1px solid #ddd",
+                  fontSize: "14px",
+                  boxSizing: "border-box",
+                  fontFamily: "inherit",
+                }}
+              />
+            </div>
           </div>
 
           {/* Hitos */}

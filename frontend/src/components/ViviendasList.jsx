@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { construccionService } from "@services/construccion.service.js";
 import { showSuccessAlert, showErrorAlert, deleteDataAlert } from "@helpers/sweetAlert.js";
+import "@styles/construccion.css";
 
 export default function ViviendasList({ userRole }) {
   const [viviendas, setViviendas] = useState([]);
@@ -49,17 +50,93 @@ export default function ViviendasList({ userRole }) {
     }
   };
 
+  const handlePausar = async (id) => {
+    try {
+      await construccionService.pausarConstruccion(id);
+      showSuccessAlert("Éxito", "Construcción pausada");
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      showErrorAlert("Error", "No se pudo pausar la construcción");
+    }
+  };
+
+  const handleTerminar = async (id) => {
+    try {
+      await construccionService.completarConstruccion(id);
+      showSuccessAlert("Éxito", "Construcción completada");
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      showErrorAlert("Error", "No se pudo completar la construcción");
+    }
+  };
+
+  const handleReanudar = async (id) => {
+    try {
+      await construccionService.reanudarConstruccion(id);
+      showSuccessAlert("Éxito", "Construcción reanudada");
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      showErrorAlert("Error", "No se pudo reanudar la construcción");
+    }
+  };
+
   const getEstadoColor = (estado) => {
     switch (estado) {
       case "no_iniciada":
         return "#ffc107";
       case "en_progreso":
         return "#17a2b8";
+      case "pausada":
+        return "#ff9800";
       case "completada":
         return "#28a745";
       default:
         return "#6c757d";
     }
+  };
+
+  const getEstadoLabel = (estado) => {
+    switch (estado) {
+      case "no_iniciada":
+        return "No iniciada";
+      case "en_progreso":
+        return "En progreso";
+      case "atrasada":
+        return "Atrasada";
+      case "pausada":
+        return "Pausada";
+      case "completada":
+        return "Completada";
+      default:
+        return "Sin estado";
+    }
+  };
+
+  const getEstadoClass = (estado) => {
+    switch (estado) {
+      case "no_iniciada":
+        return "badge-no-iniciada";
+      case "en_progreso":
+        return "badge-en-progreso";
+      case "atrasada":
+        return "badge-atrasada";
+      case "pausada":
+        return "badge-pausada";
+      case "completada":
+        return "badge-completada";
+      default:
+        return "badge-default";
+    }
+  };
+
+  const formatFecha = (valor) => {
+    if (!valor) return "—";
+    const fecha = new Date(valor);
+    return fecha.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
 
   return (
@@ -82,6 +159,7 @@ export default function ViviendasList({ userRole }) {
           <option value="">Todos los estados</option>
           <option value="no_iniciada">No iniciada</option>
           <option value="en_progreso">En progreso</option>
+          <option value="pausada">Pausada</option>
           <option value="completada">Completada</option>
         </select>
       </div>
@@ -93,68 +171,67 @@ export default function ViviendasList({ userRole }) {
           No hay viviendas registradas
         </p>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "20px",
-            padding: "20px",
-          }}
-        >
+        <div className="viviendas-grid">
           {viviendas.map((vivienda) => (
             <div
               key={vivienda.id}
-              style={{
-                backgroundColor: "white",
-                borderRadius: "8px",
-                padding: "16px",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                border: `3px solid ${getEstadoColor(vivienda.estado)}`,
-              }}
+              className={`vivienda-card ${vivienda.estado}`}
+              style={{ borderColor: getEstadoColor(vivienda.estado) }}
             >
-              <div style={{ marginBottom: "12px" }}>
-                <p style={{ color: "#333", margin: "0 0 12px 0", fontSize: "14px" }}>
-                  <strong>Dirección:</strong> {vivienda.direccion}
-                </p>
-                <p style={{ color: "#333", margin: "0 0 12px 0", fontSize: "14px" }}>
-                  <strong>Hitos:</strong> {vivienda.hitos?.length || 0}
-                </p>
+              <div className="vivienda-card-header">
+                <div>
+                  <p className="vivienda-card-title">{vivienda.direccion}</p>
+                  <p className="vivienda-card-subtitle">
+                    {vivienda.hitos?.length || 0} hitos
+                  </p>
+                  <p className="vivienda-card-subtitle">
+                    Dueño: {vivienda.beneficiario || "—"} · {vivienda.region || "—"}, {vivienda.comuna || "—"}
+                  </p>
+                </div>
+                <span className={`vivienda-state-badge ${getEstadoClass(vivienda.estado)}`}>
+                  {getEstadoLabel(vivienda.estado)}
+                </span>
               </div>
 
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              <div className="vivienda-dates">
+                <div className="vivienda-date-item">
+                  <span>Inicio</span>
+                  <strong>{formatFecha(vivienda.fechaInicio)}</strong>
+                </div>
+                <div className="vivienda-date-item">
+                  <span>Término</span>
+                  <strong>{formatFecha(vivienda.fechaCompletacion)}</strong>
+                </div>
+              </div>
+
+              <div className="vivienda-card-actions">
                 {vivienda.estado === "no_iniciada" && role === "jefe_cuadrilla" && (
-                  <button
-                    onClick={() => handleIniciar(vivienda.id)}
-                    style={{
-                      flex: 1,
-                      minWidth: "70px",
-                      padding: "8px 12px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontSize: "12px",
-                    }}
-                  >
+                  <button className="vivienda-action-btn btn-start" onClick={() => handleIniciar(vivienda.id)}>
                     ✓ Iniciar
                   </button>
                 )}
+                {vivienda.estado === "en_progreso" && role === "jefe_cuadrilla" && (
+                  <>
+                    <button className="vivienda-action-btn btn-pause" onClick={() => handlePausar(vivienda.id)}>
+                      ⏸️ Pausar
+                    </button>
+                    <button className="vivienda-action-btn btn-finish" onClick={() => handleTerminar(vivienda.id)}>
+                      ✓ Terminado
+                    </button>
+                  </>
+                )}
+                {vivienda.estado === "pausada" && role === "jefe_cuadrilla" && (
+                  <>
+                    <button className="vivienda-action-btn btn-resume" onClick={() => handleReanudar(vivienda.id)}>
+                      ▶️ Reanudar
+                    </button>
+                    <button className="vivienda-action-btn btn-finish" onClick={() => handleTerminar(vivienda.id)}>
+                      ✓ Terminado
+                    </button>
+                  </>
+                )}
                 {role === "administrador" && (
-                  <button
-                    onClick={() => handleEliminar(vivienda.id)}
-                    style={{
-                      flex: 1,
-                      minWidth: "70px",
-                      padding: "8px 12px",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      fontSize: "12px",
-                    }}
-                  >
+                  <button className="vivienda-action-btn btn-delete" onClick={() => handleEliminar(vivienda.id)}>
                     🗑️ Eliminar
                   </button>
                 )}

@@ -1,5 +1,6 @@
 "use strict";
 import { AppDataSource } from "../config/configDb.js";
+import { In } from "typeorm";
 
 const notificacionRepository = AppDataSource.getRepository("Notificacion");
 const userRepository = AppDataSource.getRepository("User");
@@ -8,10 +9,7 @@ const userRepository = AppDataSource.getRepository("User");
 export async function notificarAdministrador({ tipo, mensaje, incidenciaId = null, materialId = null }) {
   try {
     const administradores = await userRepository.find({
-      where: [
-        { rol: "encargado_inventario" },
-        { rol: "jefe_cuadrilla" }
-      ],
+      where: { rol: In(["encargado_inventario", "jefe_cuadrilla", "administrador"]) },
       select: ["id"],
     });
 
@@ -61,10 +59,14 @@ export async function marcarNotificacionLeidaService(id, administradorId) {
 // Notifica a usuarios con roles específicos
 export async function notificarPorRoles({ roles = [], tipo, mensaje, incidenciaId = null, materialId = null }) {
   try {
-    const usuarios = await userRepository.find({
-      where: roles.length > 0 ? roles.map(rol => ({ rol })) : undefined,
-      select: ["id"],
-    });
+    let usuarios = [];
+    
+    if (roles.length > 0) {
+      usuarios = await userRepository.find({
+        where: { rol: In(roles) },
+        select: ["id"],
+      });
+    }
 
     if (!usuarios.length) return;
 

@@ -2,6 +2,7 @@
 import { AppDataSource } from "../config/configDb.js";
 import Vivienda from "../entity/vivienda.entity.js";
 import Hito from "../entity/hito.entity.js";
+import { notificarPorRoles } from "./notificacion.service.js";
 
 class ConstruccionService {
   getViviendasRepository() {
@@ -14,18 +15,19 @@ class ConstruccionService {
 
   async crearVivienda(data) {
     try {
-      const { direccion, hitos: numHitos = 2 } = data;
+      const { direccion, beneficiario, region, comuna, hitos: numHitos = 2 } = data;
       const viviendasRepository = this.getViviendasRepository();
       const hitosRepository = this.getHitosRepository();
       
       // Generar valores por defecto para campos requeridos
       const numeroProyecto = `VVDA-${Date.now()}`; // Generar número único
-      const beneficiario = "Por definir";
       const ci = "00000000"; // Placeholder
 
       const vivienda = viviendasRepository.create({
         numeroProyecto,
         beneficiario,
+        region,
+        comuna,
         ci,
         direccion,
         estado: "no_iniciada",
@@ -109,6 +111,21 @@ class ConstruccionService {
       vivienda.estado = "en_progreso";
 
       const resultado = await viviendasRepository.save(vivienda);
+
+      const hitosRepository = this.getHitosRepository();
+      const hitos = await hitosRepository.find({
+        where: { vivienda: { id: viviendaId } },
+      });
+
+      for (const hito of hitos) {
+        if (!hito.fechaProgramada) {
+          const fechaProgramada = new Date(vivienda.fechaInicio);
+          fechaProgramada.setDate(fechaProgramada.getDate() + (hito.dias || 0));
+          hito.fechaProgramada = fechaProgramada;
+          await hitosRepository.save(hito);
+        }
+      }
+
       return resultado;
     } catch (error) {
       throw new Error(`Error al iniciar construcción: ${error.message}`);
@@ -124,8 +141,8 @@ class ConstruccionService {
 
       if (!vivienda) throw new Error("Vivienda no encontrada");
 
-      if (vivienda.estado !== "en_progreso") {
-        throw new Error("Solo se pueden completar viviendas en progreso");
+      if (vivienda.estado !== "en_progreso" && vivienda.estado !== "pausada") {
+        throw new Error("Solo se pueden completar viviendas en progreso o pausadas");
       }
 
       vivienda.fechaCompletacion = new Date();
@@ -157,6 +174,42 @@ class ConstruccionService {
       return resultado;
     } catch (error) {
       throw new Error(`Error al pausar construcción: ${error.message}`);
+    }
+  }
+
+  async reanudarConstruccion(viviendaId) {
+    try {
+      const viviendasRepository = this.getViviendasRepository();
+      const vivienda = await viviendasRepository.findOne({
+        where: { id: viviendaId },
+      });
+
+      if (!vivienda) throw new Error("Vivienda no encontrada");
+
+      if (vivienda.estado !== "pausada") {
+        throw new Error("Solo se pueden reanudar viviendas pausadas");
+      }
+
+      vivienda.estado = "en_progreso";
+      const resultado = await viviendasRepository.save(vivienda);
+
+      const hitosRepository = this.getHitosRepository();
+      const hitos = await hitosRepository.find({
+        where: { vivienda: { id: viviendaId } },
+      });
+
+      for (const hito of hitos) {
+        if (!hito.fechaProgramada) {
+          const fechaProgramada = new Date(vivienda.fechaInicio || new Date());
+          fechaProgramada.setDate(fechaProgramada.getDate() + (hito.dias || 0));
+          hito.fechaProgramada = fechaProgramada;
+          await hitosRepository.save(hito);
+        }
+      }
+
+      return resultado;
+    } catch (error) {
+      throw new Error(`Error al reanudar construcción: ${error.message}`);
     }
   }
 
@@ -243,19 +296,41 @@ class ConstruccionService {
       const retrasos = [];
 
       for (const vivienda of viviendas) {
+        let viviendaAtrasada = false;
+
         if (vivienda.hitos && vivienda.hitos.length > 0) {
           for (const hito of vivienda.hitos) {
+            let fechaProgramada = hito.fechaProgramada;
+
+            if (!fechaProgramada) {
+              const fechaBase = vivienda.fechaInicio || vivienda.createdAt || new Date();
+              fechaProgramada = new Date(fechaBase);
+              fechaProgramada.setDate(fechaProgramada.getDate() + (hito.dias || 0));
+            }
+
             if (hito.estado === "pendiente" || hito.estado === "en_progreso") {
-              if (hito.fechaProgramada && new Date(hito.fechaProgramada) < ahora) {
+              if (fechaProgramada && new Date(fechaProgramada) < ahora) {
+                viviendaAtrasada = true;
                 retrasos.push({
                   viviendaId: vivienda.id,
                   hitoId: hito.id,
                   descripcion: hito.descripcion,
                   direccion: vivienda.direccion,
                 });
+
+                await notificarPorRoles({
+                  roles: ["administrador", "encargado_inventario", "jefe_cuadrilla"],
+                  tipo: "construccion",
+                  mensaje: `La construcción en ${vivienda.direccion} está atrasada por el hito "${hito.descripcion}".`
+                });
               }
             }
           }
+        }
+
+        if (viviendaAtrasada && vivienda.estado !== "atrasada") {
+          vivienda.estado = "atrasada";
+          await viviendasRepository.save(vivienda);
         }
       }
 

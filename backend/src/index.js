@@ -10,6 +10,7 @@ import { cookieKey, HOST, PORT } from "./config/configEnv.js";
 import { connectDB } from "./config/configDb.js";
 import { createUsers } from "./config/initialSetup.js";
 import { passportJwtSetup } from "./auth/passport.auth.js";
+import construccionService from "./services/construccion.service.js";
 
 async function setupServer() {
   try {
@@ -60,6 +61,16 @@ async function setupServer() {
     passportJwtSetup();
 
     app.use("/api", indexRoutes);
+
+    construccionService.verificarRetrasos().catch((error) => {
+      console.error("Error en verificación inicial de retrasos:", error.message);
+    });
+
+    setInterval(() => {
+      construccionService.verificarRetrasos().catch((error) => {
+        console.error("Error en verificación automática de retrasos:", error.message);
+      });
+    }, 5 * 60 * 1000);
 
     app.listen(PORT, () => {
       console.log(`=> Servidor corriendo en ${HOST}:${PORT}/api`);

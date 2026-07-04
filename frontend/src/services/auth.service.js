@@ -11,9 +11,10 @@ export async function login(dataUser) {
         });
         const { status, data } = response;
         if (status === 200) {
-            const { nombreCompleto, email, rut, rol } = jwtDecode(data.data.token);
-            const userData = { nombreCompleto, email, rut, rol };
+            const { id, nombreCompleto, email, rut, rol } = jwtDecode(data.data.token);
+            const userData = { id, nombreCompleto, email, rut, rol };
             sessionStorage.setItem('usuario', JSON.stringify(userData));
+            sessionStorage.setItem('authToken', data.data.token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.token}`;
             cookies.set('jwt-auth', data.data.token, {path:'/'});
             return response.data
@@ -43,6 +44,7 @@ export async function logout() {
     try {
         await axios.post('/auth/logout');
         sessionStorage.removeItem('usuario');
+        sessionStorage.removeItem('authToken');
         cookies.remove('jwt');
         cookies.remove('jwt-auth');
     } catch (error) {

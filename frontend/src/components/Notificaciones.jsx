@@ -24,8 +24,8 @@ const NotificacionesDropdown = ({ userRole }) => {
 
     useEffect(() => {
         cargarNotificaciones();
-        // Opcional: Un intervalo para revisar alertas cada 30 segundos
-        const interval = setInterval(cargarNotificaciones, 30000);
+        // Intervalo para revisar alertas cada 10 segundos
+        const interval = setInterval(cargarNotificaciones, 10000);
         return () => clearInterval(interval);
     }, [cargarNotificaciones]);
 

@@ -77,6 +77,18 @@ export const construccionService = {
     }
   },
 
+  reanudarConstruccion: async (viviendasId) => {
+    try {
+      const response = await instance.patch(
+        `/construccion/viviendas/${viviendasId}/reanudar`,
+        {}
+      );
+      return response.data.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
   // Hitos
   actualizarAvanceHito: async (viviendasId, hitoId, progreso) => {
     try {

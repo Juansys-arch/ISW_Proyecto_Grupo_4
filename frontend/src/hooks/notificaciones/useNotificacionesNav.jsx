@@ -1,31 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { obtenerNotificaciones, marcarNotificacionLeida } from "@services/notificacion.service";
 
 export function useNotificacionesNav() {
   const [notificaciones, setNotificaciones] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    cargarNotificaciones();
-    // Recargar cada 30 segundos
-    const intervalo = setInterval(cargarNotificaciones, 30000);
-    return () => clearInterval(intervalo);
-  }, []);
-
-  const cargarNotificaciones = async () => {
+  const cargarNotificaciones = useCallback(async () => {
     try {
       setLoading(true);
-      const usuario = JSON.parse(sessionStorage.getItem("usuario"));
-      if (usuario?.id) {
-        const data = await obtenerNotificaciones();
-        setNotificaciones(Array.isArray(data) ? data : []);
+      const usuario = JSON.parse(sessionStorage.getItem("usuario") || "null");
+      if (!usuario?.id) {
+        setNotificaciones([]);
+        return;
       }
+
+      const data = await obtenerNotificaciones();
+      const lista = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      setNotificaciones(lista);
     } catch (error) {
       console.error("Error al cargar notificaciones:", error);
+      setNotificaciones([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    cargarNotificaciones();
+    const intervalo = setInterval(cargarNotificaciones, 10000);
+    return () => clearInterval(intervalo);
+  }, [cargarNotificaciones]);
 
   const marcarComoLeida = async (id) => {
     try {
