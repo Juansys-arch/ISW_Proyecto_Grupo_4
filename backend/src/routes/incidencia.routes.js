@@ -8,6 +8,8 @@ import {
   generarReporteEmergencia,
   obtenerIncidenciaPorId,
   obtenerIncidencias,
+  actualizarIncidencia,
+  eliminarIncidencia,
 } from "../controllers/incidencia.controller.js";
 
 const router = Router();
@@ -30,6 +32,18 @@ router.get(
   "/:id",
   isAuthorized(["jefe_cuadrilla", "encargado_inventario", "administrador"]),
   obtenerIncidenciaPorId,
+);
+
+router.put(
+  "/:id",
+  isAuthorized(["jefe_cuadrilla", "administrador"]),
+  actualizarIncidencia,
+);
+
+router.delete(
+  "/:id",
+  isAuthorized(["jefe_cuadrilla", "administrador"]),
+  eliminarIncidencia,
 );
 
 router.post(

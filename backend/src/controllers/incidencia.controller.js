@@ -5,8 +5,14 @@ import {
   generarReporteEmergenciaConDatosService,
   obtenerIncidenciaPorIdService,
   obtenerIncidenciasService,
+  actualizarIncidenciaService,
+  eliminarIncidenciaService,
 } from "../services/incidencia.service.js";
-import { crearIncidenciaValidation, reporteEmergenciaValidation } from "../validations/incidencia.validation.js";
+import {
+  crearIncidenciaValidation,
+  actualizarIncidenciaValidation,
+  reporteEmergenciaValidation,
+} from "../validations/incidencia.validation.js";
 import {
   handleErrorClient,
   handleErrorServer,
@@ -81,6 +87,43 @@ export async function generarReporteEmergencia(req, res) {
     }
 
     handleSuccess(res, 200, "Reporte de emergencia generado exitosamente", reporte);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+
+export async function actualizarIncidencia(req, res) {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+    const { error } = actualizarIncidenciaValidation.validate(body);
+
+    if (error) {
+      return handleErrorClient(res, 400, "Error de validación", error.message);
+    }
+
+    const [incidencia, updateError] = await actualizarIncidenciaService(parseInt(id), body);
+
+    if (updateError) {
+      return handleErrorClient(res, 400, "Error al actualizar incidencia", updateError);
+    }
+
+    handleSuccess(res, 200, "Incidencia actualizada exitosamente", incidencia);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+
+export async function eliminarIncidencia(req, res) {
+  try {
+    const { id } = req.params;
+    const [incidencia, deleteError] = await eliminarIncidenciaService(parseInt(id));
+
+    if (deleteError) {
+      return handleErrorClient(res, 400, "Error al eliminar incidencia", deleteError);
+    }
+
+    handleSuccess(res, 200, "Incidencia eliminada exitosamente", incidencia);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }

@@ -237,8 +237,10 @@ export async function obtenerSolicitudesService() {
   try {
     const solicitudes = await solicitudRepository.find({
       order: { createdAt: "DESC" },
-      relations: ["material", "solicitante"],
+      relations: ["material", "solicitante", "solicitante.cuadrilla"],
     });
+    // sanitize passwords
+    solicitudes.forEach(s => { if (s.solicitante?.password) delete s.solicitante.password; });
     return [solicitudes, null];
   } catch (error) {
     return [null, error.message];

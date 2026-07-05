@@ -36,3 +36,21 @@ export async function generarReporteEmergencia(id, dataReporte) {
         return error.response.data;
     }
 }
+
+export async function actualizarIncidencia(id, dataIncidencia) {
+    try {
+        const response = await axios.put(`/incidencias/${id}`, dataIncidencia);
+        return response.data;
+    } catch (error) {
+        return error.response.data;
+    }
+}
+
+export async function eliminarIncidencia(id) {
+    try {
+        const response = await axios.delete(`/incidencias/${id}`);
+        return response.data;
+    } catch (error) {
+        return error.response.data;
+    }
+}

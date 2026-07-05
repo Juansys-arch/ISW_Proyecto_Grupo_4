@@ -35,11 +35,11 @@ const Users = () => {
   }, [setDataUser]);
 
   const columns = [
-    { title: "Nombre", field: "nombreCompleto", width: 350, responsive: 0 },
-    { title: "Correo electrónico", field: "email", width: 300, responsive: 3 },
-    { title: "Rut", field: "rut", width: 150, responsive: 2 },
-    { title: "Rol", field: "rol", width: 200, responsive: 2 },
-    { title: "Creado", field: "createdAt", width: 200, responsive: 2 }
+    { title: "Nombre", field: "nombreCompleto", minWidth: 200 },
+    { title: "Correo electrónico", field: "email", minWidth: 220 },
+    { title: "Rut", field: "rut", minWidth: 120 },
+    { title: "Rol", field: "rol", minWidth: 140 },
+    { title: "Creado", field: "createdAt", minWidth: 120 }
   ];
 
   return (

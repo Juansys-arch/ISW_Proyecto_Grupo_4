@@ -55,6 +55,61 @@ export const crearIncidenciaValidation = Joi.object({
     .optional(),
 }).unknown(false);
 
+export const actualizarIncidenciaValidation = Joi.object({
+  descripcion: Joi.string()
+    .min(5)
+    .max(1000)
+    .optional()
+    .messages({
+      "string.min": "La descripción debe tener al menos 5 caracteres.",
+      "string.max": "La descripción debe tener como máximo 1000 caracteres.",
+    }),
+  fecha: Joi.date()
+    .iso()
+    .optional()
+    .messages({
+      "date.base": "La fecha debe ser válida.",
+    }),
+  prioridad: Joi.string()
+    .valid("baja", "media", "alta", "critica")
+    .optional()
+    .messages({
+      "any.only": "La prioridad debe ser baja, media, alta o critica.",
+    }),
+  tipo: Joi.string()
+    .valid("accidente", "falta_material", "conflicto", "otro")
+    .optional()
+    .messages({
+      "any.only": "El tipo debe ser accidente, falta_material, conflicto u otro.",
+    }),
+  estado: Joi.string()
+    .valid("pendiente", "listo", "en_proceso", "resuelto")
+    .optional()
+    .messages({
+      "any.only": "El estado debe ser pendiente, listo, en_proceso o resuelto.",
+    }),
+  nombrePaciente: Joi.string()
+    .allow(null, "")
+    .max(255)
+    .optional(),
+  rutPaciente: Joi.string()
+    .pattern(/^\d{9}$/)
+    .allow(null, "")
+    .max(20)
+    .optional()
+    .messages({
+      "string.pattern.base": "El RUT debe tener exactamente 9 números.",
+    }),
+  ubicacionPaciente: Joi.string()
+    .allow(null, "")
+    .max(255)
+    .optional(),
+  observacionMedica: Joi.string()
+    .allow(null, "")
+    .max(1000)
+    .optional(),
+}).unknown(false);
+
 export const reporteEmergenciaValidation = Joi.object({
   nombrePaciente: Joi.string()
     .min(3)

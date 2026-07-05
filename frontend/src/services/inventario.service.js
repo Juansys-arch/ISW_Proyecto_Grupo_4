@@ -45,7 +45,7 @@ export async function getMovimientos(materialId = null){
 }
 export async function registrarMovimiento(dataMovimiento){
     try{
-        const{data} =await axios.post(`/inventario/movimientos/`, dataMovimiento);
+        const{data} =await axios.post(`/inventario/movimientos`, dataMovimiento);
         return data.data;
     }catch(error){
         return error.response.data;

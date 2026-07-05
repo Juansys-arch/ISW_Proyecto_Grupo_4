@@ -163,3 +163,37 @@ export async function generarReporteEmergenciaConDatosService(incidenciaId, admi
     return [null, error.message];
   }
 }
+
+export async function actualizarIncidenciaService(id, data) {
+  try {
+    const incidencia = await incidenciaRepository.findOne({ where: { id } });
+    if (!incidencia) return [null, "Incidencia no encontrada"];
+
+    if (data.descripcion !== undefined) incidencia.descripcion = data.descripcion;
+    if (data.fecha !== undefined) incidencia.fecha = data.fecha;
+    if (data.prioridad !== undefined) incidencia.prioridad = data.prioridad;
+    if (data.tipo !== undefined) incidencia.tipo = data.tipo;
+    if (data.estado !== undefined) incidencia.estado = data.estado;
+    if (data.nombrePaciente !== undefined) incidencia.nombrePaciente = data.nombrePaciente;
+    if (data.rutPaciente !== undefined) incidencia.rutPaciente = data.rutPaciente;
+    if (data.ubicacionPaciente !== undefined) incidencia.ubicacionPaciente = data.ubicacionPaciente;
+    if (data.observacionMedica !== undefined) incidencia.observacionMedica = data.observacionMedica;
+
+    const updatedIncidencia = await incidenciaRepository.save(incidencia);
+    return [updatedIncidencia, null];
+  } catch (error) {
+    return [null, error.message];
+  }
+}
+
+export async function eliminarIncidenciaService(id) {
+  try {
+    const incidencia = await incidenciaRepository.findOne({ where: { id } });
+    if (!incidencia) return [null, "Incidencia no encontrada"];
+
+    await incidenciaRepository.remove(incidencia);
+    return [incidencia, null];
+  } catch (error) {
+    return [null, error.message];
+  }
+}

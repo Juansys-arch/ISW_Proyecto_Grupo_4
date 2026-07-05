@@ -1,0 +1,227 @@
+.home-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+    animation: homeFadeIn 0.5s ease-out;
+}
+
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1.5rem;
+}
+
+.welcome-message h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.welcome-subtitle {
+    font-size: 1rem;
+    color: #64748b;
+    margin: 0.35rem 0 0;
+    font-weight: 500;
+}
+
+.home-notifications-wrapper {
+    flex-shrink: 0;
+}
+
+.home-welcome-card {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1d4ed8 100%);
+    border-radius: 24px;
+    padding: 2.25rem;
+    color: white;
+    box-shadow: 0 20px 40px -15px rgba(30, 58, 138, 0.35);
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.home-welcome-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+}
+
+.welcome-card-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+}
+
+.user-profile-badge {
+    margin-bottom: 1rem;
+}
+
+.profile-role-badge {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fef08a; /* Soft amber/yellow */
+}
+
+.home-welcome-card h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    color: white;
+}
+
+.home-welcome-card p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+.home-shortcuts-section h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 1.25rem 0.25rem;
+}
+
+.shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.shortcut-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.shortcut-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+    border-color: #cbd5e1;
+}
+
+.shortcut-icon-wrapper {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+    margin-right: 1.25rem;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.shortcut-card:hover .shortcut-icon-wrapper {
+    transform: scale(1.1);
+}
+
+/* Role-specific color variants */
+.card-blue .shortcut-icon-wrapper {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+.card-indigo .shortcut-icon-wrapper {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+}
+.card-emerald .shortcut-icon-wrapper {
+    background-color: #ecfdf5;
+    color: #059669;
+}
+.card-amber .shortcut-icon-wrapper {
+    background-color: #fffbeb;
+    color: #d97706;
+}
+.card-rose .shortcut-icon-wrapper {
+    background-color: #fff1f2;
+    color: #e11d48;
+}
+
+.shortcut-info {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.shortcut-info h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.25rem;
+}
+
+.shortcut-info p {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.shortcut-arrow {
+    font-size: 1.25rem;
+    color: #94a3b8;
+    margin-left: 0.75rem;
+    transition: transform 0.25s ease, color 0.25s ease;
+    flex-shrink: 0;
+}
+
+.shortcut-card:hover .shortcut-arrow {
+    transform: translateX(4px);
+    color: #0f172a;
+}
+
+@keyframes homeFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .home-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .welcome-message h1 {
+        font-size: 1.75rem;
+    }
+
+    .home-welcome-card {
+        padding: 1.5rem;
+    }
+}

@@ -10,7 +10,7 @@ router.use(authenticateJwt);
 
 router.post(
   "/materiales",
-  isAuthorized(["jefe_cuadrilla"]),
+  isAuthorized(["encargado_inventario", "administrador"]),
   crearMaterial
 );
  
@@ -49,7 +49,23 @@ router.patch(
   actualizarEstadoSolicitud
 );
 
+router.post(
+  "/solicitudes",
+  isAuthorized(["jefe_cuadrilla", "administrador"]),
+  solicitarMaterial
+);
 
+router.post(
+  "/movimientos",
+  isAuthorized(["encargado_inventario", "administrador"]),
+  registrarMovimiento
+);
+
+router.get(
+  "/movimientos",
+  isAuthorized(["encargado_inventario", "administrador", "jefe_cuadrilla"]),
+  obtenerMovimientos
+);
 
 export default router;
  

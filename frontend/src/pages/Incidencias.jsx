@@ -1,10 +1,13 @@
 "use strict";
 import React, { useState, useEffect } from 'react';
-import { getIncidencias, crearIncidencia, generarReporteEmergencia } from '@services/incidencia.service.js';
+import { useNavigate } from 'react-router-dom';
+import { getIncidencias, crearIncidencia, generarReporteEmergencia, actualizarIncidencia, eliminarIncidencia } from '@services/incidencia.service.js';
 import { showSuccessAlert, showErrorAlert } from '@helpers/sweetAlert.js';
+import Swal from 'sweetalert2';
 import '@styles/incidencias.css'; // Asegúrate de vincular tus hojas de estilo CSS
 
 export default function Incidencias() {
+    const navigate = useNavigate();
     // 1. Estados de carga e información
     const [incidencias, setIncidencias] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -14,11 +17,13 @@ export default function Incidencias() {
     const [showModal, setShowModal] = useState(false);
     const [showEmergencyModal, setShowEmergencyModal] = useState(false);
     const [incidenciaSeleccionada, setIncidenciaSeleccionada] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [incidenciaEditId, setIncidenciaEditId] = useState(null);
 
     // 3. Estado del formulario para nueva incidencia (con estructuras por defecto según Joi)
     const [nuevaIncidencia, setNuevaIncidencia] = useState({
         descripcion: '',
-        fecha: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
+        fecha: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })(),
         prioridad: 'baja',
         tipo: 'otro',
         estado: 'pendiente',
@@ -73,9 +78,39 @@ export default function Incidencias() {
 
         if (!data.tipo) errors.tipo = 'El tipo de evento es requerido.';
         if (!data.prioridad) errors.prioridad = 'La prioridad es requerida.';
-        if (!data.fecha) errors.fecha = 'La fecha es requerida.';
+        if (!data.fecha) {
+            errors.fecha = 'La fecha es requerida.';
+        } else if (data.tipo === 'accidente') {
+            // Para accidente laboral, la fecha debe ser EXACTAMENTE hoy (hora local)
+            const d = new Date();
+            const hoy = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            if (data.fecha !== hoy) {
+                errors.fecha = `Para un Accidente Laboral, la fecha debe ser la de hoy (${hoy}).`;
+            }
+        }
+        // Para otros tipos (conflicto, otro, etc.) se permiten fechas pasadas — sin restricción.
         if (!data.descripcion || data.descripcion.trim().length < 5) {
             errors.descripcion = 'La descripción debe tener al menos 5 caracteres.';
+        } else if (data.descripcion.length > 1000) {
+            errors.descripcion = 'La descripción debe tener como máximo 1000 caracteres.';
+        }
+
+        if (data.rutPaciente && !/^\d{9}$/.test(data.rutPaciente)) {
+            errors.rutPaciente = 'El RUT del paciente debe tener exactamente 9 números.';
+        }
+        if (data.nombrePaciente) {
+            if (data.nombrePaciente.trim().length < 3) {
+                errors.nombrePaciente = 'El nombre del paciente debe tener al menos 3 caracteres.';
+            } else if (data.nombrePaciente.length > 255) {
+                errors.nombrePaciente = 'El nombre del paciente debe tener como máximo 255 caracteres.';
+            }
+        }
+        if (data.ubicacionPaciente) {
+            if (data.ubicacionPaciente.trim().length < 3) {
+                errors.ubicacionPaciente = 'La ubicación del paciente debe tener al menos 3 caracteres.';
+            } else if (data.ubicacionPaciente.length > 255) {
+                errors.ubicacionPaciente = 'La ubicación del paciente debe tener como máximo 255 caracteres.';
+            }
         }
 
         return errors;
@@ -86,19 +121,83 @@ export default function Incidencias() {
 
         if (!data.nombrePaciente || data.nombrePaciente.trim().length < 3) {
             errors.nombrePaciente = 'El nombre del paciente debe tener al menos 3 caracteres.';
+        } else if (data.nombrePaciente.length > 255) {
+            errors.nombrePaciente = 'El nombre del paciente debe tener como máximo 255 caracteres.';
         }
         if (!/^\d{9}$/.test(String(data.rutPaciente || ''))) {
             errors.rutPaciente = 'El RUT del paciente debe tener exactamente 9 números.';
         }
         if (!data.ubicacionPaciente || data.ubicacionPaciente.trim().length < 3) {
             errors.ubicacionPaciente = 'La ubicación del paciente debe tener al menos 3 caracteres.';
+        } else if (data.ubicacionPaciente.length > 255) {
+            errors.ubicacionPaciente = 'La ubicación del paciente debe tener como máximo 255 caracteres.';
         }
         if (!data.gravedad) errors.gravedad = 'La gravedad es requerida.';
+        if (data.observacionMedica && data.observacionMedica.length > 1000) {
+            errors.observacionMedica = 'La observación médica debe tener como máximo 1000 caracteres.';
+        }
 
         return errors;
     };
 
-    // Controlador del envío de reportes de incidentes
+    const handleCloseReportModal = () => {
+        setShowModal(false);
+        setIsEditing(false);
+        setIncidenciaEditId(null);
+        setFormErrors({});
+        setNuevaIncidencia({
+            descripcion: '',
+            fecha: new Date().toISOString().split('T')[0],
+            prioridad: 'baja',
+            tipo: 'otro',
+            estado: 'pendiente',
+            nombrePaciente: '',
+            rutPaciente: '',
+            ubicacionPaciente: '',
+            observacionMedica: '',
+        });
+    };
+
+    const handleEditIncidencia = (incidencia) => {
+        setIsEditing(true);
+        setIncidenciaEditId(incidencia.id);
+        setNuevaIncidencia({
+            descripcion: incidencia.descripcion,
+            fecha: new Date(incidencia.fecha).toISOString().split('T')[0],
+            prioridad: incidencia.prioridad,
+            tipo: incidencia.tipo,
+            estado: incidencia.estado || 'pendiente',
+            nombrePaciente: incidencia.nombrePaciente || '',
+            rutPaciente: incidencia.rutPaciente || '',
+            ubicacionPaciente: incidencia.ubicacionPaciente || '',
+            observacionMedica: incidencia.observacionMedica || '',
+        });
+        setShowModal(true);
+    };
+
+    const handleDeleteIncidencia = async (id) => {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción no se puede revertir.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            const response = await eliminarIncidencia(id);
+            if (response.status === 'Success' || response.id) {
+                showSuccessAlert('Eliminado', 'La incidencia ha sido eliminada.');
+                refrescarTabla();
+            } else {
+                showErrorAlert('Error', response.message || 'No se pudo eliminar la incidencia.');
+            }
+        }
+    };
+
     const handleSubmitIncidencia = async (e) => {
         e.preventDefault();
 
@@ -106,30 +205,24 @@ export default function Incidencias() {
         setFormErrors(errors);
         if (Object.keys(errors).length > 0) return;
 
-        // Convertir la fecha al formato ISO requerido por la validación Joi del backend
         const payload = {
             ...nuevaIncidencia,
-            fecha: new Date(nuevaIncidencia.fecha).toISOString()
+            fecha: new Date(`${nuevaIncidencia.fecha}T00:00:00Z`).toISOString()
         };
 
-        const response = await crearIncidencia(payload);
+        let response;
+        if (isEditing) {
+            response = await actualizarIncidencia(incidenciaEditId, payload);
+        } else {
+            response = await crearIncidencia(payload);
+        }
 
         if (response.status === "Success" || response.id) {
-            showSuccessAlert('Reporte Enviado', 'La incidencia fue registrada exitosamente en el sistema.');
-            setShowModal(false);
-            setFormErrors({});
-            // Resetear el formulario con valores base
-            setNuevaIncidencia({
-                descripcion: '',
-                fecha: new Date().toISOString().split('T')[0],
-                prioridad: 'baja',
-                tipo: 'otro',
-                estado: 'pendiente',
-                nombrePaciente: '',
-                rutPaciente: '',
-                ubicacionPaciente: '',
-                observacionMedica: '',
-            });
+            showSuccessAlert(
+                isEditing ? 'Reporte Actualizado' : 'Reporte Enviado',
+                isEditing ? 'La incidencia fue actualizada exitosamente.' : 'La incidencia fue registrada exitosamente en el sistema.'
+            );
+            handleCloseReportModal();
             refrescarTabla();
         } else {
             showErrorAlert('Error de Validación', response.message || 'Verifique los campos ingresados.');
@@ -184,129 +277,172 @@ export default function Incidencias() {
         }
     };
 
+    const [expandedFichas, setExpandedFichas] = useState({});
+
+    const toggleFicha = (id) => {
+        setExpandedFichas(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const formatBriefName = (name) => {
+        if (!name) return '';
+        const parts = name.split(' ').filter(Boolean);
+        if (parts.length >= 3) {
+            return `${parts[0][0]}. ${parts.slice(2).join(' ')}`;
+        } else if (parts.length === 2) {
+            return `${parts[0][0]}. ${parts[1]}`;
+        }
+        return name;
+    };
+
     if (loading) return <div className="loading-container">Cargando módulo de incidencias...</div>;
 
     return (
         <div className="incidencias-page">
             <div className="header-section">
-                <h1>Registro e Historial de Incidencias</h1>
-                <p>Módulo de supervisión operativa en terreno para: <strong>{userRole}</strong></p>
+                <div className="title-area">
+                    <button className="btn btn-back" onClick={() => navigate('/gestion-operativa')}>
+                        ← Volver
+                    </button>
+                    <div className="title-text-group">
+                        <span className="user-role-label">{userRole.replace('_', ' ').toUpperCase()}</span>
+                        <h1>{userRole === 'jefe_cuadrilla' ? 'REGISTRO DE INCIDENCIAS' : 'INCIDENCIAS EN CURSO'}</h1>
+                        <p>{userRole === 'jefe_cuadrilla' ? 'Terreno' : 'Panel de supervisión'}</p>
+                    </div>
+                </div>
 
                 <div className="action-buttons">
-                    {/* Restricción de Vista: Solo el jefe de cuadrilla inicia reportes según tus rutas */}
                     {userRole === 'jefe_cuadrilla' && (
-                        <button className="btn btn-danger" onClick={() => setShowModal(true)}>
-                            ⚠️ Reportar Nueva Incidencia
+                        <button className="btn btn-report" onClick={() => setShowModal(true)}>
+                            REPORTEAR INCIDENCIA
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* Tabla General de Incidencias */}
-            <div className="table-container">
-                <table className="custom-table">
-                    <thead>
-                        <tr>
-                            <th>Tipo de Suceso</th>
-                            <th>Descripción</th>
-                            <th>Fecha del Reporte</th>
-                            <th>Prioridad</th>
-                            <th>Estado Actual</th>
-                            <th>Reportado Por</th>
-                            {(userRole === 'administrador' || userRole === 'encargado_inventario') && <th>Nombre del paciente</th>}
-                            {(userRole === 'administrador' || userRole === 'encargado_inventario') && <th>RUT del paciente</th>}
-                            {(userRole === 'administrador' || userRole === 'encargado_inventario') && <th>Ubicación del paciente</th>}
-                            {userRole === 'administrador' && <th>Acción</th>}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {incidencias.length === 0 ? (
-                            <tr>
-                                <td colSpan={userRole === 'administrador' ? 10 : 9} className="text-center">No hay incidencias registradas en el historial.</td>
-                            </tr>
-                        ) : (
-                            incidencias.map((incidencia) => (
-                                <tr key={incidencia.id}>
-                                    <td>
-                                        <span className={`badge-tipo ${incidencia.tipo}`}>
-                                            {incidencia.tipo.replace('_', ' ').toUpperCase()}
-                                        </span>
-                                    </td>
-                                    <td className="table-descripcion">{incidencia.descripcion}</td>
-                                    <td>{new Date(incidencia.fecha).toLocaleString()}</td>
-                                    <td>
-                                        <span className={obtenerClasePrioridad(incidencia.prioridad)}>
-                                            {incidencia.prioridad.toUpperCase()}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={`badge-estado ${incidencia.estado}`}>
-                                            {incidencia.estado}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className="user-info">
-                                            {incidencia.jefeCuadrilla?.nombreCompleto || `ID: ${incidencia.jefeCuadrillaId}`}
-                                        </span>
-                                    </td>
-                                    {(userRole === 'administrador' || userRole === 'encargado_inventario') && (
-                                        <td>
-                                            {requiereAccionMedica(incidencia) ? (incidencia.nombrePaciente || 'Sin dato') : <span className="badge-estado pendiente">No aplica</span>}
-                                        </td>
-                                    )}
-                                    {(userRole === 'administrador' || userRole === 'encargado_inventario') && (
-                                        <td>
-                                            {requiereAccionMedica(incidencia) ? (incidencia.rutPaciente || 'Sin RUT') : <span className="badge-estado pendiente">No aplica</span>}
-                                        </td>
-                                    )}
-                                    {(userRole === 'administrador' || userRole === 'encargado_inventario') && (
-                                        <td>
-                                            {requiereAccionMedica(incidencia) ? (incidencia.ubicacionPaciente || 'Sin ubicación') : <span className="badge-estado pendiente">No aplica</span>}
-                                        </td>
-                                    )}
-                                    {userRole === 'administrador' && (
-                                        <td>
-                                            {requiereAccionMedica(incidencia) ? (
-                                                <button className="btn btn-danger" onClick={() => handleReporteEmergencia(incidencia)}>
-                                                    Generar reporte médico
+            <div className="incidencias-list">
+                {incidencias.length === 0 ? (
+                    <div className="no-incidencias">No hay incidencias registradas en el historial.</div>
+                ) : (
+                    incidencias.map((incidencia) => {
+                        const hasPatientInfo = incidencia.nombrePaciente || incidencia.rutPaciente || incidencia.ubicacionPaciente;
+                        const isExpanded = expandedFichas[incidencia.id];
+
+                        const reporterName = incidencia.jefeCuadrilla?.nombreCompleto
+                            ? (userRole === 'administrador'
+                                ? formatBriefName(incidencia.jefeCuadrilla.nombreCompleto)
+                                : incidencia.jefeCuadrilla.nombreCompleto)
+                            : `ID: ${incidencia.jefeCuadrillaId}`;
+
+                        return (
+                            <div key={incidencia.id} className={`incidencia-card priority-${incidencia.prioridad}`}>
+                                <div className="incidencia-card-main">
+                                    <div className="incidencia-card-content">
+                                        <div className="incidencia-badges">
+                                            <span className={`badge-tipo ${incidencia.tipo}`}>
+                                                {incidencia.tipo.replace('_', ' ').toUpperCase()}
+                                            </span>
+                                            <span className={obtenerClasePrioridad(incidencia.prioridad)}>
+                                                {incidencia.prioridad.toUpperCase()}
+                                            </span>
+                                            <span className={`badge-estado ${incidencia.estado}`}>
+                                                {incidencia.estado.toUpperCase()}
+                                            </span>
+                                        </div>
+                                        <h4 className="incidencia-descripcion">{incidencia.descripcion}</h4>
+                                        <p className="incidencia-meta">
+                                            {new Date(incidencia.fecha).toLocaleDateString('es-CL', { timeZone: 'UTC' })} · {userRole === 'administrador' ? reporterName : `reportado por ${reporterName}`}
+                                        </p>
+                                    </div>
+
+                                    <div className="incidencia-card-actions" style={{ display: 'flex', gap: '8px' }}>
+                                        {(userRole === 'administrador' || userRole === 'jefe_cuadrilla') && (
+                                            <>
+                                                <button
+                                                    className="btn-toggle-ficha"
+                                                    onClick={() => handleEditIncidencia(incidencia)}
+                                                >
+                                                    ✏️ Editar
                                                 </button>
-                                            ) : (
-                                                <span className="badge-estado pendiente">Sin acción</span>
-                                            )}
-                                        </td>
-                                    )}
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                                                <button
+                                                    className="btn-toggle-ficha"
+                                                    style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#fca5a5' }}
+                                                    onClick={() => handleDeleteIncidencia(incidencia.id)}
+                                                >
+                                                    🗑️ Eliminar
+                                                </button>
+                                            </>
+                                        )}
+                                        {userRole === 'administrador' && hasPatientInfo && (
+                                            <button
+                                                className="btn-toggle-ficha"
+                                                onClick={() => toggleFicha(incidencia.id)}
+                                            >
+                                                {isExpanded ? 'Ocultar ficha médica ▲' : 'Ver ficha médica ▼'}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {userRole === 'administrador' && hasPatientInfo && isExpanded && (
+                                    <div className="incidencia-medical-section">
+                                        <div className="medical-grid">
+                                            <div className="medical-field">
+                                                <span className="medical-label">PACIENTE</span>
+                                                <span className="medical-value">{incidencia.nombrePaciente || 'Sin dato'}</span>
+                                            </div>
+                                            <div className="medical-field">
+                                                <span className="medical-label">RUT</span>
+                                                <span className="medical-value">{incidencia.rutPaciente || 'Sin RUT'}</span>
+                                            </div>
+                                            <div className="medical-field">
+                                                <span className="medical-label">UBICACIÓN</span>
+                                                <span className="medical-value">{incidencia.ubicacionPaciente || 'Sin ubicación'}</span>
+                                            </div>
+                                        </div>
+
+                                        {requiereAccionMedica(incidencia) && (
+                                            <button
+                                                className="btn-generar-reporte"
+                                                onClick={() => handleReporteEmergencia(incidencia)}
+                                            >
+                                                GENERAR REPORTE MÉDICO
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })
+                )}
             </div>
 
             {/* MODAL: REPORTAR INCIDENCIA */}
             {showModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h2>Formulario de Reporte de Incidencias</h2>
+                        <h2>{isEditing ? 'Formulario de Edición de Incidencia' : 'Formulario de Reporte de Incidencias'}</h2>
                         <form onSubmit={handleSubmitIncidencia}>
-                            
+
                             <label>Tipo de Evento:</label>
-                            <select 
+                            <select
                                 required
-                                value={nuevaIncidencia.tipo} 
-                                onChange={(e) => setNuevaIncidencia({...nuevaIncidencia, tipo: e.target.value})}
+                                value={nuevaIncidencia.tipo}
+                                onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, tipo: e.target.value })}
                             >
                                 <option value="otro">Otro / General</option>
                                 <option value="accidente">Accidente Laboral</option>
-                                <option value="falta_material">Falta Crítica de Material</option>
                                 <option value="conflicto">Conflicto en Obra / Cuadrilla</option>
                             </select>
                             {formErrors.tipo && <small className="field-error">{formErrors.tipo}</small>}
 
                             <label>Nivel de Prioridad:</label>
-                            <select 
+                            <select
                                 required
-                                value={nuevaIncidencia.prioridad} 
-                                onChange={(e) => setNuevaIncidencia({...nuevaIncidencia, prioridad: e.target.value})}
+                                value={nuevaIncidencia.prioridad}
+                                onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, prioridad: e.target.value })}
                             >
                                 <option value="baja">Baja (No interrumpe la faena)</option>
                                 <option value="media">Media (Requiere atención pronta)</option>
@@ -315,23 +451,42 @@ export default function Incidencias() {
                             </select>
                             {formErrors.prioridad && <small className="field-error">{formErrors.prioridad}</small>}
 
-                            <label>Fecha y Hora del Suceso:</label>
-                            <input 
-                                type="date" 
-                                required 
-                                value={nuevaIncidencia.fecha} 
-                                onChange={(e) => setNuevaIncidencia({...nuevaIncidencia, fecha: e.target.value})} 
+                            {isEditing && (
+                                <>
+                                    <label>Estado Actual:</label>
+                                    <select
+                                        required
+                                        value={nuevaIncidencia.estado}
+                                        onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, estado: e.target.value })}
+                                    >
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="en_proceso">En Proceso</option>
+                                        <option value="listo">Listo</option>
+                                        <option value="resuelto">Resuelto</option>
+                                    </select>
+                                    {formErrors.estado && <small className="field-error">{formErrors.estado}</small>}
+                                </>
+                            )}
+
+                            <label>Fecha de Incidencia:</label>
+                            <input
+                                type="date"
+                                required
+                                min={nuevaIncidencia.tipo === 'accidente' ? (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })() : undefined}
+                                max={nuevaIncidencia.tipo === 'accidente' ? (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })() : undefined}
+                                value={nuevaIncidencia.fecha}
+                                onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, fecha: e.target.value })}
                             />
                             {formErrors.fecha && <small className="field-error">{formErrors.fecha}</small>}
 
                             <label>Descripción detallada de lo ocurrido:</label>
-                            <textarea 
+                            <textarea
                                 required
                                 minLength={5}
                                 placeholder="Escribe aquí los detalles del suceso (mínimo 5 caracteres)..."
                                 rows="4"
-                                value={nuevaIncidencia.descripcion} 
-                                onChange={(e) => setNuevaIncidencia({...nuevaIncidencia, descripcion: e.target.value})}
+                                value={nuevaIncidencia.descripcion}
+                                onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, descripcion: e.target.value })}
                             />
                             {formErrors.descripcion && <small className="field-error">{formErrors.descripcion}</small>}
 
@@ -343,6 +498,7 @@ export default function Incidencias() {
                                 onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, nombrePaciente: e.target.value })}
                                 placeholder="Ej: Juan Pérez"
                             />
+                            {formErrors.nombrePaciente && <small className="field-error">{formErrors.nombrePaciente}</small>}
 
                             <label>RUT del paciente (si aplica):</label>
                             <input
@@ -354,6 +510,7 @@ export default function Incidencias() {
                                 onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, rutPaciente: e.target.value })}
                                 placeholder="Ej: 123456789"
                             />
+                            {formErrors.rutPaciente && <small className="field-error">{formErrors.rutPaciente}</small>}
 
                             <label>Ubicación del paciente (si aplica):</label>
                             <input
@@ -363,13 +520,14 @@ export default function Incidencias() {
                                 onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, ubicacionPaciente: e.target.value })}
                                 placeholder="Ej: Obra central, sector norte"
                             />
+                            {formErrors.ubicacionPaciente && <small className="field-error">{formErrors.ubicacionPaciente}</small>}
 
                             <div className="modal-actions">
-                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>
+                                <button type="button" className="btn-cancel" onClick={handleCloseReportModal}>
                                     Cancelar
                                 </button>
                                 <button type="submit" className="btn-submit btn-danger-submit">
-                                    Emitir Reporte de Alerta
+                                    {isEditing ? 'Guardar Cambios' : 'Emitir Reporte de Alerta'}
                                 </button>
                             </div>
                         </form>

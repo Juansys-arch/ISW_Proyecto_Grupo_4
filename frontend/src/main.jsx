@@ -68,7 +68,7 @@ const router = createBrowserRouter([
       {
         path: '/incidencias',
         element: (
-          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario', 'jefe_cuadrilla']}>
+          <ProtectedRoute allowedRoles={['administrador', 'jefe_cuadrilla']}>
             <Incidencias />
           </ProtectedRoute>
         ),

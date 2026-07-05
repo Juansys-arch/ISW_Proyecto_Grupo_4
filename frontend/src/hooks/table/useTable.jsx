@@ -37,7 +37,6 @@ function useTable({ data, columns, filter, dataToFilter, initialSortName, onSele
                 data: [],
                 columns: updatedColumns,
                 layout: "fitColumns",
-                responsiveLayout: "collapse",
                 pagination: "local",
                 paginationSize: 6,
                 selectableRows: 1,
