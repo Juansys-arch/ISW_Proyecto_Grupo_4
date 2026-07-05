@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 import NotificationBell from '@components/NotificationBell.jsx';
 import { useAuth } from '@context/AuthContext';
 import ProfileModal from '@components/ProfileModal.jsx';
-
 const roleLabels = {
     administrador: 'Administrador',
     super_admin: 'Super Admin',
@@ -27,7 +26,6 @@ const Navbar = ({ isOpen, onToggle }) => {
         () => roleLabels[userRole] || userRole?.replaceAll('_', ' ') || 'Sin rol',
         [userRole],
     );
-
     const userInitials = useMemo(() => {
         const fullName = user?.nombreCompleto || 'Usuario';
         return fullName

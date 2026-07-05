@@ -10,7 +10,6 @@ export default function Herramientas() {
     { id: 1, kitId: "KIT-01", estadoEntrega: "completo", observaciones: "Sin novedades", createdAt: "2024-04-28" },
     { id: 2, kitId: "KIT-05", estadoEntrega: "incompleto", observaciones: "Falta martillo (Alerta enviada)", createdAt: "2024-04-28" }
   ];
-
   const columns = [
     { key: 'id', label: 'ID' },
     { key: 'kitId', label: 'Kit ID' },
