@@ -27,7 +27,7 @@ export default function Construccion() {
           <div style={{ marginBottom: "30px", backgroundColor: "white", borderRadius: "8px", padding: "20px" }}>
             <CrearViviendaForm onSuccess={handleViviendaCreated} onCancel={handleFormCancel} />
           </div>
-        ) : user?.rol === 'administrador' ? (
+        ) : user?.rol === 'super_admin' ? (
           <button
             onClick={() => setShowForm(true)}
             style={{

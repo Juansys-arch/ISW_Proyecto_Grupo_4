@@ -148,7 +148,7 @@ export async function registrarMovimientoService(data, responsableId) {
 
     if (material.stockActual <= material.stockMinimo) {
 await notificarPorRoles({
-  roles: ["encargado_inventario", "administrador"],
+  roles: ["encargado_inventario", "super_admin"],
   tipo: "stock_bajo",
   mensaje: `El material "${material.nombre}" quedó con stock ${material.stockActual}. Stock mínimo: ${material.stockMinimo}.`,
   materialId: material.id,

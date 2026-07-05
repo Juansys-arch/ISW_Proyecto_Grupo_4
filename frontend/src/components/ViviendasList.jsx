@@ -243,7 +243,7 @@ export default function ViviendasList({ userRole }) {
                     </button>
                   </>
                 )}
-                {role === "administrador" && (
+                {role === "super_admin" && (
                   <button className="vivienda-action-btn btn-delete" onClick={() => handleEliminar(vivienda.id)}>
                     🗑️ Eliminar
                   </button>

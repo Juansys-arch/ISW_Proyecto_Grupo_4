@@ -11,7 +11,7 @@ const NotificacionesDropdown = ({ userRole }) => {
     const effectiveRole = userRole || sessionUser.rol;
 
     // Solo cargar notificaciones si el rol tiene acceso según tus rutas del backend
-    const tieneAcceso = ['administrador', 'encargado_inventario', 'jefe_cuadrilla'].includes(effectiveRole);
+    const tieneAcceso = ['super_admin', 'encargado_inventario', 'jefe_cuadrilla'].includes(effectiveRole);
 
     const cargarNotificaciones = useCallback(async () => {
         if (!tieneAcceso) return;

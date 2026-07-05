@@ -77,7 +77,7 @@ export default function Inventario() {
                             setCuadrillaInfo(cuadrillasData[0]);
                         }
                     }
-                    if (parsedUser.rol === 'encargado_inventario' || parsedUser.rol === 'administrador') {
+                    if (parsedUser.rol === 'encargado_inventario' || parsedUser.rol === 'super_admin') {
                         const all = await getSolicitudes();
                         if (Array.isArray(all)) setSolicitudesEncargado(all);
                     }
@@ -207,7 +207,7 @@ export default function Inventario() {
                     </div>
 
                     <div className="hub-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginTop: '30px' }}>
-                        {(userRole === 'administrador' || userRole === 'encargado_inventario') && (
+                        {(userRole === 'super_admin' || userRole === 'encargado_inventario') && (
                             <>
                                 <div className="hub-card" onClick={() => setViewState('materiales')}>
                                     <div style={{ fontSize: '32px', marginBottom: '12px' }}>📦</div>
@@ -260,7 +260,7 @@ export default function Inventario() {
                             <button className="btn btn-back" onClick={() => setViewState('hub')}>
                                 ← Volver
                             </button>
-                            {(userRole === 'administrador' || userRole === 'encargado_inventario') && (
+                            {(userRole === 'super_admin' || userRole === 'encargado_inventario') && (
                                 <>
                                     <button className="btn btn-secondary" onClick={() => setShowModalMaterial(true)}>
                                         Crear Material

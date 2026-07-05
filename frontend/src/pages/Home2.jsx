@@ -13,7 +13,7 @@ const Home = () => {
       return;
     }
 
-    if (user?.rol === 'administrador' || user?.rol === 'coordinador') {
+    if (user?.rol === 'super_admin' || user?.rol === 'coordinador') {
       navigate('/users');
     } else if (user?.rol === 'jefe_cuadrilla') {
       navigate('/gestion-jornada');

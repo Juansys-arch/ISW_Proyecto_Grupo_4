@@ -9,7 +9,7 @@ const userRepository = AppDataSource.getRepository("User");
 export async function notificarAdministrador({ tipo, mensaje, incidenciaId = null, materialId = null }) {
   try {
     const administradores = await userRepository.find({
-      where: { rol: In(["encargado_inventario", "jefe_cuadrilla", "administrador"]) },
+      where: { rol: In(["encargado_inventario", "jefe_cuadrilla", "super_admin"]) },
       select: ["id"],
     });
 

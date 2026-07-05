@@ -9,11 +9,11 @@ import {
 
 const router = Router();
 router.use(authenticateJwt);
-router.get("/",isAuthorized(["encargado_inventario", "administrador", "jefe_cuadrilla"]),
+router.get("/",isAuthorized(["encargado_inventario", "super_admin", "jefe_cuadrilla"]),
   obtenerNotificaciones
 );
  
-router.patch("/:id/leer",isAuthorized(["encargado_inventario", "administrador", "jefe_cuadrilla"]),
+router.patch("/:id/leer",isAuthorized(["encargado_inventario", "super_admin", "jefe_cuadrilla"]),
   marcarNotificacionLeida
 );
  

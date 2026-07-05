@@ -24,31 +24,31 @@ router.post(
 
 router.get(
   "/",
-  isAuthorized(["jefe_cuadrilla", "encargado_inventario", "administrador"]),
+  isAuthorized(["jefe_cuadrilla", "encargado_inventario", "super_admin"]),
   obtenerIncidencias,
 );
 
 router.get(
   "/:id",
-  isAuthorized(["jefe_cuadrilla", "encargado_inventario", "administrador"]),
+  isAuthorized(["jefe_cuadrilla", "encargado_inventario", "super_admin"]),
   obtenerIncidenciaPorId,
 );
 
 router.put(
   "/:id",
-  isAuthorized(["jefe_cuadrilla", "administrador"]),
+  isAuthorized(["jefe_cuadrilla", "super_admin"]),
   actualizarIncidencia,
 );
 
 router.delete(
   "/:id",
-  isAuthorized(["jefe_cuadrilla", "administrador"]),
+  isAuthorized(["jefe_cuadrilla", "super_admin"]),
   eliminarIncidencia,
 );
 
 router.post(
   "/:id/reporte-emergencia",
-  isAuthorized(["administrador"]),
+  isAuthorized(["super_admin"]),
   generarReporteEmergencia,
 );
 

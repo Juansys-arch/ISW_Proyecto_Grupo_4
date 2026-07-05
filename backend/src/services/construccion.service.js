@@ -319,7 +319,7 @@ class ConstruccionService {
                 });
 
                 await notificarPorRoles({
-                  roles: ["administrador", "encargado_inventario", "jefe_cuadrilla"],
+                  roles: ["super_admin", "encargado_inventario", "jefe_cuadrilla"],
                   tipo: "construccion",
                   mensaje: `La construcción en ${vivienda.direccion} está atrasada por el hito "${hito.descripcion}".`
                 });

@@ -72,28 +72,28 @@ const Navbar = ({ isOpen, onToggle }) => {
                     {isOpen && <span>Inicio</span>}
                 </NavLink>
 
-                {(userRole === 'administrador' || userRole === 'coordinador' || userRole === 'super_admin') && (
+                {(userRole === 'super_admin' || userRole === 'coordinador' || userRole === 'super_admin') && (
                     <NavLink to="/users" className={getNavLinkClass} title="Usuarios">
                         <span className="nav-icon">◫</span>
                         {isOpen && <span>Usuarios</span>}
                     </NavLink>
                 )}
 
-                {(userRole === 'administrador' || userRole === 'encargado_inventario' || userRole === 'jefe_cuadrilla' || userRole === 'super_admin') && (
+                {(userRole === 'super_admin' || userRole === 'encargado_inventario' || userRole === 'jefe_cuadrilla' || userRole === 'super_admin') && (
                     <NavLink to="/gestion-operativa" className={getNavLinkClass} title="Gestión operativa">
                         <span className="nav-icon">⚙</span>
                         {isOpen && <span>Gestión operativa</span>}
                     </NavLink>
                 )}
 
-                {(userRole === 'administrador' || userRole === 'jefe_cuadrilla' || userRole === 'super_admin') && (
+                {(userRole === 'super_admin' || userRole === 'jefe_cuadrilla' || userRole === 'super_admin') && (
                     <NavLink to="/construccion" className={getNavLinkClass} title="Construcción">
                         <span className="nav-icon">⌘</span>
                         {isOpen && <span>Construcción</span>}
                     </NavLink>
                 )}
 
-                {(userRole === 'administrador' || userRole === 'jefe_cuadrilla') && (
+                {(userRole === 'super_admin' || userRole === 'jefe_cuadrilla') && (
                     <>
                         <NavLink to="/gestion-jornada" className={getNavLinkClass} title="Gestión de jornada">
                             <span className="nav-icon">📅</span>
@@ -126,14 +126,14 @@ const Navbar = ({ isOpen, onToggle }) => {
                     </>
                 )}
 
-                {(userRole === 'administrador' || userRole === 'encargado_voluntarios') && (
+                {(userRole === 'super_admin' || userRole === 'encargado_voluntarios') && (
                     <NavLink to="/voluntarios" className={getNavLinkClass} title="Voluntarios">
                         <span className="nav-icon">👥</span>
                         {isOpen && <span>Voluntarios</span>}
                     </NavLink>
                 )}
 
-                {(userRole === 'administrador' || userRole === 'encargado_inventario' || userRole === 'jefe_cuadrilla' || userRole === 'super_admin') && (
+                {(userRole === 'super_admin' || userRole === 'encargado_inventario' || userRole === 'jefe_cuadrilla' || userRole === 'super_admin') && (
                     <div className="sidebar-bell">
                         <NotificationBell />
                         {isOpen && <span>Notificaciones</span>}

@@ -38,7 +38,7 @@ export async function crearIncidenciaService(data, jefeCuadrillaId) {
       const observacionMedica = data.observacionMedica || null;
 
       await notificarPorRoles({
-        roles: ["encargado_inventario", "administrador"],
+        roles: ["encargado_inventario", "super_admin"],
         tipo: "incidencia_critica",
         mensaje: [
           `Se registró una incidencia ${data.prioridad} de tipo ${data.tipo}: ${data.descripcion}`,
@@ -106,7 +106,7 @@ export async function generarReporteEmergenciaConDatosService(incidenciaId, admi
     await incidenciaRepository.save(incidencia);
 
     const admins = await userRepository.find({
-      where: [{ rol: "administrador" }, { rol: "encargado_inventario" }],
+      where: [{ rol: "super_admin" }, { rol: "encargado_inventario" }],
       select: ["id", "nombreCompleto", "email"],
     });
 

@@ -35,7 +35,7 @@ export const iniciarConstruccion = async (req, res) => {
 
     // Crear notificación
     await notificarPorRoles({
-      roles: ["administrador", "encargado_inventario", "jefe_cuadrilla"],
+      roles: ["super_admin", "encargado_inventario", "jefe_cuadrilla"],
       tipo: "construccion",
       mensaje: `La construcción en ${vivienda.direccion} ha sido INICIADA`
     });
@@ -80,7 +80,7 @@ export const completarConstruccion = async (req, res) => {
 
     // Crear notificación
     await notificarPorRoles({
-      roles: ["administrador", "encargado_inventario", "jefe_cuadrilla"],
+      roles: ["super_admin", "encargado_inventario", "jefe_cuadrilla"],
       tipo: "construccion",
       mensaje: `La construcción en ${vivienda.direccion} ha sido COMPLETADA`
     });
@@ -121,7 +121,7 @@ export const pausarConstruccion = async (req, res) => {
 
     // Crear notificación
     await notificarPorRoles({
-      roles: ["administrador", "encargado_inventario", "jefe_cuadrilla"],
+      roles: ["super_admin", "encargado_inventario", "jefe_cuadrilla"],
       tipo: "construccion",
       mensaje: `La construcción en ${vivienda.direccion} ha sido PAUSADA`
     });
@@ -142,7 +142,8 @@ export const reanudarConstruccion = async (req, res) => {
 
     // Crear notificación
     await notificarPorRoles({
-      roles: ["administrador", "encargado_inventario", "jefe_cuadrilla"],
+      roles: ["super_admin", "encargado_inventario", "jefe_cuadrilla"],
+
       tipo: "construccion",
       mensaje: `La construcción en ${vivienda.direccion} ha sido REANUDADA`
     });

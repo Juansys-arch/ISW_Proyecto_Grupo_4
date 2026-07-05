@@ -8,8 +8,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     const normalizedAllowedRoles = (allowedRoles || []).map((role) => String(role || '').trim().toLowerCase());
 
     const hasAccess = normalizedAllowedRoles.length === 0 || normalizedAllowedRoles.includes(normalizedRole) ||
-        (normalizedRole === 'super_admin' && normalizedAllowedRoles.includes('administrador')) ||
-        (normalizedRole === 'administrador' && normalizedAllowedRoles.includes('super_admin'));
+        (normalizedRole === 'super_admin' && normalizedAllowedRoles.includes('super_admin')) ||
+        (normalizedRole === 'super_admin' && normalizedAllowedRoles.includes('super_admin'));
 
     if (!isAuthenticated) {
         return <Navigate to="/auth" />;

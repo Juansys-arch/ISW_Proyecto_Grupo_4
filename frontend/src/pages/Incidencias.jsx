@@ -23,7 +23,7 @@ export default function Incidencias() {
     // 3. Estado del formulario para nueva incidencia (con estructuras por defecto según Joi)
     const [nuevaIncidencia, setNuevaIncidencia] = useState({
         descripcion: '',
-        fecha: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })(),
+        fecha: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })(),
         prioridad: 'baja',
         tipo: 'otro',
         estado: 'pendiente',
@@ -83,7 +83,7 @@ export default function Incidencias() {
         } else if (data.tipo === 'accidente') {
             // Para accidente laboral, la fecha debe ser EXACTAMENTE hoy (hora local)
             const d = new Date();
-            const hoy = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const hoy = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             if (data.fecha !== hoy) {
                 errors.fecha = `Para un Accidente Laboral, la fecha debe ser la de hoy (${hoy}).`;
             }
@@ -331,7 +331,7 @@ export default function Incidencias() {
                         const isExpanded = expandedFichas[incidencia.id];
 
                         const reporterName = incidencia.jefeCuadrilla?.nombreCompleto
-                            ? (userRole === 'administrador'
+                            ? (userRole === 'super_admin'
                                 ? formatBriefName(incidencia.jefeCuadrilla.nombreCompleto)
                                 : incidencia.jefeCuadrilla.nombreCompleto)
                             : `ID: ${incidencia.jefeCuadrillaId}`;
@@ -353,12 +353,12 @@ export default function Incidencias() {
                                         </div>
                                         <h4 className="incidencia-descripcion">{incidencia.descripcion}</h4>
                                         <p className="incidencia-meta">
-                                            {new Date(incidencia.fecha).toLocaleDateString('es-CL', { timeZone: 'UTC' })} · {userRole === 'administrador' ? reporterName : `reportado por ${reporterName}`}
+                                            {new Date(incidencia.fecha).toLocaleDateString('es-CL', { timeZone: 'UTC' })} · {userRole === 'super_admin' ? reporterName : `reportado por ${reporterName}`}
                                         </p>
                                     </div>
 
                                     <div className="incidencia-card-actions" style={{ display: 'flex', gap: '8px' }}>
-                                        {(userRole === 'administrador' || userRole === 'jefe_cuadrilla') && (
+                                        {(userRole === 'super_admin' || userRole === 'jefe_cuadrilla') && (
                                             <>
                                                 <button
                                                     className="btn-toggle-ficha"
@@ -375,7 +375,7 @@ export default function Incidencias() {
                                                 </button>
                                             </>
                                         )}
-                                        {userRole === 'administrador' && hasPatientInfo && (
+                                        {userRole === 'super_admin' && hasPatientInfo && (
                                             <button
                                                 className="btn-toggle-ficha"
                                                 onClick={() => toggleFicha(incidencia.id)}
@@ -386,7 +386,7 @@ export default function Incidencias() {
                                     </div>
                                 </div>
 
-                                {userRole === 'administrador' && hasPatientInfo && isExpanded && (
+                                {userRole === 'super_admin' && hasPatientInfo && isExpanded && (
                                     <div className="incidencia-medical-section">
                                         <div className="medical-grid">
                                             <div className="medical-field">
@@ -472,8 +472,8 @@ export default function Incidencias() {
                             <input
                                 type="date"
                                 required
-                                min={nuevaIncidencia.tipo === 'accidente' ? (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })() : undefined}
-                                max={nuevaIncidencia.tipo === 'accidente' ? (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })() : undefined}
+                                min={nuevaIncidencia.tipo === 'accidente' ? (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })() : undefined}
+                                max={nuevaIncidencia.tipo === 'accidente' ? (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })() : undefined}
                                 value={nuevaIncidencia.fecha}
                                 onChange={(e) => setNuevaIncidencia({ ...nuevaIncidencia, fecha: e.target.value })}
                             />

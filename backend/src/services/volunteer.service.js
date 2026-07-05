@@ -116,7 +116,7 @@ function normalizeText(value) {
 function getAccessScope(user) {
   const role = normalizeText(user?.rol);
 
-  if (role === "super_admin" || role === "administrador") {
+  if (role === "super_admin" || role === "super_admin") {
     return { canAccessAll: true };
   }
 

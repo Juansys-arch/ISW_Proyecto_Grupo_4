@@ -102,7 +102,7 @@ const DetallesVivienda = ({ viviendasId, onViviendasEliminada }) => {
             </button>
           )}
           
-          {user?.rol === "administrador" && (
+          {user?.rol === "super_admin" && (
             <button
               className="btn btn-danger"
               onClick={handleEliminarVivienda}

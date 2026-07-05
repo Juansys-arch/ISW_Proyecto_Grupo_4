@@ -113,8 +113,8 @@ export async function deleteUserService(query) {
 
     if (!userFound) return [null, "Usuario no encontrado"];
 
-    if (userFound.rol === "administrador") {
-      return [null, "No se puede eliminar un usuario con rol de administrador"];
+    if (userFound.rol === "super_admin") {
+      return [null, "No se puede eliminar un usuario con rol de super admin"];
     }
 
     const userDeleted = await userRepository.remove(userFound);

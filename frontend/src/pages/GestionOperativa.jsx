@@ -12,7 +12,7 @@ export default function GestionOperativa() {
 
     const userSession = sessionStorage.getItem('usuario');
     const userRole = userSession ? JSON.parse(userSession)?.rol : '';
-    const showIncidenciasTab = userRole === 'administrador' || userRole === 'jefe_cuadrilla';
+    const showIncidenciasTab = userRole === 'super_admin' || userRole === 'jefe_cuadrilla';
 
     const activeTab = (location.pathname === '/incidencias' && showIncidenciasTab) ? 'incidencias' : 'inventario';
 

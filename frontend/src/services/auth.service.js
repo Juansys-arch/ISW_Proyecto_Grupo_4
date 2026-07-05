@@ -11,10 +11,8 @@ export async function login(dataUser) {
         });
         const { status, data } = response;
         if (status === 200) {
-            const { nombreCompleto, email, rut, rol, region } = jwtDecode(data.data.token);
-            const userData = { nombreCompleto, email, rut, rol, region };
-            const { id, nombreCompleto, email, rut, rol } = jwtDecode(data.data.token);
-            const userData = { id, nombreCompleto, email, rut, rol };
+            const { id, nombreCompleto, email, rut, rol, region } = jwtDecode(data.data.token);
+            const userData = { id, nombreCompleto, email, rut, rol, region };
             sessionStorage.setItem('usuario', JSON.stringify(userData));
             sessionStorage.setItem('authToken', data.data.token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${data.data.token}`;
