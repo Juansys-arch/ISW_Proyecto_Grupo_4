@@ -5,19 +5,23 @@ import { AppDataSource } from "../config/configDb.js";
 import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
 import { ACCESS_TOKEN_SECRET } from "../config/configEnv.js";
 
+const normalizeEmail = (value = "") => String(value).trim().toLowerCase();
+
 export async function loginService(user) {
   try {
     const userRepository = AppDataSource.getRepository(User);
-    const { email, password } = user;
+    const { password } = user;
+    const email = normalizeEmail(user.email);
 
     const createErrorMessage = (dataInfo, message) => ({
       dataInfo,
       message
     });
 
-    const userFound = await userRepository.findOne({
-      where: { email }
-    });
+    const userFound = await userRepository
+      .createQueryBuilder("user")
+      .where("LOWER(user.email) = LOWER(:email)", { email })
+      .getOne();
 
     if (!userFound) {
       return [null, createErrorMessage("email", "El correo electrónico es incorrecto")];
@@ -37,6 +41,7 @@ export async function loginService(user) {
       email: userFound.email,
       rut: userFound.rut,
       rol: userFound.rol,
+      region: userFound.region || null,
     };
 
     const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, {
@@ -56,17 +61,17 @@ export async function registerService(user) {
     const userRepository = AppDataSource.getRepository(User);
 
     const { nombreCompleto, rut, email } = user;
+    const normalizedEmail = normalizeEmail(email);
 
     const createErrorMessage = (dataInfo, message) => ({
       dataInfo,
       message
     });
 
-    const existingEmailUser = await userRepository.findOne({
-      where: {
-        email,
-      },
-    });
+    const existingEmailUser = await userRepository
+      .createQueryBuilder("user")
+      .where("LOWER(user.email) = LOWER(:email)", { email: normalizedEmail })
+      .getOne();
     
     if (existingEmailUser) return [null, createErrorMessage("email", "Correo electrónico en uso")];
 
@@ -80,7 +85,7 @@ export async function registerService(user) {
 
     const newUser = userRepository.create({
       nombreCompleto,
-      email,
+      email: normalizedEmail,
       rut,
       password: await encryptPassword(user.password),
       rol: "usuario",

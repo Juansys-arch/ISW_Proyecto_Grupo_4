@@ -87,7 +87,7 @@ export async function approveVolunteer(req, res) {
 
 export async function getPendingVolunteers(req, res) {
   try {
-    const [volunteers, errorVolunteers] = await getPendingVolunteersService();
+    const [volunteers, errorVolunteers] = await getPendingVolunteersService(req.user);
 
     if (errorVolunteers) return handleErrorClient(res, 500, "Error obteniendo voluntarios pendientes", errorVolunteers);
 
@@ -119,7 +119,7 @@ export async function updateVolunteerDetails(req, res) {
 
 export async function getAllVolunteers(req, res) {
   try {
-    const [volunteers, errorVolunteers] = await getAllVolunteersService();
+    const [volunteers, errorVolunteers] = await getAllVolunteersService(req.user);
 
     if (errorVolunteers) return handleErrorClient(res, 500, "Error obteniendo voluntarios", errorVolunteers);
 
@@ -131,7 +131,7 @@ export async function getAllVolunteers(req, res) {
 
 export async function getVolunteersByRegion(req, res) {
   try {
-    const [data, error] = await getVolunteersByRegionService();
+    const [data, error] = await getVolunteersByRegionService(req.user);
 
     if (error) return handleErrorClient(res, 500, "Error obteniendo datos por región", error);
 
@@ -161,7 +161,7 @@ export async function deleteVolunteer(req, res) {
 
 export async function getRegionsList(req, res) {
   try {
-    const [data, error] = await getRegionsListService();
+    const [data, error] = await getRegionsListService(req.user);
 
     if (error) return handleErrorClient(res, 500, "Error obteniendo lista de regiones", error);
 

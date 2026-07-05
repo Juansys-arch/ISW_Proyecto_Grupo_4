@@ -107,15 +107,60 @@ export async function registerVolunteerOnSiteService(volunteerData, userId) {
   }
 }
 
-export async function getAllVolunteersService() {
+function normalizeText(value) {
+  return typeof value === "string"
+    ? value.trim().toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")
+    : "";
+}
+
+function getAccessScope(user) {
+  const role = normalizeText(user?.rol);
+
+  if (role === "super_admin" || role === "administrador") {
+    return { canAccessAll: true };
+  }
+
+  if (role === "admin_region") {
+    const region = String(user?.region || "").trim();
+    return { canAccessAll: false, allowedRegion: region };
+  }
+
+  return { canAccessAll: true };
+}
+
+function filterVolunteersByAccess(volunteers = [], user) {
+  const scope = getAccessScope(user);
+
+  if (scope.canAccessAll) return volunteers;
+  if (!scope.allowedRegion) return [];
+
+  return volunteers.filter((volunteer) => normalizeText(volunteer?.region) === normalizeText(scope.allowedRegion));
+}
+
+export async function getAllVolunteersService(user) {
   try {
     const volunteerRepository = AppDataSource.getRepository(Volunteer);
 
     const volunteers = await volunteerRepository.find({
-      select: ["id", "nombreCompleto", "rut", "email", "status", "rol", "createdAt", "fechaNacimiento", "genero", "numeroContacto"],
+      select: [
+        "id",
+        "nombreCompleto",
+        "rut",
+        "email",
+        "status",
+        "rol",
+        "createdAt",
+        "fechaNacimiento",
+        "genero",
+        "numeroContacto",
+        "direccion",
+        "region",
+        "comuna",
+        "disponibilidad",
+      ],
     });
 
-    return [volunteers, null];
+    return [filterVolunteersByAccess(volunteers, user), null];
   } catch (error) {
     console.error("Error al obtener voluntarios:", error);
     return [null, "Error interno del servidor"];
@@ -151,7 +196,7 @@ export async function approveVolunteerService(volunteerId, action, rejectionReas
   }
 }
 
-export async function getPendingVolunteersService() {
+export async function getPendingVolunteersService(user) {
   try {
     const volunteerRepository = AppDataSource.getRepository(Volunteer);
 
@@ -159,7 +204,7 @@ export async function getPendingVolunteersService() {
       where: { status: "pending" },
     });
 
-    return [pendingVolunteers, null];
+    return [filterVolunteersByAccess(pendingVolunteers, user), null];
   } catch (error) {
     console.error("Error al obtener voluntarios pendientes", error);
     return [null, "Error interno del servidor"];
@@ -234,7 +279,7 @@ export async function deleteVolunteerService(volunteerId) {
   }
 }
 
-export async function getVolunteersByRegionService() {
+export async function getVolunteersByRegionService(user) {
   try {
     const volunteerRepository = AppDataSource.getRepository(Volunteer);
 
@@ -256,10 +301,7 @@ export async function getVolunteersByRegionService() {
       ],
     });
 
-    const normalizeText = (value) =>
-      typeof value === "string"
-        ? value.trim().toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")
-        : "";
+    const scope = getAccessScope(user);
 
     const result = regionsData.map((r) => ({
       region: r.region,
@@ -306,11 +348,23 @@ export async function getVolunteersByRegionService() {
       return comunaObj;
     };
 
-    volunteers.forEach((volunteer) => {
+    const visibleVolunteers = filterVolunteersByAccess(volunteers, user);
+
+    visibleVolunteers.forEach((volunteer) => {
+      const normalizedStatus = String(volunteer?.status || '').trim().toLowerCase();
+      if (['rejected', 'rechazado'].includes(normalizedStatus)) {
+        return;
+      }
+
       const regionObj = ensureRegionGroup(volunteer.region);
       const comunaObj = ensureComunaGroup(regionObj, volunteer.comuna);
       comunaObj.volunteers.push(volunteer);
     });
+
+    if (!scope.canAccessAll && scope.allowedRegion) {
+      const normalizedAllowedRegion = normalizeText(scope.allowedRegion);
+      return [result.filter((regionObj) => normalizeText(regionObj.region) === normalizedAllowedRegion), null];
+    }
 
     return [result, null];
   } catch (error) {
@@ -318,13 +372,34 @@ export async function getVolunteersByRegionService() {
     return [null, "Error interno del servidor"];
   }
 }
-export async function getRegionsListService() {
+export async function getRegionsListService(user) {
   try {
-    const fs = await import("fs");
-    const regionsPath = new URL("../data/chile-regions.json", import.meta.url);
-    const regionsData = JSON.parse(fs.readFileSync(regionsPath, "utf8"));
+    const fallbackRegions = [
+      { region: "Arica y Parinacota", comunas: ["Arica", "Camarones", "Putre", "General Lagos"] },
+      { region: "Tarapacá", comunas: ["Iquique", "Alto Hospicio", "Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"] },
+      { region: "Antofagasta", comunas: ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal", "Calama", "Ollagüe", "San Pedro de Atacama"] },
+      { region: "Atacama", comunas: ["Copiapó", "Caldera", "Tierra Amarilla", "Chañaral", "Diego de Almagro", "Vallenar", "Alto del Carmen", "Freirina", "Huasco"] },
+      { region: "Coquimbo", comunas: ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña", "Illapel", "Canela", "Los Vilos", "Salamanca", "Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"] },
+      { region: "Valparaíso", comunas: ["Valparaíso", "Concón", "Viña del Mar", "Quilpué", "Villa Alemana", "San Antonio", "Cartagena", "El Quisco", "El Tabo", "Algarrobo", "Quintero", "Puchuncaví", "Casablanca", "Juan Fernández", "San Felipe", "Los Andes", "Catemu", "Quillota", "La Cruz", "Llaillay", "Panquehue", "Putaendo", "Santa María", "Rinconada", "Calle Larga", "Nogales", "Olmué", "Limache", "Petorca", "La Ligua", "Cabildo", "Zapallar", "Papudo"] },
+      { region: "Metropolitana de Santiago", comunas: ["Santiago", "Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"] },
+      { region: "O’Higgins", comunas: ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "Las Cabras", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente", "Pichilemu", "La Estrella", "Litueche", "Marchihue", "Navidad", "Paredones", "Santa Cruz", "Chimbarongo", "Lolol", "Nancagua", "Palmilla", "Peralillo", "Placilla", "Pumanque", "San Fernando", "Chépica"] },
+      { region: "Maule", comunas: ["Talca", "Curicó", "Linares", "Cauquenes", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael", "Chanco", "Pelluhue", "Molina", "Romeral", "Sagrada Familia", "Hualañé", "Licantén", "Vichuquén", "Rauco", "Teno", "Villa Alegre", "Yerbas Buenas"] },
+      { region: "Ñuble", comunas: ["Chillán", "Chillán Viejo", "Bulnes", "Cobquecura", "Coelemu", "Coihueco", "Quillón", "San Carlos", "San Fabián", "San Ignacio", "El Carmen", "Pemuco", "Ninhue", "Portezuelo", "Ránquil", "Yungay"] },
+      { region: "Biobío", comunas: ["Concepción", "Coronel", "Chiguayante", "Florida", "Hualpén", "Hualqui", "Lota", "Penco", "San Pedro de la Paz", "Santa Juana", "Talcahuano", "Tomé", "Arauco", "Cañete", "Contulmo", "Curanilahue", "Lebu", "Los Álamos", "Tirúa", "Laja", "Nacimiento", "Negrete", "Quilaco", "San Rosendo", "Santa Bárbara", "Tucapel", "Yumbel", "Alto Biobío"] },
+      { region: "La Araucanía", comunas: ["Temuco", "Padre Las Casas", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica", "Angol", "Collipulli", "Curacautín", "Ercilla", "Lonquimay", "Los Sauces", "Lumaco", "Purén", "Renaico", "Traiguén", "Victoria"] },
+      { region: "Los Ríos", comunas: ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli", "La Unión", "Futrono", "Lago Ranco", "Río Bueno"] },
+      { region: "Los Lagos", comunas: ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas", "Castro", "Ancud", "Chonchi", "Curaco de Vélez", "Dalcahue", "Puqueldón", "Queilén", "Quellón", "Quemchi", "Quinchao", "Osorno", "Puerto Octay", "Purranque", "Río Negro", "San Juan de la Costa", "San Pablo", "Chaitén", "Futaleufú", "Hualaihué", "Palena"] },
+      { region: "Aysén", comunas: ["Coyhaique", "Lago Verde", "Aysén", "Cisnes", "Guaitecas", "Chile Chico", "Río Ibáñez"] },
+      { region: "Magallanes y de la Antártica Chilena", comunas: ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos", "Antártica", "Porvenir", "Primavera", "Timaukel"] },
+    ];
 
-    return [regionsData, null];
+    const scope = getAccessScope(user);
+    if (!scope.canAccessAll && scope.allowedRegion) {
+      const normalizedAllowedRegion = normalizeText(scope.allowedRegion);
+      return [fallbackRegions.filter((region) => normalizeText(region.region) === normalizedAllowedRegion), null];
+    }
+
+    return [fallbackRegions, null];
   } catch (error) {
     console.error("Error al leer lista de regiones:", error);
     return [null, "Error interno del servidor"];

@@ -65,6 +65,11 @@ const UserSchema = new EntitySchema({
       onUpdate: "CURRENT_TIMESTAMP",
       nullable: false,
     },
+    region: {
+      type: "varchar",
+      length: 100,
+      nullable: true,
+    },
     cuadrillaId: {
       type: "int",
       nullable: true,

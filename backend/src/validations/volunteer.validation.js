@@ -52,6 +52,22 @@ export const volunteerRegisterValidation = Joi.object({
     .custom(domainEmailValidator, "Validación dominio email"),
   fechaNacimiento: Joi.date()
     .required()
+    .custom((value, helper) => {
+      const today = new Date();
+      const birthDate = new Date(value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDifference = today.getMonth() - birthDate.getMonth();
+
+      if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        age -= 1;
+      }
+
+      if (age < 18 || age > 50) {
+        return helper.message("La edad del voluntario debe estar entre 18 y 50 años.");
+      }
+
+      return value;
+    })
     .messages({
       "date.base": "La fecha de nacimiento debe ser una fecha válida.",
       "any.required": "La fecha de nacimiento es obligatoria.",
@@ -141,6 +157,22 @@ export const volunteerOnSiteRegisterValidation = Joi.object({
     .custom(domainEmailValidator, "Validación dominio email"),
   fechaNacimiento: Joi.date()
     .required()
+    .custom((value, helper) => {
+      const today = new Date();
+      const birthDate = new Date(value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDifference = today.getMonth() - birthDate.getMonth();
+
+      if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        age -= 1;
+      }
+
+      if (age < 18 || age > 50) {
+        return helper.message("La edad del voluntario debe estar entre 18 y 50 años.");
+      }
+
+      return value;
+    })
     .messages({
       "date.base": "La fecha de nacimiento debe ser una fecha válida.",
       "any.required": "La fecha de nacimiento es obligatoria.",

@@ -18,7 +18,7 @@ import Construccion from '@pages/Construccion';
 import GestionOperativa from '@pages/GestionOperativa';
 import Notificaciones from '@pages/Notificaciones';
 import EvaluacionCuadrilla from '@pages/EvaluacionCuadrilla';
-import DashboardVoluntarios from '@pages/DashboardVoluntarios';
+import Volunteer from '@pages/Volunteer';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 
@@ -36,7 +36,7 @@ const router = createBrowserRouter([
       {
         path: '/gestion-jornada',
         element: (
-          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
+          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador', 'super_admin', 'admin_region']}>
             <DashboardJornada />
           </ProtectedRoute>
         ),
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
       {
         path: '/asistencias',
         element: (
-          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
+          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador', 'super_admin', 'admin_region']}>
             <Asistencias />
           </ProtectedRoute>
         ),
@@ -52,7 +52,7 @@ const router = createBrowserRouter([
       {
         path: '/inventario',
         element: (
-          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario', 'jefe_cuadrilla']}>
+          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario', 'jefe_cuadrilla', 'super_admin', 'admin_region']}>
             <Inventario />
           </ProtectedRoute>
         ),
@@ -60,7 +60,7 @@ const router = createBrowserRouter([
       {
         path: '/herramientas',
         element: (
-          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
+          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador', 'super_admin', 'admin_region']}>
             <Herramientas />
           </ProtectedRoute>
         ),
@@ -76,7 +76,7 @@ const router = createBrowserRouter([
       {
         path: '/gestion-operativa',
         element: (
-          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario', 'jefe_cuadrilla']}>
+          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario', 'jefe_cuadrilla', 'super_admin', 'admin_region']}>
             <GestionOperativa />
           </ProtectedRoute>
         ),
@@ -84,7 +84,7 @@ const router = createBrowserRouter([
       {
         path: '/construccion',
         element: (
-          <ProtectedRoute allowedRoles={['administrador', 'jefe_cuadrilla']}>
+          <ProtectedRoute allowedRoles={['administrador', 'jefe_cuadrilla', 'super_admin', 'admin_region']}>
             <Construccion />
           </ProtectedRoute>
         ),
@@ -92,7 +92,7 @@ const router = createBrowserRouter([
       {
         path: '/bitacora',
         element: (
-          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
+          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador', 'super_admin', 'admin_region']}>
             <Bitacora />
           </ProtectedRoute>
         ),
@@ -100,7 +100,7 @@ const router = createBrowserRouter([
       {
         path: '/kits',
         element: (
-          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
+          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador', 'super_admin', 'admin_region']}>
             <Kits />
           </ProtectedRoute>
         ),
@@ -108,7 +108,7 @@ const router = createBrowserRouter([
       {
         path: '/transporte',
         element: (
-          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
+          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador', 'super_admin', 'admin_region']}>
             <Transporte />
           </ProtectedRoute>
         ),
@@ -116,16 +116,8 @@ const router = createBrowserRouter([
       {
         path: '/evaluacion-cuadrilla',
         element: (
-          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador']}>
+          <ProtectedRoute allowedRoles={['jefe_cuadrilla', 'administrador', 'super_admin', 'admin_region']}>
             <EvaluacionCuadrilla />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: '/voluntarios',
-        element: (
-          <ProtectedRoute allowedRoles={['administrador', 'encargado_voluntarios']}>
-            <DashboardVoluntarios />
           </ProtectedRoute>
         ),
       },
@@ -138,9 +130,17 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: '/regiones',
+        element: (
+          <ProtectedRoute allowedRoles={['super_admin', 'admin_region', 'administrador']}>
+            <Volunteer />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/notificaciones',
         element: (
-          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario', 'jefe_cuadrilla']}>
+          <ProtectedRoute allowedRoles={['administrador', 'encargado_inventario', 'jefe_cuadrilla', 'super_admin', 'admin_region']}>
             <Notificaciones />
           </ProtectedRoute>
         ),

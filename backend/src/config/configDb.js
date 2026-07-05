@@ -1,6 +1,6 @@
 "use strict";
 import { DataSource } from "typeorm";
-import { DATABASE, DATABASE_URL, DB_USERNAME, HOST, PASSWORD } from "./configEnv.js";
+import { DATABASE, DATABASE_URL, DB_USERNAME, HOST, PASSWORD, DB_PORT } from "./configEnv.js";
 
 import AsignacionHerramientas from "../entity/asignacionHerramientas.entity.js";
 import Asistencia from "../entity/asistencia.entity.js";
@@ -50,7 +50,7 @@ function getDatabaseConfig() {
     return {
       type: "postgres",
       host: `${HOST}`,
-      port: 5432,
+      port: DB_PORT,
       username: `${DB_USERNAME}`,
       password: `${PASSWORD}`,
       database: `${DATABASE}`,

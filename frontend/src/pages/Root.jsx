@@ -15,6 +15,12 @@ function PageRoot() {
 const [sidebarOpen, setSidebarOpen] = useState(true);
 
 return (
+    <>
+        <Navbar />
+        <div style={{ minHeight: '100vh', boxSizing: 'border-box', paddingTop: 'calc(9vh + 24px)', overflowX: 'hidden' }}>
+            <Outlet />
+        </div>
+    </>
     <div className={`app-shell ${sidebarOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
         <Navbar isOpen={sidebarOpen} onToggle={() => setSidebarOpen((current) => !current)} />
         <main className="app-content">

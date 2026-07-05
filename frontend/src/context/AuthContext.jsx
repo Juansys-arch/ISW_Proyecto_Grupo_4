@@ -8,8 +8,13 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
     const navigate = useNavigate();
     const [user, setUser] = useState(() => {
-        const savedUser = sessionStorage.getItem('usuario');
-        return savedUser ? JSON.parse(savedUser) : null;
+        try {
+            const savedUser = sessionStorage.getItem('usuario');
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch (error) {
+            console.error('Error leyendo usuario de sesión:', error);
+            return null;
+        }
     });
 
     const isAuthenticated = !!user;

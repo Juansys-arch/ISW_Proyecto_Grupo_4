@@ -11,13 +11,16 @@ import {
   registerVolunteerOnSite,
   updateVolunteerDetails,
 } from "../controllers/volunteer.controller.js";
-import { isAdminOrCoordinator } from "../middlewares/authorization.middleware.js";
+import { isAdminOrCoordinator, isAdminOrCoordinatorOrVolunteer } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 
 const router = Router();
 
 // Registro público (web)
 router.post("/register", registerVolunteer);
+
+// Obtener lista de regiones y comunas (requiere autenticación)
+router.get("/regions/list", authenticateJwt, getRegionsList);
 
 // Registro en sitio (requiere autenticación y rol admin/coordinator)
 router.post("/register-onsite", authenticateJwt, isAdminOrCoordinator, registerVolunteerOnSite);
@@ -28,11 +31,8 @@ router.put("/approve", authenticateJwt, isAdminOrCoordinator, approveVolunteer);
 // Obtener todos los voluntarios (requiere autenticación y rol admin/coordinator)
 router.get("/", authenticateJwt, isAdminOrCoordinator, getAllVolunteers);
 
-// Obtener voluntarios agrupados por regiones y comunas
-router.get("/regions", authenticateJwt, isAdminOrCoordinator, getVolunteersByRegion);
-
-// Obtener lista de regiones y comunas (solo lista)
-router.get("/regions/list", authenticateJwt, isAdminOrCoordinator, getRegionsList);
+// Obtener voluntarios agrupados por regiones y comunas (requiere autenticación)
+router.get("/regions", authenticateJwt, getVolunteersByRegion);
 
 // Obtener voluntarios pendientes (requiere autenticación y rol admin/coordinator)
 router.get("/pending", authenticateJwt, isAdminOrCoordinator, getPendingVolunteers);

@@ -27,6 +27,7 @@ router
   .use("/kits", kitRoutes)
   .use("/notificaciones", notificacionRoutes)
   .use("/transporte", transporteRoutes)
+  .use("/volunteer", volunteerRoutes)
   .use("/volunteers", volunteerRoutes);
 
 export default router;
