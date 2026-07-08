@@ -3,7 +3,7 @@ import { TabulatorFull as Tabulator } from 'tabulator-tables';
 import "tabulator-tables/dist/css/tabulator.min.css";
 import '@styles/table.css';
 
-function useTable({ data, columns, filter, dataToFilter, initialSortName, onSelectionChange, onActionClick, onButtonClick, externalButtonCallbacksRef }) {
+function useTable({ data, columns, filter, dataToFilter, initialSortName, onSelectionChange, onActionClick, onButtonClick, externalButtonCallbacksRef, layout = "fitColumns" }) {
     const tableRef = useRef(null);
     const [table, setTable] = useState(null);
     const [isTableBuilt, setIsTableBuilt] = useState(false);
@@ -36,7 +36,7 @@ function useTable({ data, columns, filter, dataToFilter, initialSortName, onSele
             const tabulatorTable = new Tabulator(tableRef.current, {
                 data: [],
                 columns: updatedColumns,
-                layout: "fitColumns",
+                layout: layout,
                 pagination: "local",
                 paginationSize: 6,
                 selectableRows: 1,

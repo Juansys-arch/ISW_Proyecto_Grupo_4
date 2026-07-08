@@ -1,0 +1,544 @@
+/* ===== Dashboard Jornada Styles ===== */
+
+.jornada-page {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 24px 20px;
+  font-family: Inter, system-ui, Arial, sans-serif;
+  padding-top: 88px;
+}
+
+/* Hub Cards Grid */
+.jornada-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 28px;
+}
+
+.jornada-hub-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+.jornada-hub-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 12px 0 0 12px;
+  transition: width 0.3s ease;
+}
+
+.jornada-hub-card.card-asistencia::before { background: #0b5ca8; }
+.jornada-hub-card.card-herramientas::before { background: #0891b2; }
+.jornada-hub-card.card-bitacora::before { background: #7c3aed; }
+.jornada-hub-card.card-cuadrilla::before { background: #059669; }
+.jornada-hub-card.card-nav::before { background: #64748b; }
+.jornada-hub-card.card-create::before { background: #15803d; }
+
+.jornada-hub-card:hover {
+  transform: translateY(-3px);
+  border-color: #0b5ca8;
+  box-shadow: 0 12px 24px rgba(11, 92, 168, 0.1);
+}
+
+.jornada-hub-card .card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+
+.jornada-hub-card.card-asistencia .card-icon { background: #eff6ff; }
+.jornada-hub-card.card-herramientas .card-icon { background: #ecfeff; }
+.jornada-hub-card.card-bitacora .card-icon { background: #f5f3ff; }
+.jornada-hub-card.card-cuadrilla .card-icon { background: #ecfdf5; }
+.jornada-hub-card.card-nav .card-icon { background: #f8fafc; }
+.jornada-hub-card.card-create .card-icon { background: #f0fdf4; }
+
+.jornada-hub-card .card-title {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0b3b5a;
+}
+
+.jornada-hub-card .card-desc {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Section Labels */
+.jornada-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #94a3b8;
+  margin: 32px 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.jornada-section-label:first-of-type {
+  margin-top: 8px;
+}
+
+/* Form Panel */
+.jornada-form-panel {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 28px 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  animation: slideInUp 0.4s ease-out;
+}
+
+.jornada-form-panel h2 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  color: #0b3b5a;
+}
+
+.jornada-form-panel .form-subtitle {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0 0 24px 0;
+}
+
+/* Cuadrilla Section */
+.cuadrilla-search-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.cuadrilla-search-bar input[type="text"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  outline: none;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cuadrilla-search-bar input[type="text"]:focus {
+  border-color: #0b5ca8;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(11, 92, 168, 0.08);
+}
+
+.cuadrilla-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cuadrilla-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.cuadrilla-item:hover {
+  border-color: #0b5ca8;
+  box-shadow: 0 4px 12px rgba(11, 92, 168, 0.06);
+}
+
+.cuadrilla-item .cuadrilla-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cuadrilla-item .cuadrilla-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0b3b5a;
+}
+
+.cuadrilla-item .cuadrilla-meta {
+  font-size: 13px;
+  color: #64748b;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cuadrilla-item .cuadrilla-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cuadrilla-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cuadrilla-badge.members {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.cuadrilla-badge.leader {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+/* Cuadrilla Create Form */
+.cuadrilla-create-form {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 28px 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  animation: slideInUp 0.4s ease-out;
+}
+
+.cuadrilla-create-form h2 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  color: #0b3b5a;
+}
+
+.cuadrilla-create-form .form-subtitle {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0 0 24px 0;
+}
+
+.cuadrilla-form-group {
+  margin-bottom: 20px;
+}
+
+.cuadrilla-form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.cuadrilla-form-group input[type="text"] {
+  max-width: 440px;
+}
+
+/* Volunteer List for Selection */
+.volunteer-select-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.volunteer-count {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.volunteer-count.full {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.volunteer-select-list {
+  max-height: 340px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fafbfc;
+}
+
+.volunteer-select-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.volunteer-select-item:last-child {
+  border-bottom: none;
+}
+
+.volunteer-select-item:hover {
+  background: #f8fafc;
+}
+
+.volunteer-select-item.disabled {
+  opacity: 0.5;
+}
+
+.volunteer-select-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 14px;
+  cursor: pointer;
+  accent-color: #0b5ca8;
+  flex-shrink: 0;
+}
+
+.volunteer-select-item .vol-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.volunteer-select-item .vol-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.volunteer-select-item .vol-rut {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.volunteer-select-item .vol-email {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.volunteer-select-item .vol-edit-btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+
+.volunteer-select-item .vol-edit-btn:hover {
+  background: #fde68a;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Cuadrilla Detail Card */
+.cuadrilla-detail-card {
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cuadrilla-detail-card .detail-info h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #166534;
+}
+
+.cuadrilla-detail-card .detail-info p {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #15803d;
+}
+
+/* Members Table */
+.members-table-wrapper {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.members-table-wrapper h3 {
+  margin: 0;
+  padding: 16px 20px;
+  font-size: 15px;
+  color: #0b3b5a;
+  background: #f7fbff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.members-table-wrapper table {
+  margin: 0;
+}
+
+.members-table-wrapper .custom-table thead th {
+  background: transparent;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Empty State */
+.jornada-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #94a3b8;
+}
+
+.jornada-empty-state .empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.jornada-empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Modal Override for Jornada */
+.jornada-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+.jornada-modal {
+  background: #ffffff;
+  padding: 28px 32px;
+  border-radius: 14px;
+  max-width: 520px;
+  width: 94%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: slideInUp 0.3s ease-out;
+  position: relative;
+}
+
+.jornada-modal h2 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  color: #0b3b5a;
+}
+
+.jornada-modal .modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: #64748b;
+  padding: 0;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+.jornada-modal .modal-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: none;
+  box-shadow: none;
+}
+
+.jornada-modal .form-group {
+  margin-bottom: 16px;
+}
+
+.jornada-modal .form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.jornada-modal .form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .jornada-page {
+    padding: 16px 12px;
+    padding-top: 72px;
+  }
+
+  .jornada-hub-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jornada-form-panel,
+  .cuadrilla-create-form {
+    padding: 20px 16px;
+  }
+
+  .cuadrilla-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cuadrilla-item .cuadrilla-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .volunteer-select-item .vol-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

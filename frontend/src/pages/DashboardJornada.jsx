@@ -1,31 +1,35 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Form from '@components/Form';
-import Table from '@components/Table';
 import { postAsistencia, postHerramientas, postBitacora } from '@services/jornada.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert';
 import { useAuth } from '@context/AuthContext';
-import { 
-    getCuadrillas, 
-    getVoluntariosDisponibles, 
-    crearCuadrilla, 
+import {
+    getCuadrillas,
+    getVoluntariosDisponibles,
+    crearCuadrilla,
     actualizarCuadrilla,
     crearVoluntario,
     actualizarVoluntario
 } from '@services/cuadrilla.service';
+import '@styles/jornada.css';
+import '@styles/inventario.css';
 
 const DashboardJornada = () => {
-    const [step, setStep] = useState(1);
+    const [viewState, setViewState] = useState('hub');
     const navigate = useNavigate();
     const { user } = useAuth();
 
     // Cuadrilla management states
+    const [cuadrillas, setCuadrillas] = useState([]);
     const [cuadrilla, setCuadrilla] = useState(null);
     const [voluntarios, setVoluntarios] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [nombreCuadrilla, setNombreCuadrilla] = useState('');
     const [selectedVoluntarios, setSelectedVoluntarios] = useState([]);
     const [loadingCuadrilla, setLoadingCuadrilla] = useState(true);
+    const [searchCuadrilla, setSearchCuadrilla] = useState('');
+    const [cuadrillaView, setCuadrillaView] = useState('list'); // 'list', 'create', 'detail'
 
     // Volunteer modal states
     const [showVolunteerModal, setShowVolunteerModal] = useState(false);
@@ -61,26 +65,28 @@ const DashboardJornada = () => {
     ];
 
     useEffect(() => {
-        if (step === 4) {
+        if (viewState === 'cuadrillas') {
             fetchCuadrillaData();
         }
-    }, [step]);
+    }, [viewState]);
 
     const fetchCuadrillaData = async () => {
         setLoadingCuadrilla(true);
         try {
             const cuadrillasData = await getCuadrillas();
-            // Find crew managed by this user
-            const userCrew = cuadrillasData.find(c => c.jefeCuadrillaId === user?.id) || cuadrillasData[0];
-            
-            if (userCrew) {
-                setCuadrilla(userCrew);
-                setNombreCuadrilla(userCrew.nombre);
-                setSelectedVoluntarios(userCrew.miembros ? userCrew.miembros.map(m => m.id) : []);
-            } else {
-                setCuadrilla(null);
-                setNombreCuadrilla('');
-                setSelectedVoluntarios([]);
+            if (Array.isArray(cuadrillasData)) {
+                setCuadrillas(cuadrillasData);
+                // Find crew managed by this user
+                const userCrew = cuadrillasData.find(c => c.jefeCuadrillaId === user?.id) || cuadrillasData[0];
+                if (userCrew) {
+                    setCuadrilla(userCrew);
+                    setNombreCuadrilla(userCrew.nombre);
+                    setSelectedVoluntarios(userCrew.miembros ? userCrew.miembros.map(m => m.id) : []);
+                } else {
+                    setCuadrilla(null);
+                    setNombreCuadrilla('');
+                    setSelectedVoluntarios([]);
+                }
             }
 
             const vols = await getVoluntariosDisponibles();
@@ -125,7 +131,7 @@ const DashboardJornada = () => {
         };
 
         let res;
-        if (cuadrilla) {
+        if (cuadrilla && cuadrillaView === 'detail') {
             res = await actualizarCuadrilla(cuadrilla.id, payload);
         } else {
             res = await crearCuadrilla(payload);
@@ -134,10 +140,25 @@ const DashboardJornada = () => {
         if (res && (res.status === 'Success' || res.data)) {
             showSuccessAlert('Guardado', 'La cuadrilla se guardó correctamente');
             setIsEditing(false);
+            setCuadrillaView('list');
             fetchCuadrillaData();
         } else {
             showErrorAlert('Error', res.message || 'No se pudo guardar la cuadrilla');
         }
+    };
+
+    const openCreateCuadrilla = () => {
+        setNombreCuadrilla('');
+        setSelectedVoluntarios([]);
+        setCuadrillaView('create');
+    };
+
+    const openDetailCuadrilla = (c) => {
+        setCuadrilla(c);
+        setNombreCuadrilla(c.nombre);
+        setSelectedVoluntarios(c.miembros ? c.miembros.map(m => m.id) : []);
+        setIsEditing(false);
+        setCuadrillaView('detail');
     };
 
     const openAddVolunteer = () => {
@@ -191,10 +212,10 @@ const DashboardJornada = () => {
         }
     };
 
-    const handleFormSubmit = async (data, action) => {
+    const handleFormSubmit = async (data) => {
         let res;
-        if (step === 1) res = await postAsistencia(data);
-        if (step === 2) {
+        if (viewState === 'asistencia') res = await postAsistencia(data);
+        if (viewState === 'herramientas') {
             res = await postHerramientas(data);
             if (data.estadoEntrega === 'incompleto') {
                 await postBitacora({
@@ -203,7 +224,7 @@ const DashboardJornada = () => {
                 });
             }
         }
-        if (step === 3) res = await postBitacora(data);
+        if (viewState === 'bitacora') res = await postBitacora(data);
 
         if (res.status === 'Success') {
             showSuccessAlert('Registrado', 'La información se guardó correctamente');
@@ -212,260 +233,436 @@ const DashboardJornada = () => {
         }
     };
 
-    return (
-        <div className="main-container">
-            <h1>Panel de Control - {user?.rol === 'super_admin' ? 'Administrador' : 'Jefe de Cuadrilla'}</h1>
-            
-            <div className="tabs-container" style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                <button onClick={() => setStep(1)} className={step === 1 ? 'active' : ''} style={{ padding: '8px 12px' }}>1. Asistencia</button>
-                <button onClick={() => setStep(2)} className={step === 2 ? 'active' : ''} style={{ padding: '8px 12px' }}>2. Herramientas</button>
-                <button onClick={() => setStep(3)} className={step === 3 ? 'active' : ''} style={{ padding: '8px 12px' }}>3. Bitácora</button>
-                <button onClick={() => setStep(4)} className={step === 4 ? 'active' : ''} style={{ padding: '8px 12px' }}>4. Cuadrilla</button>
+    const filteredCuadrillas = cuadrillas.filter(c =>
+        c.nombre?.toLowerCase().includes(searchCuadrilla.toLowerCase())
+    );
 
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <button onClick={() => navigate('/asistencias')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>Ver Asistencias</button>
-                    <button onClick={() => navigate('/herramientas')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>Ver Actas</button>
-                    <button onClick={() => navigate('/bitacora')} style={{ padding: '8px 12px', backgroundColor: '#6c757d' }}>Ver Bitácora</button>
-                    <button onClick={() => navigate('/kits')} style={{ padding: '8px 12px', backgroundColor: '#007bff' }}>Kits</button>
-                    <button onClick={() => navigate('/transporte')} style={{ padding: '8px 12px', backgroundColor: '#fd7e14' }}>Transporte</button>
+    // ============================
+    // RENDER: Cuadrilla Form (shared between create and edit)
+    // ============================
+    const renderCuadrillaForm = () => (
+        <form onSubmit={handleSaveCuadrilla}>
+            <div className="cuadrilla-form-group">
+                <label>Nombre de la Cuadrilla</label>
+                <input
+                    type="text"
+                    value={nombreCuadrilla}
+                    onChange={(e) => setNombreCuadrilla(e.target.value)}
+                    placeholder="Ej. Cuadrilla Santiago Centro"
+                    required
+                />
+            </div>
+
+            <div className="cuadrilla-form-group">
+                <div className="volunteer-select-header">
+                    <label style={{ margin: 0 }}>Seleccionar Miembros (Máximo 10)</label>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span className={`volunteer-count ${selectedVoluntarios.length === 10 ? 'full' : ''}`}>
+                            {selectedVoluntarios.length} / 10
+                        </span>
+                        <button
+                            type="button"
+                            onClick={openAddVolunteer}
+                            className="btn-primary btn-sm"
+                            style={{ fontSize: '13px' }}
+                        >
+                            ➕ Nuevo Voluntario
+                        </button>
+                    </div>
+                </div>
+
+                <div className="volunteer-select-list">
+                    {voluntarios.length === 0 ? (
+                        <div className="jornada-empty-state">
+                            <div className="empty-icon">👥</div>
+                            <p>No hay voluntarios aprobados disponibles.</p>
+                        </div>
+                    ) : (
+                        voluntarios.map(v => {
+                            const isChecked = selectedVoluntarios.includes(v.id);
+                            const isDisabled = !isChecked && selectedVoluntarios.length >= 10;
+                            return (
+                                <div key={v.id} className={`volunteer-select-item ${isDisabled ? 'disabled' : ''}`}>
+                                    <input
+                                        type="checkbox"
+                                        id={`vol-${v.id}`}
+                                        checked={isChecked}
+                                        disabled={isDisabled}
+                                        onChange={() => handleCheckboxChange(v.id)}
+                                    />
+                                    <div className="vol-info">
+                                        <label htmlFor={`vol-${v.id}`} style={{ cursor: isDisabled ? 'not-allowed' : 'pointer', display: 'flex', gap: '12px', flexWrap: 'wrap', flex: 1, margin: 0 }}>
+                                            <span className="vol-name">{v.nombreCompleto}</span>
+                                            <span className="vol-rut">{v.rut}</span>
+                                            <span className="vol-email">{v.email}</span>
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={() => openEditVolunteer(v)}
+                                            className="vol-edit-btn"
+                                        >
+                                            ✏️ Editar
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
             </div>
 
-            {step === 1 && (
-                <section>
-                    <h2>Validación de Abordaje</h2>
-                    <Form 
-                        fields={asistenciaFields} 
-                        buttonText="Confirmar Asistencia" 
-                        onSubmit={handleFormSubmit} 
-                    />
-                </section>
-            )}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>
+                <button
+                    type="button"
+                    className="btn btn-back"
+                    onClick={() => {
+                        setCuadrillaView('list');
+                        setIsEditing(false);
+                    }}
+                >
+                    Cancelar
+                </button>
+                <button type="submit" className="btn-primary">
+                    💾 {cuadrillaView === 'create' ? 'Crear Cuadrilla' : 'Guardar Cambios'}
+                </button>
+            </div>
+        </form>
+    );
 
-            {step === 2 && (
-                <section>
-                    <h2>Acta Digital de Herramientas</h2>
-                    <Form 
-                        fields={herramientasFields} 
-                        buttonText="Registrar Estado" 
-                        onSubmit={handleFormSubmit} 
-                    />
-                </section>
-            )}
-
-            {step === 3 && (
-                <section>
-                    <h2>Bitácora de Terreno</h2>
-                    <Form 
-                        fields={bitacoraFields} 
-                        buttonText="Reportar Incidencia" 
-                        onSubmit={handleFormSubmit} 
-                    />
-                </section>
-            )}
-
-            {step === 4 && (
-                <section style={{ animation: 'fadeIn 0.4s ease-out' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' }}>
-                        <h2>Gestión de Cuadrilla</h2>
-                        {cuadrilla && !isEditing && (
-                            <button onClick={() => setIsEditing(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                ✏️ Gestionar Miembros
+    return (
+        <div className="jornada-page">
+            {/* ====== HUB VIEW ====== */}
+            {viewState === 'hub' && (
+                <>
+                    <div className="header-section">
+                        <div>
+                            <h1 style={{ color: '#0b3b5a', margin: 0 }}>
+                                Panel de Control - {user?.rol === 'super_admin' ? 'Administrador' : 'Jefe de Cuadrilla'}
+                            </h1>
+                            <p style={{ color: '#4b6077', marginTop: 4 }}>
+                                Bienvenido. Tu rol actual es: <strong style={{ textTransform: 'capitalize' }}>{user?.rol?.replace('_', ' ')}</strong>
+                            </p>
+                        </div>
+                        <div className="action-buttons">
+                            <button className="btn btn-back" onClick={() => navigate('/home')}>
+                                ← Volver
                             </button>
-                        )}
-                        {isEditing && (
-                            <button onClick={() => setIsEditing(false)} className="btn-secondary" style={{ backgroundColor: '#6c757d', color: '#fff' }}>
-                                Cancelar
+                        </div>
+                    </div>
+
+                    <p className="jornada-section-label">Gestión de Jornada</p>
+                    <div className="jornada-hub-grid">
+                        <div className="jornada-hub-card card-asistencia" onClick={() => setViewState('asistencia')}>
+                            <div className="card-icon">📋</div>
+                            <h3 className="card-title">Asistencia</h3>
+                            <p className="card-desc">Validar abordaje de voluntarios al transporte.</p>
+                        </div>
+
+                        <div className="jornada-hub-card card-herramientas" onClick={() => setViewState('herramientas')}>
+                            <div className="card-icon">🔧</div>
+                            <h3 className="card-title">Herramientas</h3>
+                            <p className="card-desc">Registrar estado de entrega de kits de herramientas.</p>
+                        </div>
+
+                        <div className="jornada-hub-card card-bitacora" onClick={() => setViewState('bitacora')}>
+                            <div className="card-icon">📝</div>
+                            <h3 className="card-title">Bitácora</h3>
+                            <p className="card-desc">Reportar incidencias y eventos de terreno.</p>
+                        </div>
+
+                        <div className="jornada-hub-card card-cuadrilla" onClick={() => setViewState('cuadrillas')}>
+                            <div className="card-icon">👥</div>
+                            <h3 className="card-title">Cuadrillas</h3>
+                            <p className="card-desc">Gestionar cuadrillas, crear nuevas y asignar miembros.</p>
+                        </div>
+                    </div>
+
+                    <p className="jornada-section-label">Consultas Rápidas</p>
+                    <div className="jornada-hub-grid">
+                        <div className="jornada-hub-card card-nav" onClick={() => navigate('/asistencias')}>
+                            <div className="card-icon">📊</div>
+                            <h3 className="card-title">Ver Asistencias</h3>
+                            <p className="card-desc">Consultar registros de asistencia.</p>
+                        </div>
+
+                        <div className="jornada-hub-card card-nav" onClick={() => navigate('/herramientas')}>
+                            <div className="card-icon">📄</div>
+                            <h3 className="card-title">Ver Actas</h3>
+                            <p className="card-desc">Revisar actas digitales de herramientas.</p>
+                        </div>
+
+                        <div className="jornada-hub-card card-nav" onClick={() => navigate('/bitacora')}>
+                            <div className="card-icon">📑</div>
+                            <h3 className="card-title">Ver Bitácora</h3>
+                            <p className="card-desc">Revisar historial de la bitácora de terreno.</p>
+                        </div>
+
+                        <div className="jornada-hub-card card-nav" onClick={() => navigate('/kits')} style={{ borderLeft: '4px solid #0b5ca8' }}>
+                            <div className="card-icon">🧰</div>
+                            <h3 className="card-title">Kits</h3>
+                            <p className="card-desc">Gestionar kits de herramientas.</p>
+                        </div>
+
+                        <div className="jornada-hub-card card-nav" onClick={() => navigate('/transporte')} style={{ borderLeft: '4px solid #f59e0b' }}>
+                            <div className="card-icon">🚐</div>
+                            <h3 className="card-title">Transporte</h3>
+                            <p className="card-desc">Administrar el transporte de cuadrillas.</p>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* ====== ASISTENCIA VIEW ====== */}
+            {viewState === 'asistencia' && (
+                <>
+                    <div className="header-section">
+                        <div>
+                            <h1 style={{ color: '#0b3b5a', margin: 0 }}>Validación de Abordaje</h1>
+                            <p style={{ color: '#4b6077', marginTop: 4 }}>Registra la asistencia de los voluntarios al transporte.</p>
+                        </div>
+                        <div className="action-buttons">
+                            <button className="btn btn-back" onClick={() => setViewState('hub')}>← Volver</button>
+                        </div>
+                    </div>
+                    <div className="jornada-form-panel">
+                        <Form
+                            fields={asistenciaFields}
+                            buttonText="Confirmar Asistencia"
+                            onSubmit={handleFormSubmit}
+                        />
+                    </div>
+                </>
+            )}
+
+            {/* ====== HERRAMIENTAS VIEW ====== */}
+            {viewState === 'herramientas' && (
+                <>
+                    <div className="header-section">
+                        <div>
+                            <h1 style={{ color: '#0b3b5a', margin: 0 }}>Acta Digital de Herramientas</h1>
+                            <p style={{ color: '#4b6077', marginTop: 4 }}>Registra el estado de los kits entregados.</p>
+                        </div>
+                        <div className="action-buttons">
+                            <button className="btn btn-back" onClick={() => setViewState('hub')}>← Volver</button>
+                        </div>
+                    </div>
+                    <div className="jornada-form-panel">
+                        <Form
+                            fields={herramientasFields}
+                            buttonText="Registrar Estado"
+                            onSubmit={handleFormSubmit}
+                        />
+                    </div>
+                </>
+            )}
+
+            {/* ====== BITÁCORA VIEW ====== */}
+            {viewState === 'bitacora' && (
+                <>
+                    <div className="header-section">
+                        <div>
+                            <h1 style={{ color: '#0b3b5a', margin: 0 }}>Bitácora de Terreno</h1>
+                            <p style={{ color: '#4b6077', marginTop: 4 }}>Reporta eventos, accidentes o falta de recursos.</p>
+                        </div>
+                        <div className="action-buttons">
+                            <button className="btn btn-back" onClick={() => setViewState('hub')}>← Volver</button>
+                        </div>
+                    </div>
+                    <div className="jornada-form-panel">
+                        <Form
+                            fields={bitacoraFields}
+                            buttonText="Reportar Incidencia"
+                            onSubmit={handleFormSubmit}
+                        />
+                    </div>
+                </>
+            )}
+
+            {/* ====== CUADRILLAS VIEW ====== */}
+            {viewState === 'cuadrillas' && (
+                <>
+                    <div className="header-section">
+                        <div>
+                            <h1 style={{ color: '#0b3b5a', margin: 0 }}>
+                                {cuadrillaView === 'list' && 'Gestión de Cuadrillas'}
+                                {cuadrillaView === 'create' && 'Crear Nueva Cuadrilla'}
+                                {cuadrillaView === 'detail' && (isEditing ? 'Editar Cuadrilla' : cuadrilla?.nombre || 'Detalle de Cuadrilla')}
+                            </h1>
+                            <p style={{ color: '#4b6077', marginTop: 4 }}>
+                                {cuadrillaView === 'list' && 'Busca, crea y administra las cuadrillas del proyecto.'}
+                                {cuadrillaView === 'create' && 'Asigna un nombre y selecciona los miembros.'}
+                                {cuadrillaView === 'detail' && (isEditing ? 'Modifica los datos y miembros de la cuadrilla.' : 'Información detallada de la cuadrilla.')}
+                            </p>
+                        </div>
+                        <div className="action-buttons" style={{ gap: '8px' }}>
+                            <button
+                                className="btn btn-back"
+                                onClick={() => {
+                                    if (cuadrillaView === 'list') {
+                                        setViewState('hub');
+                                    } else {
+                                        setCuadrillaView('list');
+                                        setIsEditing(false);
+                                    }
+                                }}
+                            >
+                                ← Volver
                             </button>
-                        )}
+                            {cuadrillaView === 'list' && (
+                                <button className="btn-primary" onClick={openCreateCuadrilla}>
+                                    ➕ Nueva Cuadrilla
+                                </button>
+                            )}
+                            {cuadrillaView === 'detail' && !isEditing && (
+                                <button className="btn-primary" onClick={() => setIsEditing(true)}>
+                                    ✏️ Editar Cuadrilla
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {loadingCuadrilla ? (
-                        <p>Cargando datos de la cuadrilla...</p>
-                    ) : !cuadrilla || isEditing ? (
-                        <div className="form-wrapper">
-                            <form onSubmit={handleSaveCuadrilla}>
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--gray-800)' }}>
-                                        Nombre de la Cuadrilla
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        value={nombreCuadrilla}
-                                        onChange={(e) => setNombreCuadrilla(e.target.value)}
-                                        placeholder="Ej. Cuadrilla Santiago Centro"
-                                        required
-                                        style={{ maxWidth: '400px' }}
-                                    />
-                                </div>
-
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '10px' }}>
-                                        <label style={{ display: 'block', fontWeight: '600', color: 'var(--gray-800)', margin: 0 }}>
-                                            Seleccionar Miembros (Máximo 10)
-                                        </label>
-                                        <button 
-                                            type="button" 
-                                            onClick={openAddVolunteer} 
-                                            className="btn-primary btn-sm" 
-                                            style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
-                                        >
-                                            ➕ Nuevo Voluntario
-                                        </button>
-                                    </div>
-                                    <p style={{ color: selectedVoluntarios.length === 10 ? 'var(--danger)' : 'var(--gray-500)', fontSize: '0.9rem', marginBottom: '1rem', fontWeight: '500' }}>
-                                        Seleccionados: {selectedVoluntarios.length} / 10
-                                    </p>
-
-                                    <div style={{ 
-                                        maxHeight: '300px', 
-                                        overflowY: 'auto', 
-                                        border: '1px solid var(--gray-200)', 
-                                        borderRadius: 'var(--radius-md)',
-                                        padding: '1rem',
-                                        backgroundColor: '#fff'
-                                    }}>
-                                        {voluntarios.length === 0 ? (
-                                            <p style={{ color: 'var(--gray-400)', textAlign: 'center' }}>No hay voluntarios aprobados disponibles.</p>
-                                        ) : (
-                                            voluntarios.map(v => {
-                                                const isChecked = selectedVoluntarios.includes(v.id);
-                                                const isDisabled = !isChecked && selectedVoluntarios.length >= 10;
-                                                return (
-                                                    <div key={v.id} style={{ 
-                                                        display: 'flex', 
-                                                        alignItems: 'center', 
-                                                        padding: '8px 12px', 
-                                                        borderBottom: '1px solid var(--gray-100)',
-                                                        opacity: isDisabled ? 0.6 : 1,
-                                                        transition: 'opacity 0.2s'
-                                                    }}>
-                                                        <input 
-                                                            type="checkbox" 
-                                                            id={`vol-${v.id}`}
-                                                            checked={isChecked}
-                                                            disabled={isDisabled}
-                                                            onChange={() => handleCheckboxChange(v.id)}
-                                                            style={{ width: '18px', height: '18px', marginRight: '12px', cursor: isDisabled ? 'not-allowed' : 'pointer' }}
-                                                        />
-                                                        <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                                                            <label htmlFor={`vol-${v.id}`} style={{ cursor: isDisabled ? 'not-allowed' : 'pointer', flex: 1, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginRight: '10px' }}>
-                                                                <span style={{ fontWeight: '500', color: 'var(--gray-800)' }}>{v.nombreCompleto}</span>
-                                                                <span style={{ color: 'var(--gray-500)', fontSize: '0.85rem' }}>{v.rut}</span>
-                                                                <span style={{ color: 'var(--gray-400)', fontSize: '0.85rem' }}>{v.email}</span>
-                                                            </label>
-                                                            <button 
-                                                                type="button" 
-                                                                onClick={() => openEditVolunteer(v)} 
-                                                                className="btn-warning btn-sm" 
-                                                                style={{ padding: '4px 8px', fontSize: '0.8rem', borderRadius: '4px' }}
-                                                            >
-                                                                ✏️ Editar
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <button type="submit" className="btn-primary">
-                                        💾 {cuadrilla ? 'Guardar Cambios' : 'Crear Cuadrilla'}
-                                    </button>
-                                </div>
-                            </form>
+                        <div className="jornada-empty-state">
+                            <div className="empty-icon">⏳</div>
+                            <p>Cargando datos de cuadrillas...</p>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <div className="alert-banner alert-success" style={{ display: 'block' }}>
-                                <h3 style={{ margin: 0, color: '#166534', fontSize: '1.25rem' }}>🏡 {cuadrilla.nombre}</h3>
-                                <p style={{ margin: '5px 0 0 0', fontSize: '0.95rem' }}>
-                                    Jefe de Cuadrilla: <strong>{cuadrilla.jefeCuadrilla?.nombreCompleto}</strong>
-                                </p>
-                            </div>
+                        <>
+                            {/* LIST VIEW */}
+                            {cuadrillaView === 'list' && (
+                                <>
+                                    <div className="cuadrilla-search-bar">
+                                        <input
+                                            type="text"
+                                            placeholder="🔍 Buscar cuadrilla por nombre..."
+                                            value={searchCuadrilla}
+                                            onChange={(e) => setSearchCuadrilla(e.target.value)}
+                                        />
+                                    </div>
 
-                            <div className="table-container">
-                                <h3>Miembros de la Cuadrilla ({cuadrilla.miembros?.length || 0} / 10)</h3>
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre Completo</th>
-                                            <th>RUT</th>
-                                            <th>Correo Electrónico</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {!cuadrilla.miembros || cuadrilla.miembros.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="3" style={{ textAlign: 'center', color: 'var(--gray-400)' }}>
-                                                    Esta cuadrilla no tiene miembros asignados aún. Haz clic en "Gestionar Miembros" para agregar voluntarios.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            cuadrilla.miembros.map(m => (
-                                                <tr key={m.id}>
-                                                    <td style={{ fontWeight: '500' }}>{m.nombreCompleto}</td>
-                                                    <td>{m.rut}</td>
-                                                    <td>{m.email}</td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                    {filteredCuadrillas.length === 0 ? (
+                                        <div className="jornada-empty-state">
+                                            <div className="empty-icon">👥</div>
+                                            <p>{searchCuadrilla ? 'No se encontraron cuadrillas con ese nombre.' : 'No hay cuadrillas creadas aún. Crea la primera.'}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="cuadrilla-list">
+                                            {filteredCuadrillas.map(c => (
+                                                <div key={c.id} className="cuadrilla-item" onClick={() => openDetailCuadrilla(c)}>
+                                                    <div className="cuadrilla-info">
+                                                        <span className="cuadrilla-name">🏡 {c.nombre}</span>
+                                                        <div className="cuadrilla-meta">
+                                                            <span className="cuadrilla-badge members">
+                                                                👥 {c.miembros?.length || 0} / 10 miembros
+                                                            </span>
+                                                            {c.jefeCuadrilla && (
+                                                                <span className="cuadrilla-badge leader">
+                                                                    👤 {c.jefeCuadrilla.nombreCompleto}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="cuadrilla-actions">
+                                                        <button
+                                                            className="btn-primary btn-sm"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                openDetailCuadrilla(c);
+                                                            }}
+                                                        >
+                                                            Ver Detalle
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {/* CREATE VIEW */}
+                            {cuadrillaView === 'create' && (
+                                <div className="cuadrilla-create-form">
+                                    <h2>Nueva Cuadrilla</h2>
+                                    <p className="form-subtitle">Completa los datos y selecciona los voluntarios para la nueva cuadrilla.</p>
+                                    {renderCuadrillaForm()}
+                                </div>
+                            )}
+
+                            {/* DETAIL VIEW */}
+                            {cuadrillaView === 'detail' && cuadrilla && (
+                                <>
+                                    {isEditing ? (
+                                        <div className="cuadrilla-create-form">
+                                            <h2>Editando: {cuadrilla.nombre}</h2>
+                                            <p className="form-subtitle">Modifica el nombre o los miembros de la cuadrilla.</p>
+                                            {renderCuadrillaForm()}
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="cuadrilla-detail-card">
+                                                <div className="detail-info">
+                                                    <h3>🏡 {cuadrilla.nombre}</h3>
+                                                    <p>Jefe de Cuadrilla: <strong>{cuadrilla.jefeCuadrilla?.nombreCompleto || '—'}</strong></p>
+                                                </div>
+                                                <span className="cuadrilla-badge members" style={{ fontSize: '14px', padding: '6px 14px' }}>
+                                                    {cuadrilla.miembros?.length || 0} / 10 miembros
+                                                </span>
+                                            </div>
+
+                                            <div className="members-table-wrapper">
+                                                <h3>Miembros de la Cuadrilla</h3>
+                                                <table className="custom-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nombre Completo</th>
+                                                            <th>RUT</th>
+                                                            <th>Correo Electrónico</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {!cuadrilla.miembros || cuadrilla.miembros.length === 0 ? (
+                                                            <tr>
+                                                                <td colSpan="3" style={{ textAlign: 'center', color: '#94a3b8', padding: '32px' }}>
+                                                                    Esta cuadrilla no tiene miembros asignados. Haz clic en "Editar Cuadrilla" para agregar voluntarios.
+                                                                </td>
+                                                            </tr>
+                                                        ) : (
+                                                            cuadrilla.miembros.map(m => (
+                                                                <tr key={m.id}>
+                                                                    <td style={{ fontWeight: '600' }}>{m.nombreCompleto}</td>
+                                                                    <td>{m.rut}</td>
+                                                                    <td>{m.email}</td>
+                                                                </tr>
+                                                            ))
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </>
                     )}
-                </section>
+                </>
             )}
 
-            {/* Volunteer Creation/Edition Modal */}
+            {/* ====== VOLUNTEER MODAL ====== */}
             {showVolunteerModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000
-                }}>
-                    <div className="main-container" style={{
-                        maxWidth: '500px',
-                        margin: '20px',
-                        padding: '2rem',
-                        position: 'relative',
-                        backgroundColor: '#fff'
-                    }}>
-                        <button 
+                <div className="jornada-modal-overlay">
+                    <div className="jornada-modal">
+                        <button
+                            className="modal-close"
                             onClick={() => setShowVolunteerModal(false)}
-                            style={{
-                                position: 'absolute',
-                                top: '15px',
-                                right: '15px',
-                                background: 'transparent',
-                                border: 'none',
-                                fontSize: '1.5rem',
-                                cursor: 'pointer',
-                                boxShadow: 'none',
-                                padding: 0
-                            }}
                         >
                             ✕
                         </button>
-                        <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>
-                            {editingVolunteer ? 'Editar Voluntario' : 'Crear Nuevo Voluntario'}
-                        </h2>
+                        <h2>{editingVolunteer ? 'Editar Voluntario' : 'Crear Nuevo Voluntario'}</h2>
                         <form onSubmit={handleSaveVolunteer}>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--gray-800)' }}>
-                                    Nombre Completo
-                                </label>
-                                <input 
+                            <div className="form-group">
+                                <label>Nombre Completo</label>
+                                <input
                                     type="text"
                                     value={volunteerFormName}
                                     onChange={(e) => setVolunteerFormName(e.target.value)}
@@ -473,11 +670,9 @@ const DashboardJornada = () => {
                                     required
                                 />
                             </div>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--gray-800)' }}>
-                                    RUT
-                                </label>
-                                <input 
+                            <div className="form-group">
+                                <label>RUT</label>
+                                <input
                                     type="text"
                                     value={volunteerFormRut}
                                     onChange={(e) => setVolunteerFormRut(e.target.value)}
@@ -485,11 +680,9 @@ const DashboardJornada = () => {
                                     required
                                 />
                             </div>
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--gray-800)' }}>
-                                    Correo Electrónico
-                                </label>
-                                <input 
+                            <div className="form-group">
+                                <label>Correo Electrónico</label>
+                                <input
                                     type="email"
                                     value={volunteerFormEmail}
                                     onChange={(e) => setVolunteerFormEmail(e.target.value)}
@@ -497,17 +690,16 @@ const DashboardJornada = () => {
                                     required
                                 />
                             </div>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <button type="submit" className="btn-primary">
-                                    💾 Guardar
-                                </button>
-                                <button 
-                                    type="button" 
-                                    onClick={() => setShowVolunteerModal(false)} 
-                                    className="btn-secondary"
-                                    style={{ backgroundColor: '#6c757d', color: '#fff' }}
+                            <div className="form-actions">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowVolunteerModal(false)}
+                                    className="btn btn-back"
                                 >
                                     Cancelar
+                                </button>
+                                <button type="submit" className="btn-primary">
+                                    💾 Guardar
                                 </button>
                             </div>
                         </form>

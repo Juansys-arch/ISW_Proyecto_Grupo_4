@@ -1,4 +1,4 @@
-.main-container {
+.users-page.main-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -7,90 +7,89 @@
   width: 100%;
 }
 
-.table-container {
+.users-page .table-container {
   width: 90%;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-.top-table {
+.users-page .top-table {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
 }
 
-.title-table {
+.users-page .title-table {
   color: #003366;
   margin-left: 70px;
 }
 
-.filter-actions {
+.users-page .filter-actions {
   display: flex;
   gap: 10px;
-
-  button {
-    background: rgba(255, 255, 255, 0.87);
-    border: #fff;
-    cursor: pointer;
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-
-  }
 }
 
-.delete-user-button {
+.users-page .filter-actions button {
+  background: rgba(255, 255, 255, 0.87);
+  border: #fff;
+  cursor: pointer;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.users-page .delete-user-button {
   margin-right: 70px;
 }
 
 @media (max-width: 767px) {
-  .title-table {
+  .users-page .title-table {
     margin: 0;
   }
 
-  .top-table {
+  .users-page .top-table {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
 
-  .delete-user-button {
+  .users-page .delete-user-button {
     margin-right: 0;
   }
 
-  .filter-actions {
+  .users-page .filter-actions {
     margin-bottom: 10px;
   }
 
-  .table-container {
+  .users-page .table-container {
     margin: 0;
     width: 352px;
     height: 500px;
   }
 
-  .popup {
+  .users-page .popup {
     width: 350px;
     height: 600px;
   }
 
-  .popup .form {
+  .users-page .popup .form {
     padding: 20px;
   }
 
-  .popup .close {
+  .users-page .popup .close {
     margin-right: 0;
   }
 
-  .popup .options-class {
+  .users-page .popup .options-class {
     width: 10px;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
-  .title-table {
+  .users-page .title-table {
     margin-left: 35px;
   }
 
-  .delete-user-button {
+  .users-page .delete-user-button {
     margin-right: 35px;
   }
 }

@@ -193,19 +193,30 @@
 
 input[type='email'] {
   background-image: url('../assets/MentionIcon.svg');
+  background-repeat: no-repeat;
+  background-position: calc(100% - 12px) center;
+  background-size: 20px 20px;
 }
 
 input[name='rut'] {
   background-image: url('../assets/IdentityCardIcon.svg');
+  background-repeat: no-repeat;
+  background-position: calc(100% - 12px) center;
+  background-size: 20px 20px;
 }
 
 input[name='nombreCompleto'] {
   background-image: url('../assets/PersonIcon.svg');
+  background-repeat: no-repeat;
+  background-position: calc(100% - 12px) center;
+  background-size: 20px 20px;
 }
 
 input[name='rol'] {
   background-image: url('../assets/PasskeyIcon.svg');
-
+  background-repeat: no-repeat;
+  background-position: calc(100% - 12px) center;
+  background-size: 20px 20px;
 }
 
 .container_inputs {

@@ -22,14 +22,14 @@ export default function Transporte() {
   const buttonCallbacksRef = useRef({});
 
   const columnasTabla = [
-    { key: 'id', label: 'ID' },
-    { key: 'numeroAutobus', label: 'Número' },
-    { key: 'placa', label: 'Placa' },
-    { key: 'capacidad', label: 'Capacidad' },
-    { key: 'conductor', label: 'Conductor' },
-    { key: 'estado', label: 'Estado' },
-    { key: 'abordajosRegistrados', label: 'Abordajes' },
-    { key: 'horaPartida', label: 'Hora Partida' },
+    { key: 'id', label: 'ID', minWidth: 60 },
+    { key: 'numeroAutobus', label: 'Número', minWidth: 100 },
+    { key: 'placa', label: 'Placa', minWidth: 120 },
+    { key: 'capacidad', label: 'Capacidad', minWidth: 110 },
+    { key: 'conductor', label: 'Conductor', minWidth: 180 },
+    { key: 'estado', label: 'Estado', minWidth: 120 },
+    { key: 'abordajosRegistrados', label: 'Abordajes', minWidth: 120 },
+    { key: 'horaPartida', label: 'Hora Partida', minWidth: 130 },
     { key: 'acciones', label: 'Acciones', minWidth: 420, headerSort: false },
   ];
 
@@ -125,62 +125,52 @@ export default function Transporte() {
   };
 
   return (
-    <div className="main-container">
-      <h1>Gestión de Transporte</h1>
+    <div className="jornada-page">
+      <div className="header-section">
+        <div>
+          <h1 style={{ color: '#0b3b5a', margin: 0 }}>Gestión de Transporte</h1>
+          <p style={{ color: '#4b6077', marginTop: 4 }}>Administra el transporte asignado a las cuadrillas y registra abordajes.</p>
+        </div>
+        <div className="action-buttons">
+          <button className="btn btn-back" onClick={() => navigate('/gestion-jornada')}>
+            ← Volver al Dashboard
+          </button>
+        </div>
+      </div>
 
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
         <input
           type="text"
-          placeholder="Buscar por número, placa o conductor..."
+          placeholder="🔍 Buscar por número, placa o conductor..."
           value={buscar}
           onChange={(e) => setBuscar(e.target.value)}
           style={{
-            padding: '12px 16px',
-            border: '2px solid #e5e7eb',
+            padding: '10px 14px',
+            border: '1px solid #e2e8f0',
             borderRadius: '8px',
             flex: '1',
             minWidth: '250px',
             fontSize: '14px',
-            fontWeight: '500',
-            backgroundColor: '#f9fafb',
-            transition: 'all 0.3s ease',
             outline: 'none',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#2563eb';
-            e.target.style.backgroundColor = 'white';
-            e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#e5e7eb';
-            e.target.style.backgroundColor = '#f9fafb';
-            e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+            background: '#ffffff',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
           }}
         />
-      </div>
-
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
         <button
           onClick={() => {
             setMostrarFormulario(!mostrarFormulario);
             setTransporteSeleccionado(null);
           }}
-          style={{ padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+          className={mostrarFormulario ? "btn-secondary" : "btn-primary"}
+          style={{ height: '42px', padding: '0 16px', borderRadius: '8px', border: mostrarFormulario ? '1px solid #0b5ca8' : 'none' }}
         >
-          {mostrarFormulario ? 'Cancelar' : '+ Nuevo Transporte'}
-        </button>
-        <button
-          onClick={() => navigate('/gestion-jornada')}
-          style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
-        >
-          Volver al Dashboard
+          {mostrarFormulario ? '✕ Cancelar' : '➕ Nuevo Transporte'}
         </button>
       </div>
 
       {mostrarFormulario && (
-        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '5px', border: '1px solid #ddd' }}>
-          <h3>{transporteSeleccionado ? 'Editar Transporte' : 'Registrar Nuevo Transporte'}</h3>
+        <div className="form-wrapper">
+          <h3 style={{ color: '#0b3b5a', marginTop: 0, marginBottom: '20px' }}>{transporteSeleccionado ? 'Editar Transporte' : 'Registrar Nuevo Transporte'}</h3>
           <Form 
             fields={camposFormulario} 
             buttonText={transporteSeleccionado ? 'Actualizar' : 'Registrar'} 
@@ -191,7 +181,7 @@ export default function Transporte() {
       )}
 
       <div style={{ marginTop: '20px' }}>
-        <h3>Transportes Disponibles</h3>
+        <h3 style={{ color: '#0b3b5a' }}>Transportes Disponibles</h3>
         <Table
           columns={columnasTabla}
           data={transportes.map((transporte) => {
@@ -214,6 +204,7 @@ export default function Transporte() {
           })}
           loading={loading}
           buttonCallbacksRef={buttonCallbacksRef}
+          layout="fitDataFill"
         />
       </div>
     </div>

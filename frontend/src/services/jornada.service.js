@@ -38,7 +38,14 @@ export const getHerramientas = async (params = {}) => {
 
 export const postBitacora = async (data) => {
     try {
-        const response = await axios.post('/gestion/bitacora', data);
+        const mappedData = {
+            descripcion: data.descripcion || '',
+            fecha: new Date().toISOString(),
+            prioridad: data.prioridad || (data.tipo === 'accidente' ? 'alta' : 'baja'),
+            tipo: data.tipo === 'recursos' ? 'falta_material' : (data.tipo || 'otro'),
+            estado: 'pendiente'
+        };
+        const response = await axios.post('/incidencias', mappedData);
         return response.data;
     } catch (error) {
         return error?.response?.data || { status: 'Error', message: error.message };
@@ -47,7 +54,7 @@ export const postBitacora = async (data) => {
 
 export const getBitacora = async (params = {}) => {
     try {
-        const response = await axios.get('/gestion/bitacora', { params });
+        const response = await axios.get('/incidencias', { params });
         return response.data;
     } catch (error) {
         return { status: 'Error', message: error?.response?.data?.message || error.message };
