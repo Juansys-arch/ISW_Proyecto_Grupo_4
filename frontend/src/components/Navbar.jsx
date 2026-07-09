@@ -2,7 +2,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from '@services/auth.service.js';
 import '@styles/navbar.css';
 import { useMemo, useState } from "react";
-import NotificationBell from '@components/NotificationBell.jsx';
 import { useAuth } from '@context/AuthContext';
 import ProfileModal from '@components/ProfileModal.jsx';
 const roleLabels = {
@@ -131,13 +130,6 @@ const Navbar = ({ isOpen, onToggle }) => {
                         <span className="nav-icon">👥</span>
                         {isOpen && <span>Voluntarios</span>}
                     </NavLink>
-                )}
-
-                {(userRole === 'super_admin' || userRole === 'encargado_inventario' || userRole === 'jefe_cuadrilla' || userRole === 'super_admin') && (
-                    <div className="sidebar-bell">
-                        <NotificationBell />
-                        {isOpen && <span>Notificaciones</span>}
-                    </div>
                 )}
             </nav>
 
