@@ -141,6 +141,10 @@ class ConstruccionService {
 
       if (!vivienda) throw new Error("Vivienda no encontrada");
 
+      if (vivienda.estado === "atrasada") {
+        throw new Error("No se puede completar una vivienda atrasada. Por favor, reanuda la construcción primero");
+      }
+
       if (vivienda.estado !== "en_progreso" && vivienda.estado !== "pausada") {
         throw new Error("Solo se pueden completar viviendas en progreso o pausadas");
       }
@@ -164,6 +168,10 @@ class ConstruccionService {
 
       if (!vivienda) throw new Error("Vivienda no encontrada");
 
+      if (vivienda.estado === "atrasada") {
+        throw new Error("No se puede pausar una vivienda atrasada. Por favor, reanuda la construcción primero");
+      }
+
       if (vivienda.estado !== "en_progreso") {
         throw new Error("Solo se pueden pausar viviendas en progreso");
       }
@@ -182,14 +190,16 @@ class ConstruccionService {
       const viviendasRepository = this.getViviendasRepository();
       const vivienda = await viviendasRepository.findOne({
         where: { id: viviendaId },
+        relations: ["hitos"]
       });
 
       if (!vivienda) throw new Error("Vivienda no encontrada");
 
-      if (vivienda.estado !== "pausada") {
-        throw new Error("Solo se pueden reanudar viviendas pausadas");
+      if (vivienda.estado !== "pausada" && vivienda.estado !== "atrasada") {
+        throw new Error("Solo se pueden reanudar viviendas pausadas o atrasadas");
       }
 
+      const estadoAnterior = vivienda.estado;
       vivienda.estado = "en_progreso";
       const resultado = await viviendasRepository.save(vivienda);
 
@@ -198,12 +208,27 @@ class ConstruccionService {
         where: { vivienda: { id: viviendaId } },
       });
 
-      for (const hito of hitos) {
-        if (!hito.fechaProgramada) {
-          const fechaProgramada = new Date(vivienda.fechaInicio || new Date());
-          fechaProgramada.setDate(fechaProgramada.getDate() + (hito.dias || 0));
-          hito.fechaProgramada = fechaProgramada;
-          await hitosRepository.save(hito);
+      // Si se estaba reanudando desde "atrasada", recalcular todas las fechas de hitos
+      if (estadoAnterior === "atrasada") {
+        const ahora = new Date();
+        for (const hito of hitos) {
+          if (hito.estado === "pendiente" || hito.estado === "en_progreso") {
+            // Recalcular fecha programada desde hoy
+            const fechaProgramada = new Date(ahora);
+            fechaProgramada.setDate(fechaProgramada.getDate() + (hito.dias || 7));
+            hito.fechaProgramada = fechaProgramada;
+            await hitosRepository.save(hito);
+          }
+        }
+      } else {
+        // Si es desde "pausada", solo asignar fechas a hitos sin fecha
+        for (const hito of hitos) {
+          if (!hito.fechaProgramada) {
+            const fechaProgramada = new Date(vivienda.fechaInicio || new Date());
+            fechaProgramada.setDate(fechaProgramada.getDate() + (hito.dias || 0));
+            hito.fechaProgramada = fechaProgramada;
+            await hitosRepository.save(hito);
+          }
         }
       }
 
@@ -217,6 +242,11 @@ class ConstruccionService {
     try {
       const viviendasRepository = this.getViviendasRepository();
       const vivienda = await this.obtenerVivienda(id);
+      
+      if (vivienda.estado === "atrasada") {
+        throw new Error("No se puede firmar garantía de una vivienda atrasada. Por favor, reanuda la construcción primero");
+      }
+      
       vivienda.estado = "completada_con_firma";
       vivienda.firmaGarantiaUrl = firmaBase64;
       return await viviendasRepository.save(vivienda);
@@ -287,8 +317,12 @@ class ConstruccionService {
   async verificarRetrasos() {
     try {
       const viviendasRepository = this.getViviendasRepository();
+      // Verificar viviendas en estado "no_iniciada" o "en_progreso" que tengan hitos pendientes
       const viviendas = await viviendasRepository.find({
-        where: { estado: "en_progreso" },
+        where: [
+          { estado: "no_iniciada" },
+          { estado: "en_progreso" }
+        ],
         relations: ["hitos"]
       });
 
@@ -300,42 +334,57 @@ class ConstruccionService {
 
         if (vivienda.hitos && vivienda.hitos.length > 0) {
           for (const hito of vivienda.hitos) {
-            let fechaProgramada = hito.fechaProgramada;
-
-            if (!fechaProgramada) {
-              const fechaBase = vivienda.fechaInicio || vivienda.createdAt || new Date();
-              fechaProgramada = new Date(fechaBase);
-              fechaProgramada.setDate(fechaProgramada.getDate() + (hito.dias || 0));
+            // Si el hito ya está completado, no verificar retrasos
+            if (hito.estado === "completado") {
+              continue;
             }
 
-            if (hito.estado === "pendiente" || hito.estado === "en_progreso") {
-              if (fechaProgramada && new Date(fechaProgramada) < ahora) {
-                viviendaAtrasada = true;
-                retrasos.push({
-                  viviendaId: vivienda.id,
-                  hitoId: hito.id,
-                  descripcion: hito.descripcion,
-                  direccion: vivienda.direccion,
-                });
+            let fechaProgramada = hito.fechaProgramada;
 
+            // Si no hay fechaProgramada, calcularla basada en fecha de inicio
+            if (!fechaProgramada) {
+              const fechaBase = vivienda.fechaInicio || vivienda.createdAt;
+              if (fechaBase) {
+                fechaProgramada = new Date(fechaBase);
+                const diasHito = hito.dias || 7; // Por defecto 7 días
+                fechaProgramada.setDate(fechaProgramada.getDate() + diasHito);
+              }
+            }
+
+            // Verificar si el hito está atrasado
+            if (fechaProgramada && new Date(fechaProgramada) < ahora && (hito.estado === "pendiente" || hito.estado === "en_progreso")) {
+              viviendaAtrasada = true;
+              retrasos.push({
+                viviendaId: vivienda.id,
+                hitoId: hito.id,
+                descripcion: hito.descripcion,
+                direccion: vivienda.direccion,
+              });
+
+              // Solo notificar si no se ha notificado antes
+              const yaNotificada = retrasos.filter(r => r.viviendaId === vivienda.id).length === 1;
+              if (yaNotificada) {
                 await notificarPorRoles({
                   roles: ["super_admin", "encargado_inventario", "jefe_cuadrilla"],
                   tipo: "construccion",
-                  mensaje: `La construcción en ${vivienda.direccion} está atrasada por el hito "${hito.descripcion}".`
+                  mensaje: `La construcción en ${vivienda.direccion} está atrasada.`
                 });
               }
             }
           }
         }
 
+        // Cambiar estado a atrasada si algún hito está atrasado
         if (viviendaAtrasada && vivienda.estado !== "atrasada") {
           vivienda.estado = "atrasada";
           await viviendasRepository.save(vivienda);
+          console.log(`✓ Vivienda marcada como atrasada: ${vivienda.direccion}`);
         }
       }
 
       return retrasos;
     } catch (error) {
+      console.error("Error en verificarRetrasos:", error);
       throw new Error(`Error al verificar retrasos: ${error.message}`);
     }
   }

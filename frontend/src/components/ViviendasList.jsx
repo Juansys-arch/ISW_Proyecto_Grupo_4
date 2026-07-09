@@ -233,15 +233,10 @@ export default function ViviendasList({ userRole }) {
                     </button>
                   </>
                 )}
-                {vivienda.estado === "atrasada" && role === "jefe_cuadrilla" && (
-                  <>
-                    <button className="vivienda-action-btn btn-resume" onClick={() => handleReanudar(vivienda.id)}>
-                      ▶️ Reanudar
-                    </button>
-                    <button className="vivienda-action-btn btn-finish" onClick={() => handleTerminar(vivienda.id)}>
-                      ✓ Terminado
-                    </button>
-                  </>
+                {vivienda.estado === "atrasada" && role === "administrador" && (
+                  <button className="vivienda-action-btn btn-resume" onClick={() => handleReanudar(vivienda.id)}>
+                    ▶️ Reanudar
+                  </button>
                 )}
                 {role === "super_admin" && (
                   <button className="vivienda-action-btn btn-delete" onClick={() => handleEliminar(vivienda.id)}>

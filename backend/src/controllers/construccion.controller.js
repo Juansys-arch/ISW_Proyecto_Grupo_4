@@ -2,6 +2,8 @@
 import construccionService from "../services/construccion.service.js";
 import { validarActualizarAvance, validarCrearVivienda } from "../validations/construccion.validation.js";
 import { notificarPorRoles } from "../services/notificacion.service.js";
+import { AppDataSource } from "../config/configDb.js";
+import Vivienda from "../entity/vivienda.entity.js";
 
 export const crearVivienda = async (req, res) => {
   try {
@@ -138,6 +140,16 @@ export const pausarConstruccion = async (req, res) => {
 export const reanudarConstruccion = async (req, res) => {
   try {
     const { viviendasId } = req.params;
+    const userRole = req.user.rol;
+    
+    // Verificar si la vivienda está atrasada y si el usuario es jefe de cuadrilla
+    const viviendaActual = await construccionService.obtenerVivienda(viviendasId);
+    if (viviendaActual.estado === "atrasada" && userRole === "jefe_cuadrilla") {
+      return res.status(403).json({ 
+        error: "Solo el administrador puede reanudar una vivienda atrasada" 
+      });
+    }
+    
     const vivienda = await construccionService.reanudarConstruccion(viviendasId);
 
     // Crear notificación
@@ -160,6 +172,10 @@ export const reanudarConstruccion = async (req, res) => {
 export const obtenerViviendas = async (req, res) => {
   try {
     const { estado } = req.query;
+    
+    // Verificar retrasos antes de obtener las viviendas
+    await construccionService.verificarRetrasos();
+    
     const viviendas = await construccionService.obtenerViviendas(estado);
 
     res.status(200).json({
@@ -175,6 +191,10 @@ export const obtenerViviendas = async (req, res) => {
 export const obtenerVivienda = async (req, res) => {
   try {
     const { viviendasId } = req.params;
+    
+    // Verificar retrasos antes de obtener la vivienda
+    await construccionService.verificarRetrasos();
+    
     const vivienda = await construccionService.obtenerVivienda(viviendasId);
 
     res.status(200).json({
@@ -194,6 +214,43 @@ export const verificarRetrasos = async (req, res) => {
       mensaje: "Verificación de retrasos completada",
       total: retrasos.length,
       data: retrasos,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const debugViviendas = async (req, res) => {
+  try {
+    const viviendasRepository = AppDataSource.getRepository(Vivienda);
+    const viviendas = await viviendasRepository.find({
+      where: [
+        { estado: "no_iniciada" },
+        { estado: "en_progreso" }
+      ],
+      relations: ["hitos"]
+    });
+
+    const ahora = new Date();
+    const debug = viviendas.map(v => ({
+      id: v.id,
+      direccion: v.direccion,
+      estado: v.estado,
+      createdAt: v.createdAt,
+      fechaInicio: v.fechaInicio,
+      hitos: v.hitos.map(h => ({
+        descripcion: h.descripcion,
+        estado: h.estado,
+        dias: h.dias,
+        fechaProgramada: h.fechaProgramada,
+        estaAtrasado: h.fechaProgramada ? new Date(h.fechaProgramada) < ahora : false
+      }))
+    }));
+
+    res.status(200).json({
+      ahora: ahora.toISOString(),
+      totalViviendas: viviendas.length,
+      viviendas: debug
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

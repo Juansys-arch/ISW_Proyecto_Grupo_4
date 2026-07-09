@@ -4,6 +4,7 @@ import {
   actualizarAvanceHito,
   completarConstruccion,
   crearVivienda,
+  debugViviendas,
   eliminarVivienda,
   firmarGarantia,
   iniciarConstruccion,
@@ -42,6 +43,17 @@ router.post(
 router.patch("/viviendas/:viviendasId/hitos/:hitoId/avance", authenticateJwt, isAuthorized(["usuario", "jefe_cuadrilla", "super_admin"]), actualizarAvanceHito);
 
 // Verificación de retrasos (solo administrador)
-router.post("/verificar-retrasos", authenticateJwt, isAuthorized(["super_admin"]), verificarRetrasos);
+router.post(
+  "/verificar-retrasos",
+  authenticateJwt,
+  isAuthorized(["super_admin", "administrador"]),
+  verificarRetrasos
+);
+router.get(
+  "/debug/viviendas",
+  authenticateJwt,
+  isAuthorized(["super_admin", "administrador"]),
+  debugViviendas
+);
 
 export default router;

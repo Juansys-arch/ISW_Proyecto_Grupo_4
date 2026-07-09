@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { construccionService } from "@services/construccion.service.js";
 import { showSuccessAlert, showErrorAlert } from "@helpers/sweetAlert.js";
+import { getAllRegionNames, getCommunesByRegion } from "@helpers/chileanRegionsData.js";
 
 export default function CrearViviendaForm({ onSuccess, onCancel }) {
   const [formData, setFormData] = useState({
@@ -12,12 +13,25 @@ export default function CrearViviendaForm({ onSuccess, onCancel }) {
   });
   const [loading, setLoading] = useState(false);
 
+  const allRegions = getAllRegionNames();
+  const communesForSelectedRegion = useMemo(
+    () => getCommunesByRegion(formData.region),
+    [formData.region]
+  );
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      };
+      // Si se cambia la región, limpiar la comuna
+      if (name === "region") {
+        updated.comuna = "";
+      }
+      return updated;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -109,13 +123,11 @@ export default function CrearViviendaForm({ onSuccess, onCancel }) {
               <label style={{ display: "block", marginBottom: "8px", color: "#333", fontWeight: "500", fontSize: "14px" }}>
                 Región <span style={{ color: "red" }}>*</span>
               </label>
-              <input
-                type="text"
+              <select
                 name="region"
                 value={formData.region}
                 onChange={handleChange}
                 required
-                placeholder="Ej: Región Metropolitana"
                 style={{
                   width: "100%",
                   padding: "10px",
@@ -124,21 +136,29 @@ export default function CrearViviendaForm({ onSuccess, onCancel }) {
                   fontSize: "14px",
                   boxSizing: "border-box",
                   fontFamily: "inherit",
+                  backgroundColor: "white",
+                  cursor: "pointer",
                 }}
-              />
+              >
+                <option value="">Selecciona una región</option>
+                {allRegions.map((region) => (
+                  <option key={region} value={region}>
+                    {region}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
               <label style={{ display: "block", marginBottom: "8px", color: "#333", fontWeight: "500", fontSize: "14px" }}>
                 Comuna <span style={{ color: "red" }}>*</span>
               </label>
-              <input
-                type="text"
+              <select
                 name="comuna"
                 value={formData.comuna}
                 onChange={handleChange}
                 required
-                placeholder="Ej: Santiago"
+                disabled={!formData.region}
                 style={{
                   width: "100%",
                   padding: "10px",
@@ -147,8 +167,20 @@ export default function CrearViviendaForm({ onSuccess, onCancel }) {
                   fontSize: "14px",
                   boxSizing: "border-box",
                   fontFamily: "inherit",
+                  backgroundColor: "white",
+                  cursor: formData.region ? "pointer" : "not-allowed",
+                  opacity: formData.region ? 1 : 0.6,
                 }}
-              />
+              >
+                <option value="">
+                  {formData.region ? "Selecciona una comuna" : "Selecciona primero una región"}
+                </option>
+                {communesForSelectedRegion.map((commune) => (
+                  <option key={commune} value={commune}>
+                    {commune}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
