@@ -130,6 +130,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: '/voluntarios',
+        element: (
+          <ProtectedRoute allowedRoles={['super_admin', 'encargado_voluntarios']}>
+            <Volunteer />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/regiones',
         element: (
           <ProtectedRoute allowedRoles={['super_admin', 'admin_region', 'super_admin']}>
