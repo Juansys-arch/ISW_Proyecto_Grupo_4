@@ -95,7 +95,7 @@ class ConstruccionService {
     }
   }
 
-  async iniciarConstruccion(viviendaId) {
+  async iniciarConstruccion(viviendaId, fechaInicio = null) {
     try {
       const viviendasRepository = this.getViviendasRepository();
       const vivienda = await viviendasRepository.findOne({
@@ -108,7 +108,15 @@ class ConstruccionService {
         throw new Error("La construcción ya fue iniciada");
       }
 
-      vivienda.fechaInicio = new Date();
+      const fechaParaInicio = fechaInicio
+        ? new Date(fechaInicio)
+        : new Date();
+
+      if (Number.isNaN(fechaParaInicio.getTime())) {
+        throw new Error("Fecha de inicio inválida");
+      }
+
+      vivienda.fechaInicio = fechaParaInicio;
       vivienda.estado = "en_progreso";
 
       const resultado = await viviendasRepository.save(vivienda);

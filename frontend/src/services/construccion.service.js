@@ -41,11 +41,12 @@ export const construccionService = {
   },
 
   // Acciones de construcción
-  iniciarConstruccion: async (viviendasId) => {
+  iniciarConstruccion: async (viviendasId, fechaInicio = null) => {
     try {
+      const body = fechaInicio ? { fechaInicio } : {};
       const response = await instance.patch(
         `/construccion/viviendas/${viviendasId}/iniciar`,
-        {}
+        body
       );
       return response.data.data;
     } catch (error) {

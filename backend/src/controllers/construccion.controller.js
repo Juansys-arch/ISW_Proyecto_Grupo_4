@@ -33,7 +33,8 @@ export const crearVivienda = async (req, res) => {
 export const iniciarConstruccion = async (req, res) => {
   try {
     const { viviendasId } = req.params;
-    const vivienda = await construccionService.iniciarConstruccion(viviendasId);
+    const { fechaInicio } = req.body || {};
+    const vivienda = await construccionService.iniciarConstruccion(viviendasId, fechaInicio);
 
     // Crear notificación
     await notificarPorRoles({
