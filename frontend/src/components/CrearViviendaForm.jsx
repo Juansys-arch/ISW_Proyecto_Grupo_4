@@ -187,7 +187,7 @@ export default function CrearViviendaForm({ onSuccess, onCancel }) {
           {/* Hitos */}
           <div>
             <label style={{ display: "block", marginBottom: "8px", color: "#333", fontWeight: "500", fontSize: "14px" }}>
-              Hitos <span style={{ color: "red" }}>*</span>
+              Duración del hito (días) <span style={{ color: "red" }}>*</span>
             </label>
             <select
               name="hitos"
@@ -206,8 +206,8 @@ export default function CrearViviendaForm({ onSuccess, onCancel }) {
                 cursor: "pointer",
               }}
             >
-              <option value="2">2 Hitos</option>
-              <option value="5">5 Hitos</option>
+              <option value="2">2 días</option>
+              <option value="5">5 días</option>
             </select>
           </div>
         </div>

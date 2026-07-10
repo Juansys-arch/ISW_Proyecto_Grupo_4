@@ -34,6 +34,13 @@ const Navbar = ({ isOpen, onToggle }) => {
             .map((part) => part[0]?.toUpperCase())
             .join('');
     }, [user?.nombreCompleto]);
+    const formattedDate = useMemo(() => {
+        return new Intl.DateTimeFormat('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+        }).format(new Date());
+    }, []);
 
     const logoutSubmit = () => {
         try {
@@ -63,6 +70,7 @@ const Navbar = ({ isOpen, onToggle }) => {
                         </div>
                     )}
                 </div>
+                {isOpen && <div className="profile-date-panel">{formattedDate}</div>}
             </div>
 
             <nav className="sidebar-nav">

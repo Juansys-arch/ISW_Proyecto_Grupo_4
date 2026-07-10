@@ -46,7 +46,12 @@ export default function Construccion() {
           </button>
         ) : null}
         
-        <ViviendasList key={refreshKey} userRole={user?.rol} />
+        <div>
+          <ViviendasList
+            key={refreshKey}
+            userRole={user?.rol}
+          />
+        </div>
       </div>
     </div>
   );

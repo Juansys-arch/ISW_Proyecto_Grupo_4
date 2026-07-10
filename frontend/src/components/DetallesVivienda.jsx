@@ -70,48 +70,65 @@ const DetallesVivienda = ({ viviendasId, onViviendasEliminada }) => {
     }
   };
 
-  if (loading) return <div className="alert alert-info">Cargando...</div>;
-
-  if (!vivienda) {
-    return <div className="alert alert-warning">Seleccione una vivienda</div>;
-  }
+  const formatFecha = (valor) => {
+    if (!valor) return "—";
+    const fecha = new Date(valor);
+    return fecha.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 
   return (
-    <div className="card">
-      <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h4 style={{ margin: 0 }}>Detalles de Vivienda</h4>
-      </div>
-      <div className="card-body">
-        <div className="mb-3">
-          <p style={{ fontSize: "16px", marginBottom: "10px" }}>
-            <strong>Dirección:</strong> {vivienda.direccion}
-          </p>
-          <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-            <strong>Hitos:</strong> {vivienda.hitos?.length || 0}
-          </p>
-        </div>
+    <div
+      style={{
+        minHeight: "180px",
+        padding: "0",
+      }}
+    >
+      <div style={{ paddingTop: 0 }}>
+        {loading ? (
+          <div className="alert alert-info" style={{ margin: 0 }}>
+            Cargando...
+          </div>
+        ) : vivienda ? (
+          <>
+            <div className="mb-3">
+              <p style={{ fontSize: "16px", marginBottom: "6px" }}>
+                <strong>Dirección:</strong> {vivienda.direccion}
+              </p>
+              <p style={{ fontSize: "16px", marginBottom: "10px" }}>
+                <strong>Inicio:</strong> {formatFecha(vivienda.fechaInicio || vivienda.createdAt)}
+              </p>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                <strong>Hitos:</strong> {vivienda.hitos?.length || 0}
+              </p>
+            </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
-          {vivienda.estado === "no_iniciada" && (
-            <button
-              className="btn btn-success"
-              onClick={handleIniciarConstruccion}
-              disabled={loading}
-            >
-              ✓ Iniciar Construcción
-            </button>
-          )}
-          
-          {user?.rol === "super_admin" && (
-            <button
-              className="btn btn-danger"
-              onClick={handleEliminarVivienda}
-              disabled={loading}
-            >
-              🗑️ Eliminar
-            </button>
-          )}
-        </div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              {vivienda.estado === "no_iniciada" && (
+                <button
+                  className="btn btn-success"
+                  onClick={handleIniciarConstruccion}
+                  disabled={loading}
+                >
+                  ✓ Iniciar Construcción
+                </button>
+              )}
+
+              {user?.rol === "super_admin" && (
+                <button
+                  className="btn btn-danger"
+                  onClick={handleEliminarVivienda}
+                  disabled={loading}
+                >
+                  🗑️ Eliminar
+                </button>
+              )}
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );

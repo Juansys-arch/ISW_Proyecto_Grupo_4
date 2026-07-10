@@ -18,7 +18,8 @@ class ConstruccionService {
       const { direccion, beneficiario, region, comuna, hitos: numHitos = 2 } = data;
       const viviendasRepository = this.getViviendasRepository();
       const hitosRepository = this.getHitosRepository();
-      
+      const cantidadHitos = Number(numHitos) || 2;
+
       // Generar valores por defecto para campos requeridos
       const numeroProyecto = `VVDA-${Date.now()}`; // Generar número único
       const ci = "00000000"; // Placeholder
@@ -35,9 +36,9 @@ class ConstruccionService {
 
       await viviendasRepository.save(vivienda);
 
-      // Crear hitos para la vivienda
-      const diasPorHito = 7; // Cada hito dura 7 días
-      const hitosData = Array.from({ length: numHitos }, (_, i) => ({
+      // Crear hitos para la vivienda con la duración indicada por la opción seleccionada
+      const diasPorHito = cantidadHitos;
+      const hitosData = Array.from({ length: cantidadHitos }, (_, i) => ({
         descripcion: `Hito ${i + 1}`,
         dias: diasPorHito,
         estado: "pendiente",
@@ -238,23 +239,6 @@ class ConstruccionService {
     }
   }
 
-  async firmarGarantia(id, firmaBase64) {
-    try {
-      const viviendasRepository = this.getViviendasRepository();
-      const vivienda = await this.obtenerVivienda(id);
-      
-      if (vivienda.estado === "atrasada") {
-        throw new Error("No se puede firmar garantía de una vivienda atrasada. Por favor, reanuda la construcción primero");
-      }
-      
-      vivienda.estado = "completada_con_firma";
-      vivienda.firmaGarantiaUrl = firmaBase64;
-      return await viviendasRepository.save(vivienda);
-    } catch (error) {
-      throw new Error(`Error al firmar garantía: ${error.message}`);
-    }
-  }
-
   async actualizarVivienda(viviendaId, data) {
     try {
       const viviendasRepository = this.getViviendasRepository();
@@ -341,18 +325,14 @@ class ConstruccionService {
 
             let fechaProgramada = hito.fechaProgramada;
 
-            // Si no hay fechaProgramada, calcularla basada en fecha de inicio
-            if (!fechaProgramada) {
-              const fechaBase = vivienda.fechaInicio || vivienda.createdAt;
-              if (fechaBase) {
-                fechaProgramada = new Date(fechaBase);
-                const diasHito = hito.dias || 7; // Por defecto 7 días
-                fechaProgramada.setDate(fechaProgramada.getDate() + diasHito);
-              }
-            }
 
             // Verificar si el hito está atrasado
-            if (fechaProgramada && new Date(fechaProgramada) < ahora && (hito.estado === "pendiente" || hito.estado === "en_progreso")) {
+            const estaAtrasado =
+              fechaProgramada
+              && new Date(fechaProgramada) < ahora
+              && (hito.estado === "pendiente" || hito.estado === "en_progreso");
+
+            if (estaAtrasado) {
               viviendaAtrasada = true;
               retrasos.push({
                 viviendaId: vivienda.id,

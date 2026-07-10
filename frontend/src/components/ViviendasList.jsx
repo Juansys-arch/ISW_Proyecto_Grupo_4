@@ -3,12 +3,14 @@ import { construccionService } from "@services/construccion.service.js";
 import { showSuccessAlert, showErrorAlert, deleteDataAlert } from "@helpers/sweetAlert.js";
 import "@styles/construccion.css";
 
-export default function ViviendasList({ userRole }) {
+export default function ViviendasList({ userRole, onSelectVivienda }) {
   const [viviendas, setViviendas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const role = userRole || JSON.parse(sessionStorage.getItem('usuario'))?.rol;
+  const role = String(userRole || JSON.parse(sessionStorage.getItem('usuario') || '{}')?.rol || '')
+    .trim()
+    .toLowerCase();
 
   const cargarViviendas = async (estado = null) => {
     setLoading(true);
@@ -179,7 +181,8 @@ export default function ViviendasList({ userRole }) {
             <div
               key={vivienda.id}
               className={`vivienda-card ${vivienda.estado}`}
-              style={{ borderColor: getEstadoColor(vivienda.estado) }}
+              style={{ borderColor: getEstadoColor(vivienda.estado), cursor: "pointer" }}
+              onClick={() => onSelectVivienda?.(vivienda.id)}
             >
               <div className="vivienda-card-header">
                 <div>
@@ -225,15 +228,12 @@ export default function ViviendasList({ userRole }) {
                 )}
                 {vivienda.estado === "pausada" && role === "jefe_cuadrilla" && (
                   <>
-                    <button className="vivienda-action-btn btn-resume" onClick={() => handleReanudar(vivienda.id)}>
-                      ▶️ Reanudar
-                    </button>
                     <button className="vivienda-action-btn btn-finish" onClick={() => handleTerminar(vivienda.id)}>
                       ✓ Terminado
                     </button>
                   </>
                 )}
-                {vivienda.estado === "atrasada" && role === "administrador" && (
+                {vivienda.estado === "atrasada" && role === "super_admin" && (
                   <button className="vivienda-action-btn btn-resume" onClick={() => handleReanudar(vivienda.id)}>
                     ▶️ Reanudar
                   </button>
