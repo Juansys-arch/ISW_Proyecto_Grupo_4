@@ -61,6 +61,11 @@ const IncidenciaSchema = new EntitySchema({
       type: "text",
       nullable: true,
     },
+    equipoMedico: {
+      type: "varchar",
+      length: 100,
+      nullable: true,
+    },
     createdAt: {
       type: "timestamp with time zone",
       default: () => "CURRENT_TIMESTAMP",

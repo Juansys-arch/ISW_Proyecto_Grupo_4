@@ -1,26 +1,12 @@
 "use strict";
-
-export async function sendEmail(to, subject, text, html = null) {
-  try {
-    // Log the email that would be sent
-    console.log("Email would be sent:", {
-      to,
-      subject,
-      text,
-      html: html ? "[HTML content]" : "No HTML"
-    });
-    return [true, null];
-  } catch (error) {
-    console.error("Error sending email:", error);
-    return [null, error.message];
-  }
-}
+import { sendEmail } from "../services/email.service.js";
+import { reporteMedicoTemplate } from "../templates/reporteMedico.templates.js";
 
 // Función para enviar comprobante de transporte
 export async function enviarComprobanteTransporte(emailDestino, transporte, puntoEncuentro) {
   try {
     const subject = `Comprobante de Transporte - ${transporte.numeroAutobus}`;
-    
+
     const html = `
       <h2>Comprobante de Transporte</h2>
       <p><strong>Punto de Encuentro:</strong> ${puntoEncuentro}</p>
@@ -70,7 +56,7 @@ export async function enviarComprobanteTransporte(emailDestino, transporte, punt
 export async function enviarAlertaKitIncompleto(emailDestino, kit, razon = "") {
   try {
     const subject = `⚠️ ALERTA: Kit Incompleto - ${kit.nombre}`;
-    
+
     const html = `
       <div style="border: 3px solid red; padding: 15px; background-color: #ffe6e6;">
         <h2 style="color: red;">⚠️ ALERTA DE KIT INCOMPLETO</h2>

@@ -183,7 +183,7 @@ async function createUsers() {
         rol: "encargado_inventario",
         status: "approved",
       },
-      
+
       {
         nombreCompleto: "Voluntario Demo 1",
         rut: "11.111.111-1",
@@ -200,7 +200,7 @@ async function createUsers() {
         rol: "voluntario",
         status: "approved",
       },
-      
+
       {
         nombreCompleto: "Diego Sebastián Ampuero Belmar",
         rut: "21.151.897-9",

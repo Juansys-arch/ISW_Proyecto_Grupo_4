@@ -4,8 +4,9 @@ import { AppDataSource } from "../config/configDb.js";
 import Incidencia from "../entity/incidencia.entity.js";
 import Notificacion from "../entity/notificacion.entity.js";
 import User from "../entity/user.entity.js";
-import { sendEmail } from "../helpers/email.helper.js";
 import { notificarPorRoles } from "./notificacion.service.js";
+import { enviarReporteMedicoJefeCuadrilla } from "../helpers/reporteMedico.helper.js";
+import { sendEmail } from "./email.service.js";
 
 const incidenciaRepository = AppDataSource.getRepository(Incidencia);
 const notificacionRepository = AppDataSource.getRepository(Notificacion);
@@ -24,12 +25,13 @@ export async function crearIncidenciaService(data, jefeCuadrillaId) {
       rutPaciente: data.rutPaciente ?? null,
       ubicacionPaciente: data.ubicacionPaciente ?? null,
       observacionMedica: data.observacionMedica ?? null,
+      equipoMedico: data.equipoMedico ?? null,
     });
 
     const requiereNotificacion =
-      (data.tipo === "accidente" && ["alta", "critica"].includes(data.prioridad))
-      || data.prioridad === "critica"
-      || data.tipo === "falta_material";
+      (data.tipo === "accidente" && ["alta", "critica"].includes(data.prioridad)) ||
+      data.prioridad === "critica" ||
+      data.tipo === "falta_material";
 
     if (requiereNotificacion) {
       const nombrePaciente = data.nombrePaciente || "No informado";
@@ -60,10 +62,8 @@ export async function crearIncidenciaService(data, jefeCuadrillaId) {
 export async function obtenerIncidenciasService() {
   try {
     const incidencias = await incidenciaRepository.find({
-      order: { fecha: "DESC" },
       relations: ["jefeCuadrilla"],
     });
-
     return [incidencias, null];
   } catch (error) {
     return [null, error.message];
@@ -76,10 +76,43 @@ export async function obtenerIncidenciaPorIdService(id) {
       where: { id },
       relations: ["jefeCuadrilla"],
     });
+    if (!incidencia) return [null, "Incidencia no encontrada"];
+    return [incidencia, null];
+  } catch (error) {
+    return [null, error.message];
+  }
+}
 
+export async function actualizarIncidenciaService(id, data) {
+  try {
+    const incidencia = await incidenciaRepository.findOne({ where: { id } });
     if (!incidencia) return [null, "Incidencia no encontrada"];
 
-    return [incidencia, null];
+    if (data.descripcion !== undefined) incidencia.descripcion = data.descripcion;
+    if (data.fecha !== undefined) incidencia.fecha = data.fecha;
+    if (data.prioridad !== undefined) incidencia.prioridad = data.prioridad;
+    if (data.tipo !== undefined) incidencia.tipo = data.tipo;
+    if (data.estado !== undefined) incidencia.estado = data.estado;
+    if (data.nombrePaciente !== undefined) incidencia.nombrePaciente = data.nombrePaciente;
+    if (data.rutPaciente !== undefined) incidencia.rutPaciente = data.rutPaciente;
+    if (data.ubicacionPaciente !== undefined) incidencia.ubicacionPaciente = data.ubicacionPaciente;
+    if (data.observacionMedica !== undefined) incidencia.observacionMedica = data.observacionMedica;
+    if (data.equipoMedico !== undefined) incidencia.equipoMedico = data.equipoMedico;
+
+    const updatedIncidencia = await incidenciaRepository.save(incidencia);
+    return [updatedIncidencia, null];
+  } catch (error) {
+    return [null, error.message];
+  }
+}
+
+export async function eliminarIncidenciaService(id) {
+  try {
+    const incidencia = await incidenciaRepository.findOne({ where: { id } });
+    if (!incidencia) return [null, "Incidencia no encontrada"];
+
+    await incidenciaRepository.remove(incidencia);
+    return [true, null];
   } catch (error) {
     return [null, error.message];
   }
@@ -92,17 +125,23 @@ export async function generarReporteEmergenciaConDatosService(incidenciaId, admi
       relations: ["jefeCuadrilla"],
     });
 
-    if (!incidencia) return [null, "Incidencia no encontrada"];
+    if (!incidencia) {
+      return [null, "Incidencia no encontrada"];
+    }
 
-    const requiereAtencionMedica =
-      incidencia.tipo === "accidente"
-      && ["alta", "critica"].includes(incidencia.prioridad);
+    const requiereAtencionMedica = incidencia.tipo === "accidente";
 
     if (!requiereAtencionMedica) {
-      return [null, "Solo los accidentes de prioridad alta o crítica pueden generar reporte de emergencia"];
+      return [null, "Solo los accidentes pueden generar reporte de emergencia"];
     }
 
     incidencia.estado = "listo";
+    if (datosReporte.nombrePaciente !== undefined) incidencia.nombrePaciente = datosReporte.nombrePaciente;
+    if (datosReporte.rutPaciente !== undefined) incidencia.rutPaciente = datosReporte.rutPaciente;
+    if (datosReporte.ubicacionPaciente !== undefined) incidencia.ubicacionPaciente = datosReporte.ubicacionPaciente;
+    if (datosReporte.observacionMedica !== undefined) incidencia.observacionMedica = datosReporte.observacionMedica;
+    if (datosReporte.equipoMedico !== undefined) incidencia.equipoMedico = datosReporte.equipoMedico;
+    
     await incidenciaRepository.save(incidencia);
 
     const admins = await userRepository.find({
@@ -149,6 +188,23 @@ export async function generarReporteEmergenciaConDatosService(incidenciaId, admi
       mensaje,
     );
 
+    const adminGenerador = admins.find(a => a.id === adminId);
+    let adminNombre = "Administrador";
+    if (adminGenerador) {
+      adminNombre = adminGenerador.nombreCompleto;
+    } else {
+      const adminDb = await userRepository.findOne({ where: { id: adminId }, select: ["nombreCompleto"] });
+      if (adminDb) adminNombre = adminDb.nombreCompleto;
+    }
+
+    if (incidencia.jefeCuadrilla && incidencia.jefeCuadrilla.email) {
+      enviarReporteMedicoJefeCuadrilla(
+        incidencia.jefeCuadrilla.email,
+        datosReporte,
+        adminNombre
+      ).catch(e => console.error("Fallo al enviar correo al Jefe de Cuadrilla:", e));
+    }
+
     return [
       {
         incidencia,
@@ -159,40 +215,6 @@ export async function generarReporteEmergenciaConDatosService(incidenciaId, admi
       },
       null,
     ];
-  } catch (error) {
-    return [null, error.message];
-  }
-}
-
-export async function actualizarIncidenciaService(id, data) {
-  try {
-    const incidencia = await incidenciaRepository.findOne({ where: { id } });
-    if (!incidencia) return [null, "Incidencia no encontrada"];
-
-    if (data.descripcion !== undefined) incidencia.descripcion = data.descripcion;
-    if (data.fecha !== undefined) incidencia.fecha = data.fecha;
-    if (data.prioridad !== undefined) incidencia.prioridad = data.prioridad;
-    if (data.tipo !== undefined) incidencia.tipo = data.tipo;
-    if (data.estado !== undefined) incidencia.estado = data.estado;
-    if (data.nombrePaciente !== undefined) incidencia.nombrePaciente = data.nombrePaciente;
-    if (data.rutPaciente !== undefined) incidencia.rutPaciente = data.rutPaciente;
-    if (data.ubicacionPaciente !== undefined) incidencia.ubicacionPaciente = data.ubicacionPaciente;
-    if (data.observacionMedica !== undefined) incidencia.observacionMedica = data.observacionMedica;
-
-    const updatedIncidencia = await incidenciaRepository.save(incidencia);
-    return [updatedIncidencia, null];
-  } catch (error) {
-    return [null, error.message];
-  }
-}
-
-export async function eliminarIncidenciaService(id) {
-  try {
-    const incidencia = await incidenciaRepository.findOne({ where: { id } });
-    if (!incidencia) return [null, "Incidencia no encontrada"];
-
-    await incidenciaRepository.remove(incidencia);
-    return [incidencia, null];
   } catch (error) {
     return [null, error.message];
   }

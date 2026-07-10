@@ -53,6 +53,10 @@ export const crearIncidenciaValidation = Joi.object({
     .allow(null, "")
     .max(1000)
     .optional(),
+  equipoMedico: Joi.string()
+    .allow(null, "")
+    .max(100)
+    .optional(),
 }).unknown(false);
 
 export const actualizarIncidenciaValidation = Joi.object({
@@ -108,6 +112,10 @@ export const actualizarIncidenciaValidation = Joi.object({
     .allow(null, "")
     .max(1000)
     .optional(),
+  equipoMedico: Joi.string()
+    .allow(null, "")
+    .max(100)
+    .optional(),
 }).unknown(false);
 
 export const reporteEmergenciaValidation = Joi.object({
@@ -138,14 +146,18 @@ export const reporteEmergenciaValidation = Joi.object({
       "string.min": "La ubicación del paciente debe tener al menos 3 caracteres.",
     }),
   gravedad: Joi.string()
-    .valid("alta", "critica")
+    .valid("baja", "media", "alta", "critica")
     .required()
     .messages({
-      "any.only": "La gravedad debe ser alta o critica.",
+      "any.only": "La gravedad debe ser baja, media, alta o critica.",
       "any.required": "La gravedad es requerida.",
     }),
   observacionMedica: Joi.string()
     .allow(null, "")
     .max(1000)
+    .optional(),
+  equipoMedico: Joi.string()
+    .allow(null, "")
+    .max(100)
     .optional(),
 }).unknown(false);

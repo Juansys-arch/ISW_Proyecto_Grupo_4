@@ -242,15 +242,27 @@ export default function Incidencias() {
     const requiereAccionMedica = (incidencia) =>
         incidencia.tipo === 'accidente' &&
         ['alta', 'critica'].includes(incidencia.prioridad) &&
-        incidencia.estado !== 'resuelto';
+        incidencia.estado === 'pendiente';
+
+    const calcularEquipoMedico = (gravedad) => {
+        switch (gravedad) {
+            case 'baja': return 'Equipo Médico Básico';
+            case 'media': return 'Equipo Médico Intermedio';
+            case 'alta': return 'Equipo Médico Avanzado';
+            case 'critica': return 'Equipo Médico Experto';
+            default: return '';
+        }
+    };
 
     const handleReporteEmergencia = async (incidencia) => {
         setIncidenciaSeleccionada(incidencia);
+        const initGravedad = incidencia.prioridad || 'baja';
         setReporteEmergencia({
             nombrePaciente: incidencia.nombrePaciente || '',
             rutPaciente: incidencia.rutPaciente || '',
             ubicacionPaciente: incidencia.ubicacionPaciente || '',
-            gravedad: incidencia.prioridad === 'critica' ? 'critica' : 'alta',
+            gravedad: initGravedad,
+            equipoMedico: calcularEquipoMedico(initGravedad),
             observacionMedica: incidencia.observacionMedica || ''
         });
         setShowEmergencyModal(true);
@@ -268,6 +280,7 @@ export default function Incidencias() {
         const response = await generarReporteEmergencia(incidenciaSeleccionada.id, reporteEmergencia);
 
         if (response.status === 'Success') {
+            showSuccessAlert('Reporte Enviado', 'El reporte médico y el correo han sido enviados correctamente al Jefe de Cuadrilla.');
             setShowEmergencyModal(false);
             setIncidenciaSeleccionada(null);
             setFormErrors({});
@@ -401,6 +414,12 @@ export default function Incidencias() {
                                                 <span className="medical-label">UBICACIÓN</span>
                                                 <span className="medical-value">{incidencia.ubicacionPaciente || 'Sin ubicación'}</span>
                                             </div>
+                                            {incidencia.equipoMedico && (
+                                                <div className="medical-field">
+                                                    <span className="medical-label">EQUIPO ASIGNADO</span>
+                                                    <span className="medical-value">{incidencia.equipoMedico}</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {requiereAccionMedica(incidencia) && (
@@ -582,11 +601,21 @@ export default function Incidencias() {
                             <select
                                 required
                                 value={reporteEmergencia.gravedad}
-                                onChange={(e) => setReporteEmergencia({ ...reporteEmergencia, gravedad: e.target.value })}
+                                onChange={(e) => setReporteEmergencia({ ...reporteEmergencia, gravedad: e.target.value, equipoMedico: calcularEquipoMedico(e.target.value) })}
                             >
+                                <option value="baja">Baja</option>
+                                <option value="media">Media</option>
                                 <option value="alta">Alta</option>
                                 <option value="critica">Crítica</option>
                             </select>
+
+                            <label>Equipo médico asignado:</label>
+                            <input
+                                type="text"
+                                readOnly
+                                value={reporteEmergencia.equipoMedico || ''}
+                                style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                            />
 
                             <label>Observación médica / síntomas:</label>
                             <textarea

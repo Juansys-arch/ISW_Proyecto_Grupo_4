@@ -4,7 +4,7 @@ import { AppDataSource } from "../config/configDb.js";
 import Transporte from "../entity/transporte.entity.js";
 
 const transporteRepository = AppDataSource.getRepository(Transporte);
-import { sendEmail } from "../helpers/email.helper.js";
+import { sendEmail } from "../services/email.service.js";
 
 export async function crearTransporte(req, res) {
   try {

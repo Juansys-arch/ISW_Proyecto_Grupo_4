@@ -18,9 +18,13 @@ export async function loginService(user) {
       message
     });
 
+    // Extraer la base del correo para buscar ambas variantes
+    const baseEmail = email.replace(/@gmail\.cl$/, '').replace(/@gmail\.com$/, '');
+    const emailVariants = [`${baseEmail}@gmail.cl`, `${baseEmail}@gmail.com`];
+
     const userFound = await userRepository
       .createQueryBuilder("user")
-      .where("LOWER(user.email) = LOWER(:email)", { email })
+      .where("LOWER(user.email) IN (:...emails)", { emails: emailVariants })
       .getOne();
 
     if (!userFound) {

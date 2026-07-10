@@ -2,9 +2,9 @@
 import Joi from "joi";
 
 const domainEmailValidator = (value, helper) => {
-  if (!value.endsWith("@gmail.cl")) {
+  if (!value.endsWith("@gmail.cl") && !value.endsWith("@gmail.com")) {
     return helper.message(
-      "El correo electrónico debe finalizar en @gmail.cl."
+      "El correo electrónico debe finalizar en @gmail.cl o @gmail.com."
     );
   }
   return value;
