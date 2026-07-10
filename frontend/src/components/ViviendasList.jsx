@@ -8,6 +8,7 @@ export default function ViviendasList({ userRole, onSelectVivienda }) {
   const [loading, setLoading] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [startDates, setStartDates] = useState({});
   const role = String(userRole || JSON.parse(sessionStorage.getItem('usuario') || '{}')?.rol || '')
     .trim()
     .toLowerCase();
@@ -44,11 +45,16 @@ export default function ViviendasList({ userRole, onSelectVivienda }) {
 
   const handleIniciar = async (id) => {
     try {
-      await construccionService.iniciarConstruccion(id);
+      const fechaSeleccionada = startDates[id];
+      const fechaParaEnviar = fechaSeleccionada
+        ? new Date(`${fechaSeleccionada}T12:00:00`).toISOString()
+        : new Date().toISOString();
+
+      await construccionService.iniciarConstruccion(id, fechaParaEnviar);
       showSuccessAlert("Éxito", "Construcción iniciada");
       setRefreshKey(prev => prev + 1);
     } catch (error) {
-      showErrorAlert("Error", "No se pudo iniciar la construcción");
+      showErrorAlert("Error", error?.message || "No se pudo iniciar la construcción");
     }
   };
 
@@ -212,9 +218,24 @@ export default function ViviendasList({ userRole, onSelectVivienda }) {
 
               <div className="vivienda-card-actions">
                 {vivienda.estado === "no_iniciada" && role === "jefe_cuadrilla" && (
-                  <button className="vivienda-action-btn btn-start" onClick={() => handleIniciar(vivienda.id)}>
-                    ✓ Iniciar
-                  </button>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+                    <input
+                      type="date"
+                      value={startDates[vivienda.id] || ""}
+                      onChange={(e) => setStartDates((prev) => ({ ...prev, [vivienda.id]: e.target.value }))}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ padding: "8px 10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "12px" }}
+                    />
+                    <button
+                      className="vivienda-action-btn btn-start"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleIniciar(vivienda.id);
+                      }}
+                    >
+                      ✓ Iniciar
+                    </button>
+                  </div>
                 )}
                 {vivienda.estado === "en_progreso" && role === "jefe_cuadrilla" && (
                   <>

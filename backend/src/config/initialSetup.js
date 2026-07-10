@@ -161,7 +161,7 @@ async function createUsers() {
       {
         nombreCompleto: "Diego Alexis Salazar Jara",
         rut: "21.308.770-3",
-        email: "administrador2024@gmail.cl",
+        email: "administrador2024@gmail.com",
         password: "admin1234",
         rol: "super_admin",
         status: "approved",
