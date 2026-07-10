@@ -185,8 +185,8 @@ const DashboardJornada = () => {
             return;
         }
 
-        if (!volunteerFormEmail.endsWith('@gmail.cl')) {
-            showErrorAlert('Error', 'El correo debe ser del dominio @gmail.cl');
+        if (!volunteerFormEmail.endsWith('@gmail.cl') && !volunteerFormEmail.endsWith('@gmail.com')) {
+            showErrorAlert('Error', 'El correo debe ser del dominio @gmail.cl o @gmail.com');
             return;
         }
 

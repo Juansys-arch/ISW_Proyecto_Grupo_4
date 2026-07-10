@@ -21,7 +21,9 @@ async function setupServer() {
     app.use(
       cors({
         credentials: true,
-        origin: true,
+        origin: (origin, callback) => {
+          callback(null, origin || true);
+        },
       }),
     );
 

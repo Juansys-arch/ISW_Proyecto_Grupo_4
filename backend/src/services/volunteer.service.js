@@ -1,5 +1,6 @@
 "use strict";
 import Volunteer from "../entity/volunteer.entity.js";
+import User from "../entity/user.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
@@ -107,7 +108,7 @@ export async function registerVolunteerOnSiteService(volunteerData, userId) {
   }
 }
 
-function normalizeText(value) {
+export function normalizeText(value) {
   return typeof value === "string"
     ? value.trim().toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")
     : "";
@@ -116,19 +117,21 @@ function normalizeText(value) {
 function getAccessScope(user) {
   const role = normalizeText(user?.rol);
 
-  if (role === "super_admin" || role === "super_admin") {
+  if (role === "super_admin") {
     return { canAccessAll: true };
   }
 
-  if (role === "admin_region") {
+  if (role === "admin_region" || role === "jefe_cuadrilla") {
     const region = String(user?.region || "").trim();
-    return { canAccessAll: false, allowedRegion: region };
+    if (region) {
+      return { canAccessAll: false, allowedRegion: region };
+    }
   }
 
   return { canAccessAll: true };
 }
 
-function filterVolunteersByAccess(volunteers = [], user) {
+export function filterVolunteersByAccess(volunteers = [], user) {
   const scope = getAccessScope(user);
 
   if (scope.canAccessAll) return volunteers;
@@ -182,6 +185,25 @@ export async function approveVolunteerService(volunteerId, action, rejectionReas
       volunteer.approvedBy = approvedBy;
       volunteer.approvalDate = new Date();
       volunteer.rolAsignado = rolAsignado;
+
+      const userRepository = AppDataSource.getRepository(User);
+      const existingUser = await userRepository.findOne({
+        where: [{ email: volunteer.email }, { rut: volunteer.rut }]
+      });
+
+      if (!existingUser) {
+        const hashedPassword = await encryptPassword("voluntario123");
+        const newUser = userRepository.create({
+          nombreCompleto: volunteer.nombreCompleto,
+          rut: volunteer.rut,
+          email: volunteer.email,
+          password: hashedPassword,
+          rol: "voluntario",
+          status: "approved",
+          region: volunteer.region || null
+        });
+        await userRepository.save(newUser);
+      }
     } else if (action === "reject") {
       volunteer.status = "rejected";
       volunteer.rejectionReason = rejectionReason;

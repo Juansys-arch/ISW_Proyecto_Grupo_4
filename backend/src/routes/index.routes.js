@@ -20,6 +20,7 @@ router
   .use("/user", userRoutes)
   .use("/construccion", construccionRoutes)
   .use("/cuadrilla", cuadrillaRoutes)
+  .use("/cuadrillas", cuadrillaRoutes)
   .use("/evaluacion", evaluacionRoutes)
   .use("/gestion", gestionRoutes)
   .use("/incidencias", incidenciaRoutes)

@@ -2,8 +2,11 @@
 import { AppDataSource } from "../config/configDb.js";
 import Cuadrilla from "../entity/cuadrilla.entity.js";
 import User from "../entity/user.entity.js";
+import Volunteer from "../entity/volunteer.entity.js";
 import { In } from "typeorm";
+import { filterVolunteersByAccess } from "../services/volunteer.service.js";
 import { encryptPassword } from "../helpers/bcrypt.helper.js";
+import { enviarNotificacionCuadrilla } from "../helpers/email.helper.js";
 import {
   handleErrorClient,
   handleErrorServer,
@@ -89,6 +92,19 @@ export async function crearCuadrilla(req, res) {
 
     if (miembrosIds && miembrosIds.length > 0) {
       await userRepository.update({ id: In(miembrosIds) }, { cuadrillaId: savedCuadrilla.id });
+
+      // Fetch chief name
+      const jefeUser = await userRepository.findOne({ where: { id: jefeCuadrillaId } });
+      const jefeNombre = jefeUser ? jefeUser.nombreCompleto : "Por asignar";
+
+      // Fetch member details to send emails
+      const volunteers = await userRepository.find({ where: { id: In(miembrosIds) } });
+      for (const vol of volunteers) {
+        if (vol.email) {
+          enviarNotificacionCuadrilla(vol.email, nombre, jefeNombre, vol.nombreCompleto)
+            .catch((err) => console.error(`Error al enviar email a ${vol.email}:`, err));
+        }
+      }
     }
 
     // Fetch the complete cuadrilla with relations to return
@@ -160,12 +176,35 @@ export async function actualizarCuadrilla(req, res) {
     cuadrilla.nombre = nombre;
     await cuadrillaRepository.save(cuadrilla);
 
+    // Get current members before updating to determine who is newly added
+    const oldMembers = await userRepository.find({
+      where: { cuadrillaId: cuadrilla.id },
+      select: ["id"],
+    });
+    const oldMembersIds = oldMembers.map((m) => m.id);
+
     // Clear current members of this crew
     await userRepository.update({ cuadrillaId: cuadrilla.id }, { cuadrillaId: null });
 
     // Assign new members
     if (miembrosIds && miembrosIds.length > 0) {
       await userRepository.update({ id: In(miembrosIds) }, { cuadrillaId: cuadrilla.id });
+    }
+
+    // Determine who is newly added
+    const newMiembrosIds = miembrosIds ? miembrosIds.filter((id) => !oldMembersIds.includes(id)) : [];
+
+    if (newMiembrosIds.length > 0) {
+      const jefeUser = await userRepository.findOne({ where: { id: cuadrilla.jefeCuadrillaId } });
+      const jefeNombre = jefeUser ? jefeUser.nombreCompleto : "Por asignar";
+
+      const newVolunteers = await userRepository.find({ where: { id: In(newMiembrosIds) } });
+      for (const vol of newVolunteers) {
+        if (vol.email) {
+          enviarNotificacionCuadrilla(vol.email, nombre, jefeNombre, vol.nombreCompleto)
+            .catch((err) => console.error(`Error al enviar email a ${vol.email}:`, err));
+        }
+      }
     }
 
     const updatedCuadrilla = await cuadrillaRepository.findOne({
@@ -217,10 +256,44 @@ export async function eliminarCuadrilla(req, res) {
 
 export async function getVoluntariosDisponibles(req, res) {
   try {
-    const voluntarios = await userRepository.find({
-      where: { rol: "voluntario", status: "approved" },
-      select: ["id", "nombreCompleto", "rut", "email", "cuadrillaId"],
+    const volunteerRepository = AppDataSource.getRepository(Volunteer);
+
+    // Fetch all registered volunteers from the volunteers table who are not rejected
+    let registeredVolunteers = await volunteerRepository.find({
+      where: { status: In(["pending", "approved"]) }
     });
+
+    // Filter registered volunteers by region of the logged-in user
+    registeredVolunteers = filterVolunteersByAccess(registeredVolunteers, req.user);
+
+    // For each volunteer, ensure they exist in the users table
+    for (const vol of registeredVolunteers) {
+      const existingUser = await userRepository.findOne({
+        where: [{ email: vol.email }, { rut: vol.rut }]
+      });
+
+      if (!existingUser) {
+        const hashedPassword = await encryptPassword("voluntario123");
+        const newUser = userRepository.create({
+          nombreCompleto: vol.nombreCompleto,
+          rut: vol.rut,
+          email: vol.email,
+          password: hashedPassword,
+          rol: "voluntario",
+          status: "approved",
+          region: vol.region || null
+        });
+        await userRepository.save(newUser);
+      }
+    }
+
+    let voluntarios = await userRepository.find({
+      where: { rol: "voluntario", status: "approved" },
+      select: ["id", "nombreCompleto", "rut", "email", "cuadrillaId", "region"],
+    });
+
+    // Filter the final list of volunteers by region of the logged-in user
+    voluntarios = filterVolunteersByAccess(voluntarios, req.user);
 
     handleSuccess(res, 200, "Voluntarios recuperados exitosamente", voluntarios);
   } catch (error) {
@@ -236,15 +309,21 @@ export async function crearVoluntario(req, res) {
       return handleErrorClient(res, 400, "Todos los campos son obligatorios.");
     }
 
-    if (!email.endsWith("@gmail.cl")) {
-      return handleErrorClient(res, 400, "El correo electrónico debe ser del dominio @gmail.cl");
+    if (!email.endsWith("@gmail.cl") && !email.endsWith("@gmail.com")) {
+      return handleErrorClient(res, 400, "El correo electrónico debe ser del dominio @gmail.cl o @gmail.com");
     }
+
+    const volunteerRepository = AppDataSource.getRepository(Volunteer);
 
     const existingUser = await userRepository.findOne({
       where: [{ email }, { rut }],
     });
 
-    if (existingUser) {
+    const existingVolunteer = await volunteerRepository.findOne({
+      where: [{ email }, { rut }],
+    });
+
+    if (existingUser || existingVolunteer) {
       return handleErrorClient(res, 400, "El correo o el RUT ya están registrados.");
     }
 
@@ -256,10 +335,21 @@ export async function crearVoluntario(req, res) {
       password: hashedPassword,
       rol: "voluntario",
       status: "approved",
+      region: req.user.region || null,
     });
 
     await userRepository.save(newVolunteer);
     delete newVolunteer.password;
+
+    const newVolRecord = volunteerRepository.create({
+      nombreCompleto,
+      rut,
+      email,
+      rol: "voluntario",
+      status: "approved",
+      region: req.user.region || null,
+    });
+    await volunteerRepository.save(newVolRecord);
 
     handleSuccess(res, 201, "Voluntario creado exitosamente", newVolunteer);
   } catch (error) {
@@ -276,8 +366,8 @@ export async function actualizarVoluntario(req, res) {
       return handleErrorClient(res, 400, "Todos los campos son obligatorios.");
     }
 
-    if (!email.endsWith("@gmail.cl")) {
-      return handleErrorClient(res, 400, "El correo electrónico debe ser del dominio @gmail.cl");
+    if (!email.endsWith("@gmail.cl") && !email.endsWith("@gmail.com")) {
+      return handleErrorClient(res, 400, "El correo electrónico debe ser del dominio @gmail.cl o @gmail.com");
     }
 
     const volunteer = await userRepository.findOne({
@@ -296,12 +386,46 @@ export async function actualizarVoluntario(req, res) {
       return handleErrorClient(res, 400, "El correo o el RUT ya están registrados por otro usuario.");
     }
 
+    const volunteerRepository = AppDataSource.getRepository(Volunteer);
+    const oldEmail = volunteer.email;
+    const oldRut = volunteer.rut;
+
+    const volRecord = await volunteerRepository.findOne({
+      where: [{ email: oldEmail }, { rut: oldRut }],
+    });
+
+    if (volRecord) {
+      const duplicateVolunteer = await volunteerRepository.findOne({
+        where: [{ email }, { rut }],
+      });
+      if (duplicateVolunteer && duplicateVolunteer.id !== volRecord.id) {
+        return handleErrorClient(res, 400, "El correo o el RUT ya están registrados por otro voluntario.");
+      }
+    }
+
     volunteer.nombreCompleto = nombreCompleto;
     volunteer.rut = rut;
     volunteer.email = email;
 
     await userRepository.save(volunteer);
     delete volunteer.password;
+
+    if (volRecord) {
+      volRecord.nombreCompleto = nombreCompleto;
+      volRecord.rut = rut;
+      volRecord.email = email;
+      await volunteerRepository.save(volRecord);
+    } else {
+      const newVol = volunteerRepository.create({
+        nombreCompleto,
+        rut,
+        email,
+        rol: "voluntario",
+        status: "approved",
+        region: volunteer.region || null,
+      });
+      await volunteerRepository.save(newVol);
+    }
 
     handleSuccess(res, 200, "Voluntario actualizado exitosamente", volunteer);
   } catch (error) {
