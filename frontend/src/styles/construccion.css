@@ -258,6 +258,10 @@
   background: linear-gradient(180deg, #fb923c 0%, #f97316 100%);
 }
 
+.vivienda-card.atrasada::before {
+  background: linear-gradient(180deg, #f87171 0%, #dc3545 100%);
+}
+
 .vivienda-card.completada::before {
   background: linear-gradient(180deg, #34d399 0%, #16a34a 100%);
 }

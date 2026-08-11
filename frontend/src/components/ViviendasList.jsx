@@ -86,6 +86,8 @@ export default function ViviendasList({ userRole }) {
         return "#ffc107";
       case "en_progreso":
         return "#17a2b8";
+      case "atrasada":
+        return "#dc3545";
       case "pausada":
         return "#ff9800";
       case "completada":
@@ -159,6 +161,7 @@ export default function ViviendasList({ userRole }) {
           <option value="">Todos los estados</option>
           <option value="no_iniciada">No iniciada</option>
           <option value="en_progreso">En progreso</option>
+          <option value="atrasada">Atrasada</option>
           <option value="pausada">Pausada</option>
           <option value="completada">Completada</option>
         </select>
@@ -221,6 +224,16 @@ export default function ViviendasList({ userRole }) {
                   </>
                 )}
                 {vivienda.estado === "pausada" && role === "jefe_cuadrilla" && (
+                  <>
+                    <button className="vivienda-action-btn btn-resume" onClick={() => handleReanudar(vivienda.id)}>
+                      ▶️ Reanudar
+                    </button>
+                    <button className="vivienda-action-btn btn-finish" onClick={() => handleTerminar(vivienda.id)}>
+                      ✓ Terminado
+                    </button>
+                  </>
+                )}
+                {vivienda.estado === "atrasada" && role === "jefe_cuadrilla" && (
                   <>
                     <button className="vivienda-action-btn btn-resume" onClick={() => handleReanudar(vivienda.id)}>
                       ▶️ Reanudar
